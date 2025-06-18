@@ -3,39 +3,43 @@
 let _itemBase = null;
 let _forgeFormulas = null;
 let _carpentryFormulas = null;
+let _npcBase = null;
+let _pets = null;
+let _skillQuest = null;
+let _objectBase = null;
+let _forge = null; // 新增 _forge 變數
+let _imageSheet = null;
 
 export function loadData() {
-    return new Promise((resolve, reject) => {
-        // 檢查全域變數是否已經存在
-        _itemBase = window.item_base;
-        _forgeFormulas = window.FORGE_FORMULAS;
-        _carpentryFormulas = window.CARPENTRY_FORMULAS;
+    return new Promise(async (resolve, reject) => {
+        const jsFilePath = 'releaseJs/release_2025_0417.js'; // 主要的 JS 檔案路徑
 
-        if (_itemBase && _forgeFormulas && _carpentryFormulas) {
+        try {
+            // 載入所有需要的變數
+            _itemBase = await loadJsFileVariable(jsFilePath, 'item_base');
+            _forgeFormulas = await loadJsFileVariable(jsFilePath, 'FORGE_FORMULAS');
+            _carpentryFormulas = await loadJsFileVariable(jsFilePath, 'CARPENTRY_FORMULAS');
+            _npcBase = await loadJsFileVariable(jsFilePath, 'npc_base');
+            _pets = await loadJsFileVariable(jsFilePath, 'pets');
+            _skillQuest = await loadJsFileVariable(jsFilePath, 'SkillQuest');
+            _objectBase = await loadJsFileVariable(jsFilePath, 'object_base');
+            _forge = await loadJsFileVariable(jsFilePath, 'Forge');
+            _imageSheet = await loadJsFileVariable(jsFilePath, 'IMAGE_SHEET');
+
             resolve({
                 itemBase: _itemBase,
                 FORGE_FORMULAS: _forgeFormulas,
-                CARPENTRY_FORMULAS: _carpentryFormulas
+                CARPENTRY_FORMULAS: _carpentryFormulas,
+                npcBase: _npcBase,
+                pets: _pets,
+                skillQuest: _skillQuest,
+                objectBase: _objectBase,
+                forge: _forge,
+                imageSheet: _imageSheet
             });
-        } else {
-            // 如果在模組載入時全域變數還不存在，則等待 DOMContentLoaded
-            // 這通常不應該發生，因為 release_2025_0417.js 是同步載入的
-            document.addEventListener('DOMContentLoaded', () => {
-                _itemBase = window.item_base;
-                _forgeFormulas = window.FORGE_FORMULAS;
-                _carpentryFormulas = window.CARPENTRY_FORMULAS;
-
-                if (_itemBase && _forgeFormulas && _carpentryFormulas) {
-                    resolve({
-                        itemBase: _itemBase,
-                        FORGE_FORMULAS: _forgeFormulas,
-                        CARPENTRY_FORMULAS: _carpentryFormulas
-                    });
-                } else {
-                    console.error("未能成功載入 item_base, FORGE_FORMULAS 或 CARPENTRY_FORMULAS。請檢查 releaseJs/release_2025_0417.js 是否正確載入。");
-                    reject(new Error("數據載入失敗")); // 拒絕 Promise
-                }
-            });
+        } catch (error) {
+            console.error("數據載入失敗:", error);
+            reject(error);
         }
     });
 }
@@ -51,6 +55,30 @@ export function getForgeFormulas() {
 
 export function getCarpentryFormulas() {
     return _carpentryFormulas;
+}
+
+export function getNpcBase() {
+    return _npcBase;
+}
+
+export function getPets() {
+    return _pets;
+}
+
+export function getSkillQuest() {
+    return _skillQuest;
+}
+
+export function getObjectBase() {
+    return _objectBase;
+}
+
+export function getEnchantingChances() {
+    return _forge; // 返回 Forge 物件，因為 enchantingChances 在其中
+}
+
+export function getImageSheet() {
+    return _imageSheet;
 }
 
 /**

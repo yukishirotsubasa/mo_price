@@ -3,14 +3,18 @@
 /**
  * 從 item_base 創建 item_id 到 item_name 的映射表。
  * @param {Array} itemBase - 物品基礎資料陣列。
+ * @param {Function} translateFunction - i18n.translate 函數。
  * @returns {Map<number, string>} - item_id 到 item_name 的映射表。
  */
-export function createItemNameMap(itemBase) {
+export function createItemNameMap(itemBase, translateFunction) {
     const itemNameMap = new Map();
     if (typeof itemBase !== 'undefined' && Array.isArray(itemBase)) {
         itemBase.forEach(item => {
             if (item.b_i !== undefined && item.name !== undefined) {
-                itemNameMap.set(item.b_i, item.name);
+               // 直接將原始名稱傳遞給翻譯函數
+                // 嘗試翻譯物品名稱，如果沒有翻譯則使用原始名稱
+                const translatedName = translateFunction(item.name);
+                itemNameMap.set(item.b_i, translatedName);
             }
         });
     } else {
@@ -21,15 +25,16 @@ export function createItemNameMap(itemBase) {
 
 /**
  * 生成通用的 HTML 表格。
- * @param {Array<string>} headers - 表格的標題陣列。
+ * @param {Array<string>} headerKeys - 表格的標題鍵陣列 (用於 i18n 翻譯)。
  * @param {Array<Object>} data - 表格的資料陣列。
  * @param {Function} rowMapper - 將資料物件映射為表格行資料的函數。
+ * @param {Function} translateFunction - i18n.translate 函數。
  * @returns {string} - 生成的 HTML 表格字串。
  */
-export function generateTableHTML(headers, data, rowMapper) {
+export function generateTableHTML(headerKeys, data, rowMapper, translateFunction) {
     let tableHTML = '<table><thead><tr>';
-    headers.forEach(header => {
-        tableHTML += `<th>${header}</th>`;
+    headerKeys.forEach(key => {
+        tableHTML += `<th>${translateFunction(key)}</th>`;
     });
     tableHTML += '</tr></thead><tbody>';
 

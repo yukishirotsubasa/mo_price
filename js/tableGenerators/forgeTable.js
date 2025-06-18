@@ -1,4 +1,6 @@
 // js/tableGenerators/forgeTable.js - 包含 generateForgeTable 函數
+import i18n from '../i18n.js'; // 導入 i18n 模組
+
 export function generateForgeTable(FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase) {
     const forgeTableContainer = document.getElementById('forge-table-container');
     if (!forgeTableContainer) {
@@ -6,13 +8,14 @@ export function generateForgeTable(FORGE_FORMULAS, generateTableHTML, createItem
         return;
     }
 
-    const itemNameMap = createItemNameMap(itemBase);
+    const itemNameMap = createItemNameMap(itemBase, i18n.translate);
 
-    const headers = ['序號ID', '物品名稱', '等級', '圖案', '機率', '隱藏', '僅熔煉'];
+    // 使用 i18n.translate 翻譯表頭
+    const headerKeys = ['serial_id', 'item_name', 'level', 'pattern', 'chance', 'hidden', 'only_smelt'];
     const data = Object.keys(FORGE_FORMULAS).map(id => {
         const formula = FORGE_FORMULAS[id];
         const itemId = formula.item_id;
-        const itemName = itemNameMap.get(itemId) || `未知物品 (${itemId})`;
+        const itemName = itemNameMap.get(itemId) || formula.item_name; // 如果沒有翻譯，使用原始名稱
 
         let level = '';
         if (formula.level !== undefined) {
@@ -33,14 +36,14 @@ export function generateForgeTable(FORGE_FORMULAS, generateTableHTML, createItem
             });
 
             patternString = Object.keys(patternItems).map(id => {
-                const name = itemNameMap.get(parseInt(id)) || `未知物品 (${id})`;
+                const name = itemNameMap.get(parseInt(id)) || i18n.translate('unknown_item', id);
                 return `${name}*${patternItems[id]}`;
             }).join(', ');
         }
 
         const chance = formula.chance !== undefined ? formula.chance : '';
-        const hidden = formula.hidden ? '是' : '否';
-        const onlySmelt = formula.only_smelt ? '是' : '否';
+        const hidden = formula.hidden ? i18n.translate('yes') : i18n.translate('no');
+        const onlySmelt = formula.only_smelt ? i18n.translate('yes') : i18n.translate('no');
 
         return {
             id,
@@ -65,5 +68,5 @@ export function generateForgeTable(FORGE_FORMULAS, generateTableHTML, createItem
         ];
     };
 
-    forgeTableContainer.innerHTML = generateTableHTML(headers, data, rowMapper);
+    forgeTableContainer.innerHTML = generateTableHTML(headerKeys, data, rowMapper, i18n.translate);
 }

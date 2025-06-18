@@ -1,4 +1,6 @@
 // js/tableGenerators/carpentryTable.js - 包含 generateCarpentryTable 函數
+import i18n from '../i18n.js'; // 導入 i18n 模組
+
 export function generateCarpentryTable(CARPENTRY_FORMULAS, generateTableHTML, createItemNameMap, itemBase) {
     const carpentryTableContainer = document.getElementById('carpentry-table-container');
     if (!carpentryTableContainer) {
@@ -6,7 +8,7 @@ export function generateCarpentryTable(CARPENTRY_FORMULAS, generateTableHTML, cr
         return;
     }
 
-    const itemNameMap = createItemNameMap(itemBase);
+    const itemNameMap = createItemNameMap(itemBase, i18n.translate);
 
     let allCarpentryItems = [];
     if (typeof CARPENTRY_FORMULAS !== 'undefined') {
@@ -23,22 +25,23 @@ export function generateCarpentryTable(CARPENTRY_FORMULAS, generateTableHTML, cr
         console.warn("CARPENTRY_FORMULAS 未定義。");
     }
 
-    const headers = ['物品名稱', '所需材料', '可製作', '等級'];
+    // 使用 i18n.translate 翻譯表頭
+    const headerKeys = ['item_name', 'required_materials', 'craftable', 'level'];
     const data = allCarpentryItems;
     const rowMapper = (item) => {
-        const itemName = itemNameMap.get(item.item_id) || `未知物品 (${item.item_id})`;
-        const craftable = item.craftable ? '是' : '否';
+        const itemName = itemNameMap.get(item.item_id) || item.item_name; // 如果沒有翻譯，使用原始名稱
+        const craftable = item.craftable ? i18n.translate('yes') : i18n.translate('no');
         const level = item.level !== undefined ? item.level : '';
 
         let consumesString = '';
         if (item.consumes && Array.isArray(item.consumes) && item.consumes.length > 0) {
             consumesString = item.consumes.map(consume => {
-                const consumeName = itemNameMap.get(consume.id) || `未知材料 (${consume.id})`;
+                const consumeName = itemNameMap.get(consume.id) || i18n.translate('unknown_material', consume.id);
                 return `${consumeName}*${consume.count}`;
             }).join(', ');
         }
         return [itemName, consumesString, craftable, level];
     };
 
-    carpentryTableContainer.innerHTML = generateTableHTML(headers, data, rowMapper);
+    carpentryTableContainer.innerHTML = generateTableHTML(headerKeys, data, rowMapper, i18n.translate);
 }

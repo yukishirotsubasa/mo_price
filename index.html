@@ -1,35 +1,72 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <title>GitHub Pages 靜態網頁</title>
+    <title>MO Price</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0; /* 移除預設 margin */
             background-color: #f4f4f4;
+            display: flex; /* 使用 flexbox 佈局 */
+            min-height: 100vh; /* 確保內容佔滿整個視窗高度 */
         }
-        .tab-container {
-            display: flex;
-            border-bottom: 1px solid #ccc;
+        .sidebar {
+            width: 250px;
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            flex-shrink: 0; /* 防止 sidebar 縮小 */
+        }
+        .sidebar h1 {
+            color: white;
+            margin-top: 0;
+            font-size: 1.5em;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+        }
+        .sidebar-menu li {
+            margin-bottom: 10px;
+        }
+        .sidebar-menu a {
+            display: block;
+            padding: 10px 15px;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: #575757;
+        }
+        .main-content {
+            flex-grow: 1; /* 讓主內容區域佔據剩餘空間 */
+            padding: 20px;
+            overflow-y: auto; /* 允許內容滾動 */
+        }
+        #language-switcher {
             margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #575757;
         }
-        .tab-button {
-            padding: 10px 20px;
-            cursor: pointer;
+        #language-switcher label {
+            display: block;
+            margin-bottom: 5px;
+            color: white;
+        }
+        #lang-select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
             border: 1px solid #ccc;
-            border-bottom: none;
-            background-color: #e0e0e0;
-            border-top-left-radius: 5px;
-            border-top-right-radius: 5px;
-            margin-right: 5px;
-        }
-        .tab-button.active {
-            background-color: #fff;
-            border-color: #ccc;
-            border-bottom: 1px solid #fff;
+            background-color: white;
         }
         .tab-content {
             display: none;
@@ -37,6 +74,7 @@
             padding: 20px;
             border: 1px solid #ccc;
             border-radius: 5px;
+            margin-bottom: 20px; /* 為每個內容區塊添加底部間距 */
         }
         .tab-content.active {
             display: block;
@@ -109,63 +147,105 @@
     </style>
 </head>
 <body>
-    <h1>我的靜態網頁</h1>
-
-    <div class="tab-container">
-        <div class="tab-button active" data-tab="tab1">Tab 1: 物品資料</div>
-        <div class="tab-button" data-tab="tab2">木工配方</div>
-        <div class="tab-button" data-tab="tab3">鍛造配方</div>
-        <div class="tab-button" data-tab="tab4">Google Sheet 市場整合</div>
-        <div class="tab-button" data-tab="tab5">版本比較</div>
-    </div>
-
-    <div id="tab1-content" class="tab-content active">
-        <h2>物品資料表格</h2>
-        <div id="item-table-container"></div>
-    </div>
-
-    <div id="tab2-content" class="tab-content">
-        <h2>木工配方表格</h2>
-        <div id="carpentry-table-container"></div>
-    </div>
-
-    <div id="tab3-content" class="tab-content">
-        <h2>鍛造配方表格</h2>
-        <div id="forge-table-container"></div>
-    </div>
-
-    <div id="tab4-content" class="tab-content">
-        <h2>Google Sheet 市場整合</h2>
-        <div>
-            <input type="text" id="google-sheet-url" placeholder="輸入 Google Sheet URL 或 ID" style="width: 400px; padding: 8px;" value="https://docs.google.com/spreadsheets/d/1X_2_3_4_5_6_7_8_9_0/edit#gid=0">
-            <button id="load-sheet-button" style="padding: 8px 15px;">載入數據</button>
-            <button id="force-reload-sheet-button" style="padding: 8px 15px; margin-left: 10px;">強制重新載入</button>
+    <div class="sidebar">
+        <div id="language-switcher">
+            <label for="lang-select">選擇語言:</label>
+            <select id="lang-select"></select>
         </div>
-        <div style="margin-top: 10px;">
-            <button id="export-csv-button" style="padding: 8px 15px;">匯出為 CSV</button>
-            <button id="import-csv-button" style="padding: 8px 15px; margin-left: 10px;">匯入 CSV</button>
-            <input type="file" id="import-csv-file-input" accept=".csv" style="display: none;">
-        </div>
-        <div id="sheet-status" style="margin-top: 10px; color: red;"></div>
-        <div id="sheet-data-display" style="margin-top: 20px;"></div>
+        <ul class="sidebar-menu">
+            <li><a href="#" class="tab-button active" data-tab="tab1">物品資料</a></li>
+            <li><a href="#" class="tab-button" data-tab="tab2">木工配方</a></li>
+            <li><a href="#" class="tab-button" data-tab="tab3">鍛造配方</a></li>
+            <li><a href="#" class="tab-button" data-tab="tab4">NPC 資料</a></li>
+            <li><a href="#" class="tab-button" data-tab="tab5">寵物資料</a></li>
+            <li><a href="#" class="tab-button" data-tab="tab6">技能任務</a></li>
+            <li><a href="#" class="tab-button" data-tab="tab7">物件資料</a></li>
+            <li><a href="#" class="tab-button" data-tab="tab8">附魔機率</a></li>
+            <li><a href="#" class="tab-button" data-tab="tab9">圖片表</a></li>
+            <li><a href="#" class="tab-button" data-tab="tab10">Google Sheet 市場整合</a></li>
+            <li><a href="#" class="tab-button" data-tab="tab11">版本比較</a></li>
+        </ul>
     </div>
 
-    <div id="tab5-content" class="tab-content">
-        <h2>版本比較</h2>
-        <div>
-            <label for="versionA-select">版本 A:</label>
-            <select id="versionA-select">
-                <option value="releaseJs/release_2025_0417.js">04/17/2025 - 7639</option>
-                <option value="releaseJs/release_2021_0402.js">04/02/2021 - 7560</option>
-            </select>
-            <label for="versionB-select" style="margin-left: 20px;">版本 B:</label>
-            <select id="versionB-select">
-                <option value="releaseJs/release_2025_0417.js">04/17/2025 - 7639</option>
-                <option value="releaseJs/release_2021_0402.js">04/02/2021 - 7560</option>
-            </select>
-            <button id="compare-versions-button" style="margin-left: 20px; padding: 8px 15px;">比較版本</button>
+    <div class="main-content">
+        <div id="tab1-content" class="tab-content active">
+            <h2>物品資料表格</h2>
+            <div id="item-table-container"></div>
         </div>
-        <div id="version-comparison-results" style="margin-top: 20px;"></div>
+
+        <div id="tab2-content" class="tab-content">
+            <h2>木工配方表格</h2>
+            <div id="carpentry-table-container"></div>
+        </div>
+
+        <div id="tab3-content" class="tab-content">
+            <h2>鍛造配方表格</h2>
+            <div id="forge-table-container"></div>
+        </div>
+
+        <div id="tab4-content" class="tab-content">
+            <h2>NPC 資料表格</h2>
+            <div id="npc-table-container"></div>
+        </div>
+
+        <div id="tab5-content" class="tab-content">
+            <h2>寵物資料表格</h2>
+            <div id="pets-table-container"></div>
+        </div>
+
+        <div id="tab6-content" class="tab-content">
+            <h2>技能任務表格</h2>
+            <div id="skill-quest-table-container"></div>
+        </div>
+
+        <div id="tab7-content" class="tab-content">
+            <h2>物件資料表格</h2>
+            <div id="object-base-table-container"></div>
+        </div>
+
+        <div id="tab8-content" class="tab-content">
+            <h2>附魔機率表格</h2>
+            <div id="enchanting-chances-table-container"></div>
+        </div>
+
+        <div id="tab9-content" class="tab-content">
+            <h2>圖片表表格</h2>
+            <div id="image-sheet-table-container"></div>
+        </div>
+
+        <div id="tab10-content" class="tab-content">
+            <h2>Google Sheet 市場整合</h2>
+            <div>
+                <input type="text" id="google-sheet-url" placeholder="輸入 Google Sheet URL 或 ID" style="width: 400px; padding: 8px;" value="https://docs.google.com/spreadsheets/d/10E5D6og6lQ2P19PTRheXTvaRIE8WvYjVk0rogGO4iMY/edit?gid=0#gid=0">
+                <button id="load-sheet-button" style="padding: 8px 15px;">載入數據</button>
+                <button id="force-reload-sheet-button" style="padding: 8px 15px; margin-left: 10px;">強制重新載入</button>
+            </div>
+            <div style="margin-top: 10px;">
+                <button id="export-csv-button" style="padding: 8px 15px;">匯出為 CSV</button>
+                <button id="import-csv-button" style="padding: 8px 15px; margin-left: 10px;">匯入 CSV</button>
+                <input type="file" id="import-csv-file-input" accept=".csv" style="display: none;">
+            </div>
+            <div id="sheet-status" style="margin-top: 10px; color: red;"></div>
+            <div id="sheet-data-display" style="margin-top: 20px;"></div>
+        </div>
+
+        <div id="tab11-content" class="tab-content">
+            <h2>版本比較</h2>
+            <div>
+                <label for="versionA-select">版本 A:</label>
+                <select id="versionA-select">
+                    <option value="releaseJs/release_2025_0417.js">04/17/2025 - 7639</option>
+                    <option value="releaseJs/release_2021_0402.js">04/02/2021 - 7560</option>
+                </select>
+                <label for="versionB-select" style="margin-left: 20px;">版本 B:</label>
+                <select id="versionB-select">
+                    <option value="releaseJs/release_2025_0417.js">04/17/2025 - 7639</option>
+                    <option value="releaseJs/release_2021_0402.js">04/02/2021 - 7560</option>
+                </select>
+                <button id="compare-versions-button" style="margin-left: 20px; padding: 8px 15px;">比較版本</button>
+            </div>
+            <div id="version-comparison-results" style="margin-top: 20px;"></div>
+        </div>
     </div>
 
     <script src="releaseJs/release_2025_0417.js"></script>
