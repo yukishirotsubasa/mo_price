@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <title>GitHub Pages 靜態網頁</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 20px;
+        }
+        .tab-button {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-bottom: none;
+            background-color: #e0e0e0;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            margin-right: 5px;
+        }
+        .tab-button.active {
+            background-color: #fff;
+            border-color: #ccc;
+            border-bottom: 1px solid #fff;
+        }
+        .tab-content {
+            display: none;
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+    <style>
+        /* 版本比較結果樣式 */
+        .comparison-section {
+            margin-bottom: 20px;
+            border: 1px solid #eee;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .comparison-section h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        .comparison-list {
+            list-style: none;
+            padding: 0;
+        }
+        .comparison-list li {
+            background-color: #f9f9f9;
+            margin-bottom: 5px;
+            padding: 8px;
+            border-radius: 3px;
+        }
+        .added {
+            color: green;
+            background-color: #e6ffe6;
+        }
+        .removed {
+            color: red;
+            background-color: #ffe6e6;
+        }
+        .modified {
+            color: blue;
+            background-color: #e6e6ff;
+        }
+        .modified-details {
+            margin-top: 5px;
+            padding-left: 20px;
+            font-size: 0.9em;
+        }
+        .modified-details span {
+            display: block;
+        }
+        .modified-details .old-value {
+            text-decoration: line-through;
+            color: #888;
+        }
+        .modified-details .new-value {
+            font-weight: bold;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <h1>我的靜態網頁</h1>
+
+    <div class="tab-container">
+        <div class="tab-button active" data-tab="tab1">Tab 1: 物品資料</div>
+        <div class="tab-button" data-tab="tab2">木工配方</div>
+        <div class="tab-button" data-tab="tab3">鍛造配方</div>
+        <div class="tab-button" data-tab="tab4">Google Sheet 市場整合</div>
+        <div class="tab-button" data-tab="tab5">版本比較</div>
+    </div>
+
+    <div id="tab1-content" class="tab-content active">
+        <h2>物品資料表格</h2>
+        <div id="item-table-container"></div>
+    </div>
+
+    <div id="tab2-content" class="tab-content">
+        <h2>木工配方表格</h2>
+        <div id="carpentry-table-container"></div>
+    </div>
+
+    <div id="tab3-content" class="tab-content">
+        <h2>鍛造配方表格</h2>
+        <div id="forge-table-container"></div>
+    </div>
+
+    <div id="tab4-content" class="tab-content">
+        <h2>Google Sheet 市場整合</h2>
+        <div>
+            <input type="text" id="google-sheet-url" placeholder="輸入 Google Sheet URL 或 ID" style="width: 400px; padding: 8px;" value="https://docs.google.com/spreadsheets/d/1X_2_3_4_5_6_7_8_9_0/edit#gid=0">
+            <button id="load-sheet-button" style="padding: 8px 15px;">載入數據</button>
+            <button id="force-reload-sheet-button" style="padding: 8px 15px; margin-left: 10px;">強制重新載入</button>
+        </div>
+        <div style="margin-top: 10px;">
+            <button id="export-csv-button" style="padding: 8px 15px;">匯出為 CSV</button>
+            <button id="import-csv-button" style="padding: 8px 15px; margin-left: 10px;">匯入 CSV</button>
+            <input type="file" id="import-csv-file-input" accept=".csv" style="display: none;">
+        </div>
+        <div id="sheet-status" style="margin-top: 10px; color: red;"></div>
+        <div id="sheet-data-display" style="margin-top: 20px;"></div>
+    </div>
+
+    <div id="tab5-content" class="tab-content">
+        <h2>版本比較</h2>
+        <div>
+            <label for="versionA-select">版本 A:</label>
+            <select id="versionA-select">
+                <option value="releaseJs/release_2025_0417.js">04/17/2025 - 7639</option>
+                <option value="releaseJs/release_2021_0402.js">04/02/2021 - 7560</option>
+            </select>
+            <label for="versionB-select" style="margin-left: 20px;">版本 B:</label>
+            <select id="versionB-select">
+                <option value="releaseJs/release_2025_0417.js">04/17/2025 - 7639</option>
+                <option value="releaseJs/release_2021_0402.js">04/02/2021 - 7560</option>
+            </select>
+            <button id="compare-versions-button" style="margin-left: 20px; padding: 8px 15px;">比較版本</button>
+        </div>
+        <div id="version-comparison-results" style="margin-top: 20px;"></div>
+    </div>
+
+    <script src="releaseJs/release_2025_0417.js"></script>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
