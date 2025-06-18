@@ -48,7 +48,7 @@ const i18n = {
      */
     async loadTranslation(langCode) {
         const langUrl = `https://data.mo.ee/lang/lang_${langCode}.json`;
-        const langNamesUrl = `http://data.mo.ee/lang/lang_names_${langCode}.json`;
+        const langNamesUrl = `https://data.mo.ee/lang/lang_names_${langCode}.json`;
 
         const [langData, langNamesData] = await Promise.all([
             this.fetchJson(langUrl),
@@ -109,7 +109,7 @@ const i18n = {
 
         const translation = i18n.translations[i18n.currentLang]?.[key];
         if (translation === undefined) {
-            console.warn(`Translation key "${key}" not found for language "${i18n.currentLang}"`);
+            //console.warn(`Translation key "${key}" not found for language "${i18n.currentLang}"`);
             return key; // 如果找不到翻譯，返回鍵本身
         }
 
