@@ -183,11 +183,11 @@ export function loadJsFileVariable(filePath, variableName) {
         const script = document.createElement('script');
         script.src = filePath;
         script.onload = () => {
-            console.log(`JS 檔案 ${filePath} 載入完成。`);
+            //console.log(`JS 檔案 ${filePath} 載入完成。`);
             // 添加一個小的延遲，確保全域變數完全可用
             setTimeout(() => {
                 if (window[variableName]) {
-                    console.log(`從 ${filePath} 提取變數 ${variableName}:`, window[variableName]);
+                    //console.log(`從 ${filePath} 提取變數 ${variableName}:`, window[variableName]);
                     resolve(window[variableName]);
                 } else {
                     console.error(`變數 ${variableName} 在 ${filePath} 中未找到。`);

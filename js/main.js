@@ -55,27 +55,33 @@ async function renderAllTables(forceReload = false) {
  * 更新 Tab 標題的翻譯。
  */
 function updateTabTitles() {
-    document.querySelector('.tab-button[data-tab="tab1"]').textContent = i18n.translate('item_data');
-    document.querySelector('.tab-button[data-tab="tab2"]').textContent = i18n.translate('carpentry_recipes');
-    document.querySelector('.tab-button[data-tab="tab3"]').textContent = i18n.translate('forge_recipes');
-    document.querySelector('.tab-button[data-tab="tab4"]').textContent = i18n.translate('npc_data');
-    document.querySelector('.tab-button[data-tab="tab5"]').textContent = i18n.translate('pet_data');
-    document.querySelector('.tab-button[data-tab="tab6"]').textContent = i18n.translate('skill_quests');
-    document.querySelector('.tab-button[data-tab="tab7"]').textContent = i18n.translate('object_data');
-    document.querySelector('.tab-button[data-tab="tab8"]').textContent = i18n.translate('enchanting_chances');
+    // 更新上層選單標題
+    document.querySelector('.sidebar-menu .has-submenu:nth-child(1) > .submenu-toggle').textContent = i18n.translate('New');
+    document.querySelector('.sidebar-menu .has-submenu:nth-child(2) > .submenu-toggle').textContent = i18n.translate('Price');
+    document.querySelector('.sidebar-menu .has-submenu:nth-child(3) > .submenu-toggle').textContent = i18n.translate('Wiki');
+
+    // 更新子選單標題
+    document.querySelector('.tab-button[data-tab="tab1"]').textContent = i18n.translate('Item');
+    document.querySelector('.tab-button[data-tab="tab2"]').textContent = i18n.translate('carpentry');
+    document.querySelector('.tab-button[data-tab="tab3"]').textContent = i18n.translate('forging');
+    document.querySelector('.tab-button[data-tab="tab4"]').textContent = i18n.translate('npc');
+    document.querySelector('.tab-button[data-tab="tab5"]').textContent = i18n.translate('Pet');
+    document.querySelector('.tab-button[data-tab="tab6"]').textContent = i18n.translate('Skill Quest');
+    document.querySelector('.tab-button[data-tab="tab7"]').textContent = i18n.translate('objects');
+    document.querySelector('.tab-button[data-tab="tab8"]').textContent = i18n.translate('Enchanting');
     document.querySelector('.tab-button[data-tab="tab9"]').textContent = i18n.translate('image_sheet');
     document.querySelector('.tab-button[data-tab="tab10"]').textContent = i18n.translate('google_sheet_market_integration');
     document.querySelector('.tab-button[data-tab="tab11"]').textContent = i18n.translate('version_comparison');
 
     // 更新 Tab 內容標題
-    document.querySelector('#tab1-content h2').textContent = i18n.translate('item_data_table');
-    document.querySelector('#tab2-content h2').textContent = i18n.translate('carpentry_recipes_table');
-    document.querySelector('#tab3-content h2').textContent = i18n.translate('forge_recipes_table');
-    document.querySelector('#tab4-content h2').textContent = i18n.translate('npc_data_table');
-    document.querySelector('#tab5-content h2').textContent = i18n.translate('pet_data_table');
-    document.querySelector('#tab6-content h2').textContent = i18n.translate('skill_quests_table');
-    document.querySelector('#tab7-content h2').textContent = i18n.translate('object_data_table');
-    document.querySelector('#tab8-content h2').textContent = i18n.translate('enchanting_chances_table');
+    document.querySelector('#tab1-content h2').textContent = i18n.translate('Item');
+    document.querySelector('#tab2-content h2').textContent = i18n.translate('carpentry');
+    document.querySelector('#tab3-content h2').textContent = i18n.translate('forging');
+    document.querySelector('#tab4-content h2').textContent = i18n.translate('npc');
+    document.querySelector('#tab5-content h2').textContent = i18n.translate('Pet');
+    document.querySelector('#tab6-content h2').textContent = i18n.translate('Skill Quest');
+    document.querySelector('#tab7-content h2').textContent = i18n.translate('objects');
+    document.querySelector('#tab8-content h2').textContent = i18n.translate('Enchanting');
     document.querySelector('#tab9-content h2').textContent = i18n.translate('image_sheet_table');
     document.querySelector('#tab10-content h2').textContent = i18n.translate('google_sheet_market_integration');
     document.querySelector('#tab11-content h2').textContent = i18n.translate('version_comparison');
@@ -162,18 +168,46 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // 處理 Tab 切換邏輯
-    document.querySelectorAll('.tab-button').forEach(button => {
-        button.addEventListener('click', () => {
+    // 處理巢狀選單邏輯
+    document.querySelectorAll('.sidebar-menu .submenu-toggle').forEach(toggle => {
+        toggle.addEventListener('click', (event) => {
+            event.preventDefault();
+            const parentLi = toggle.closest('.has-submenu');
+            const submenu = parentLi.querySelector('.submenu');
+
+            // 切換 active 類別
+            toggle.classList.toggle('active');
+            submenu.classList.toggle('active');
+        });
+    });
+
+    // 處理子選單 Tab 切換邏輯
+    document.querySelectorAll('.sidebar-menu .submenu .tab-button').forEach(button => {
+        button.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            // 移除所有 tab-button 和 tab-content 的 active 類別
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
+            // 為當前點擊的按鈕和對應的內容添加 active 類別
             button.classList.add('active');
             document.getElementById(`${button.dataset.tab}-content`).classList.add('active');
         });
     });
 
-    // 預設激活「物品資料」Tab
-    const defaultTabButton = document.querySelector('.tab-button[data-tab="tab1"]');
+    // 預設激活「Wiki」選單下的「物品資料」Tab
+    const defaultParentMenu = document.querySelector('.sidebar-menu .has-submenu:nth-child(3) > .submenu-toggle'); // Wiki
+    const defaultTabButton = document.querySelector('.tab-button[data-tab="tab1"]'); // 物品資料
+
+    if (defaultParentMenu) {
+        defaultParentMenu.classList.add('active');
+        const defaultSubmenu = defaultParentMenu.closest('.has-submenu').querySelector('.submenu');
+        if (defaultSubmenu) {
+            defaultSubmenu.classList.add('active');
+        }
+    }
+
     if (defaultTabButton) {
         defaultTabButton.click();
     }
@@ -255,30 +289,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 parsedData.push(cells);
             });
             return parsedData;
-        };
-
-        // 輔助函數：載入並顯示 Google Sheet 數據
-        const loadAndDisplaySheetData = async (forceReload = false) => {
-            const urlOrId = googleSheetUrlInput.value.trim();
-            if (!urlOrId) {
-                sheetStatusDiv.textContent = i18n.translate('enter_google_sheet_url_or_id_message');
-                return;
-            }
-
-            sheetStatusDiv.textContent = forceReload ? i18n.translate('force_reloading_data') : i18n.translate('loading_data');
-            sheetDataDisplayDiv.innerHTML = ''; // 清空之前的數據
-
-            try {
-                const sheetData = await loadGoogleSheetData(urlOrId, '', forceReload); // 傳遞 forceReload 參數
-                sheetStatusDiv.textContent = i18n.translate('data_loaded_successfully');
-                currentMarketPricesData = sheetData; // 更新記憶體中的數據
-                
-                renderSheetData(currentMarketPricesData); // 渲染數據
-
-            } catch (error) {
-                sheetStatusDiv.textContent = i18n.translate('load_failed', error.message);
-                sheetDataDisplayDiv.innerHTML = '';
-            }
         };
 
         // 輔助函數：渲染數據到表格
@@ -430,28 +440,46 @@ document.addEventListener('DOMContentLoaded', async () => {
             reader.readAsText(file);
         });
 
-        // 初始載入：如果輸入框有值，則嘗試載入數據（優先從快取）
-        const cachedData = localStorage.getItem('marketPricesCache');
-        if (cachedData) {
-            try {
-                currentMarketPricesData = JSON.parse(cachedData);
-                renderSheetData(currentMarketPricesData);
-                sheetStatusDiv.textContent = i18n.translate('data_loaded_from_cache');
-            } catch (e) {
-                console.error(i18n.translate('failed_to_parse_cached_data'), e);
-                sheetStatusDiv.textContent = i18n.translate('failed_to_load_from_cache_try_google_sheet');
-                if (googleSheetUrlInput.value.trim()) {
-                    loadAndDisplaySheetData();
-                }
-            }
-        } else if (googleSheetUrlInput.value.trim()) {
-            loadAndDisplaySheetData();
-        }
-
         // 綁定事件監聽器
         loadSheetButton.addEventListener('click', () => loadAndDisplaySheetData(false)); // 預設載入，不強制重新載入
-        forceReloadSheetButton.addEventListener('click', () => loadAndDisplaySheetData(true)); // 強制重新載入
     });
+
+    /**
+     * 載入並顯示 Google Sheet 數據。
+     * @param {boolean} forceReload - 是否強制重新載入數據。
+     */
+    async function loadAndDisplaySheetData(forceReload = false) {
+        const googleSheetUrlInput = document.getElementById('google-sheet-url');
+        const sheetStatusDiv = document.getElementById('sheet-status');
+        const sheetDataDisplayDiv = document.getElementById('sheet-data-display');
+        let currentMarketPricesData = []; // 在這裡定義，因為它在函數內部被使用
+
+        if (!googleSheetUrlInput || !sheetStatusDiv || !sheetDataDisplayDiv) {
+            console.error("Google Sheet 相關 UI 元素未找到。");
+            return;
+        }
+
+        const urlOrId = googleSheetUrlInput.value.trim();
+        if (!urlOrId) {
+            sheetStatusDiv.textContent = i18n.translate('enter_google_sheet_url_or_id_message');
+            return;
+        }
+
+        sheetStatusDiv.textContent = forceReload ? i18n.translate('force_reloading_data') : i18n.translate('loading_data');
+        sheetDataDisplayDiv.innerHTML = ''; // 清空之前的數據
+
+        try {
+            const sheetData = await loadGoogleSheetData(urlOrId, '', forceReload); // 傳遞 forceReload 參數
+            sheetStatusDiv.textContent = i18n.translate('data_loaded_successfully');
+            currentMarketPricesData = sheetData; // 更新記憶體中的數據
+            
+            renderSheetData(currentMarketPricesData); // 渲染數據
+
+        } catch (error) {
+            sheetStatusDiv.textContent = i18n.translate('load_failed', error.message);
+            sheetDataDisplayDiv.innerHTML = '';
+        }
+    }
 
     // 版本比較功能邏輯 (現在是 tab11)
     const versionASelect = document.getElementById('versionA-select');

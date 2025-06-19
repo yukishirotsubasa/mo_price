@@ -59,7 +59,7 @@ export async function generateItemTable(itemBase, generateTableHTML, createItemN
         return i18n.translate(field.label) || field.label;
     });
 
-    const data = itemBase;
+    const data = [...itemBase].sort((a, b) => b.b_i - a.b_i); // 依 ID (b_i) 降序排序
     const rowMapper = (item) => {
         return displayFields.map(field => {
             let value;

@@ -3,7 +3,7 @@ body {
     margin: 0; /* 移除預設 margin */
     background-color: #f4f4f4;
     display: flex; /* 使用 flexbox 佈局 */
-    min-height: 100vh; /* 確保內容佔滿整個視窗高度 */
+    height: 100vh; /* 確保內容佔滿整個視窗高度 */
 }
 .sidebar {
     width: 250px;
@@ -12,6 +12,8 @@ body {
     padding: 20px;
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
     flex-shrink: 0; /* 防止 sidebar 縮小 */
+    overflow-y: auto; /* 為左側選單添加縱向捲軸 */
+    max-height: 100vh; /* 確保當選單內容超出視窗高度時，捲軸能夠正確顯示 */
 }
 .sidebar h1 {
     color: white;
@@ -38,10 +40,76 @@ body {
 .sidebar-menu a:hover, .sidebar-menu a.active {
     background-color: #575757;
 }
+
+/* 巢狀選單樣式 */
+.sidebar-menu .has-submenu > a {
+    position: relative;
+    padding-right: 30px; /* 為箭頭留出空間 */
+}
+
+.sidebar-menu .has-submenu > a::after {
+    content: '▼'; /* 向下箭頭 */
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.7em;
+    transition: transform 0.3s ease;
+}
+
+.sidebar-menu .has-submenu > a.active::after {
+    transform: translateY(-50%) rotate(180deg); /* 向上箭頭 */
+}
+
+.sidebar-menu .submenu {
+    list-style: none;
+    padding: 0;
+    margin-left: 15px; /* 子選單縮排 */
+    display: none; /* 預設隱藏 */
+    background-color: #444; /* 子選單背景色 */
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
+.sidebar-menu .submenu.active {
+    display: block; /* 展開時顯示 */
+}
+
+.sidebar-menu .submenu li a {
+    padding: 8px 15px;
+    color: #ddd;
+}
+
+.sidebar-menu .submenu li a:hover,
+.sidebar-menu .submenu li a.active {
+    background-color: #666;
+}
+
+/* 捲軸樣式 (Webkit browsers) */
+.main-content::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+.main-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
 .main-content {
     flex-grow: 1; /* 讓主內容區域佔據剩餘空間 */
     padding: 20px;
-    overflow-y: auto; /* 允許內容滾動 */
+    overflow-y: auto; /* 允許內容垂直滾動 */
+    overflow-x: auto; /* 允許內容橫向滾動 */
+    max-height: calc(100vh - 40px); /* 限制 main-content 的最大高度，40px 為上下 padding */
 }
 #language-switcher {
     margin-bottom: 20px;
