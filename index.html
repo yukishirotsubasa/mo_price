@@ -5,146 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <title>MO Price</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0; /* 移除預設 margin */
-            background-color: #f4f4f4;
-            display: flex; /* 使用 flexbox 佈局 */
-            min-height: 100vh; /* 確保內容佔滿整個視窗高度 */
-        }
-        .sidebar {
-            width: 250px;
-            background-color: #333;
-            color: white;
-            padding: 20px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-            flex-shrink: 0; /* 防止 sidebar 縮小 */
-        }
-        .sidebar h1 {
-            color: white;
-            margin-top: 0;
-            font-size: 1.5em;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .sidebar-menu {
-            list-style: none;
-            padding: 0;
-        }
-        .sidebar-menu li {
-            margin-bottom: 10px;
-        }
-        .sidebar-menu a {
-            display: block;
-            padding: 10px 15px;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-        .sidebar-menu a:hover, .sidebar-menu a.active {
-            background-color: #575757;
-        }
-        .main-content {
-            flex-grow: 1; /* 讓主內容區域佔據剩餘空間 */
-            padding: 20px;
-            overflow-y: auto; /* 允許內容滾動 */
-        }
-        #language-switcher {
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #575757;
-        }
-        #language-switcher label {
-            display: block;
-            margin-bottom: 5px;
-            color: white;
-        }
-        #lang-select {
-            width: 100%;
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            background-color: white;
-        }
-        .tab-content {
-            display: none;
-            background-color: #fff;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-bottom: 20px; /* 為每個內容區塊添加底部間距 */
-        }
-        .tab-content.active {
-            display: block;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-    </style>
-    <style>
-        /* 版本比較結果樣式 */
-        .comparison-section {
-            margin-bottom: 20px;
-            border: 1px solid #eee;
-            padding: 15px;
-            border-radius: 5px;
-        }
-        .comparison-section h3 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            font-size: 1.2em;
-        }
-        .comparison-list {
-            list-style: none;
-            padding: 0;
-        }
-        .comparison-list li {
-            background-color: #f9f9f9;
-            margin-bottom: 5px;
-            padding: 8px;
-            border-radius: 3px;
-        }
-        .added {
-            color: green;
-            background-color: #e6ffe6;
-        }
-        .removed {
-            color: red;
-            background-color: #ffe6e6;
-        }
-        .modified {
-            color: blue;
-            background-color: #e6e6ff;
-        }
-        .modified-details {
-            margin-top: 5px;
-            padding-left: 20px;
-            font-size: 0.9em;
-        }
-        .modified-details span {
-            display: block;
-        }
-        .modified-details .old-value {
-            text-decoration: line-through;
-            color: #888;
-        }
-        .modified-details .new-value {
-            font-weight: bold;
-            color: #000;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="sidebar">
@@ -216,17 +77,17 @@
         <div id="tab10-content" class="tab-content">
             <h2>Google Sheet 市場整合</h2>
             <div>
-                <input type="text" id="google-sheet-url" placeholder="輸入 Google Sheet URL 或 ID" style="width: 400px; padding: 8px;" value="https://docs.google.com/spreadsheets/d/10E5D6og6lQ2P19PTRheXTvaRIE8WvYjVk0rogGO4iMY/edit?gid=0#gid=0">
-                <button id="load-sheet-button" style="padding: 8px 15px;">載入數據</button>
-                <button id="force-reload-sheet-button" style="padding: 8px 15px; margin-left: 10px;">強制重新載入</button>
+                <input type="text" id="google-sheet-url" placeholder="輸入 Google Sheet URL 或 ID" class="google-sheet-url-input" value="https://docs.google.com/spreadsheets/d/10E5D6og6lQ2P19PTRheXTvaRIE8WvYjVk0rogGO4iMY/edit?gid=0#gid=0">
+                <button id="load-sheet-button" class="button-padding-8px-15px">載入數據</button>
+                <button id="force-reload-sheet-button" class="button-margin-left-10px">強制重新載入</button>
             </div>
-            <div style="margin-top: 10px;">
-                <button id="export-csv-button" style="padding: 8px 15px;">匯出為 CSV</button>
-                <button id="import-csv-button" style="padding: 8px 15px; margin-left: 10px;">匯入 CSV</button>
-                <input type="file" id="import-csv-file-input" accept=".csv" style="display: none;">
+            <div class="margin-top-10px">
+                <button id="export-csv-button" class="button-padding-8px-15px">匯出為 CSV</button>
+                <button id="import-csv-button" class="button-margin-left-10px">匯入 CSV</button>
+                <input type="file" id="import-csv-file-input" accept=".csv" class="display-none">
             </div>
-            <div id="sheet-status" style="margin-top: 10px; color: red;"></div>
-            <div id="sheet-data-display" style="margin-top: 20px;"></div>
+            <div id="sheet-status" class="sheet-status-style"></div>
+            <div id="sheet-data-display" class="margin-top-20px"></div>
         </div>
 
         <div id="tab11-content" class="tab-content">
@@ -237,14 +98,14 @@
                     <option value="releaseJs/release_2025_0417.js">04/17/2025 - 7639</option>
                     <option value="releaseJs/release_2021_0402.js">04/02/2021 - 7560</option>
                 </select>
-                <label for="versionB-select" style="margin-left: 20px;">版本 B:</label>
+                <label for="versionB-select" class="margin-left-20px">版本 B:</label>
                 <select id="versionB-select">
                     <option value="releaseJs/release_2025_0417.js">04/17/2025 - 7639</option>
                     <option value="releaseJs/release_2021_0402.js">04/02/2021 - 7560</option>
                 </select>
-                <button id="compare-versions-button" style="margin-left: 20px; padding: 8px 15px;">比較版本</button>
+                <button id="compare-versions-button" class="compare-versions-button-style">比較版本</button>
             </div>
-            <div id="version-comparison-results" style="margin-top: 20px;"></div>
+            <div id="version-comparison-results" class="margin-top-20px"></div>
         </div>
     </div>
 

@@ -1,0 +1,598 @@
+{
+  "configName": "item_base",
+  "tableName": "Item",
+  "fields": [
+    {
+      "keyPath": "b_i",
+      "label": "ID",
+      "display": {
+        "inTable": true,
+        "order": 1,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "name",
+      "label": "Name",
+      "display": {
+        "inTable": true,
+        "order": 2,
+        "type": "text"
+      }
+    },
+    {
+      "keyPath": "params.price",
+      "label": "Price",
+      "display": {
+        "inTable": true,
+        "order": 3,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.archery",
+      "label": "Archery",
+      "display": {
+        "inTable": true,
+        "order": 4,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.power",
+      "label": "Power",
+      "display": {
+        "inTable": true,
+        "order": 5,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.aim",
+      "label": "Aim",
+      "display": {
+        "inTable": true,
+        "order": 6,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.armor",
+      "label": "Armor",
+      "display": {
+        "inTable": true,
+        "order": 7,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.magic",
+      "label": "Magic",
+      "display": {
+        "inTable": true,
+        "order": 8,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.speed",
+      "label": "Speed",
+      "display": {
+        "inTable": true,
+        "order": 9,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.boost_accuracy",
+      "label": "Boost Accuracy",
+      "display": {
+        "inTable": false,
+        "order": 6,
+        "type": "text"
+      }
+    },
+    {
+      "keyPath": "params.boost_archery",
+      "label": "Boost Archery",
+      "display": {
+        "inTable": false,
+        "order": 7,
+        "type": "text"
+      }
+    },
+    {
+      "keyPath": "params.boost_carpentry",
+      "label": "Boost Carpentry",
+      "display": {
+        "inTable": false,
+        "order": 8,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.boost_cooking",
+      "label": "Boost Cooking",
+      "display": {
+        "inTable": false,
+        "order": 9,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.boost_defense",
+      "label": "Boost Defense",
+      "display": {
+        "inTable": false,
+        "order": 10,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.boost_farming",
+      "label": "Boost Farming",
+      "display": {
+        "inTable": false,
+        "order": 11,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.boost_fishing",
+      "label": "Boost Fishing",
+      "display": {
+        "inTable": false,
+        "order": 12,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.boost_fletching",
+      "label": "Boost Fletching",
+      "display": {
+        "inTable": false,
+        "order": 13,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.boost_forging",
+      "label": "Boost Forging",
+      "display": {
+        "inTable": false,
+        "order": 14,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.boost_fungiculture",
+      "label": "Boost Fungiculture",
+      "display": {
+        "inTable": false,
+        "order": 15,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.boost_health",
+      "label": "Boost Health",
+      "display": {
+        "inTable": false,
+        "order": 16,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.boost_jewelry",
+      "label": "Boost Jewelry",
+      "display": {
+        "inTable": false,
+        "order": 17,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.boost_magic",
+      "label": "Boost Magic",
+      "display": {
+        "inTable": false,
+        "order": 18,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.boost_mining",
+      "label": "Boost Mining",
+      "display": {
+        "inTable": false,
+        "order": 19,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.boost_strength",
+      "label": "Boost Strength",
+      "display": {
+        "inTable": false,
+        "order": 20,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.boost_wizardry",
+      "label": "Boost Wizardry",
+      "display": {
+        "inTable": false,
+        "order": 21,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.boost_woodcutting",
+      "label": "Boost Woodcutting",
+      "display": {
+        "inTable": false,
+        "order": 22,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.carpentry_id",
+      "label": "Carpentry ID",
+      "display": {
+        "inTable": false,
+        "order": 23,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.contains[]",
+      "label": "Contains",
+      "display": {
+        "inTable": false
+      }
+    },
+    {
+      "keyPath": "params.defense",
+      "label": "Defense",
+      "display": {
+        "inTable": true,
+        "order": 24,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.enchant_bonus",
+      "label": "Enchant Bonus",
+      "display": {
+        "inTable": true,
+        "order": 25,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.enchant_id",
+      "label": "Enchant ID",
+      "display": {
+        "inTable": false,
+        "order": 26,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.farming_id",
+      "label": "Farming ID",
+      "display": {
+        "inTable": false,
+        "order": 27,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.fungiculture_id",
+      "label": "Fungiculture ID",
+      "display": {
+        "inTable": false,
+        "order": 28,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.heal",
+      "label": "Heal",
+      "display": {
+        "inTable": true,
+        "order": 29,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.heals",
+      "label": "Heals",
+      "display": {
+        "inTable": true,
+        "order": 30,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.health_restore",
+      "label": "Health Restore",
+      "display": {
+        "inTable": true,
+        "order": 31,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.magic_casts",
+      "label": "Magic Casts",
+      "display": {
+        "inTable": true,
+        "order": 33,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.magic_slots",
+      "label": "Magic Slots",
+      "display": {
+        "inTable": true,
+        "order": 34,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.melee_block",
+      "label": "Melee Block",
+      "display": {
+        "inTable": true,
+        "order": 35,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.min_accuracy",
+      "label": "Min Accuracy",
+      "display": {
+        "inTable": true,
+        "order": 36,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.min_alchemy",
+      "label": "Min Alchemy",
+      "display": {
+        "inTable": true,
+        "order": 37,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.min_archery",
+      "label": "Min Archery",
+      "display": {
+        "inTable": true,
+        "order": 38,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.min_carpentry",
+      "label": "Min Carpentry",
+      "display": {
+        "inTable": false,
+        "order": 39,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.min_cooking",
+      "label": "Min Cooking",
+      "display": {
+        "inTable": false,
+        "order": 40,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.min_defense",
+      "label": "Min Defense",
+      "display": {
+        "inTable": true,
+        "order": 41,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.min_farming",
+      "label": "Min Farming",
+      "display": {
+        "inTable": false,
+        "order": 42,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.min_fishing",
+      "label": "Min Fishing",
+      "display": {
+        "inTable": false,
+        "order": 43,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.min_fletching",
+      "label": "Min Fletching",
+      "display": {
+        "inTable": false,
+        "order": 44,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.min_forging",
+      "label": "Min Forging",
+      "display": {
+        "inTable": false,
+        "order": 45,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.min_fungiculture",
+      "label": "Min Fungiculture",
+      "display": {
+        "inTable": false,
+        "order": 46,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.min_health",
+      "label": "Min Health",
+      "display": {
+        "inTable": true,
+        "order": 47,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.min_jewelry",
+      "label": "Min Jewelry",
+      "display": {
+        "inTable": false,
+        "order": 48,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.min_magic",
+      "label": "Min Magic",
+      "display": {
+        "inTable": true,
+        "order": 49,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.min_mining",
+      "label": "Min Mining",
+      "display": {
+        "inTable": false,
+        "order": 50,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.min_strength",
+      "label": "Min Strength",
+      "display": {
+        "inTable": true,
+        "order": 51,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.min_wizardry",
+      "label": "Min Wizardry",
+      "display": {
+        "inTable": false,
+        "order": 52,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.min_woodcutting",
+      "label": "Min Woodcutting",
+      "display": {
+        "inTable": false,
+        "order": 53,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.no_buy",
+      "label": "No Buy",
+      "display": {
+        "inTable": true,
+        "order": 54,
+        "type": "boolean"
+      }
+    },
+    {
+      "keyPath": "params.no_present",
+      "label": "No Present",
+      "display": {
+        "inTable": true,
+        "order": 55,
+        "type": "boolean"
+      }
+    },
+    {
+      "keyPath": "params.no_smelt",
+      "label": "No Smelt",
+      "display": {
+        "inTable": true,
+        "order": 56,
+        "type": "boolean"
+      }
+    },
+    {
+      "keyPath": "params.pet",
+      "label": "Pet",
+      "display": {
+        "inTable": true,
+        "order": 57,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.pvp_archery_block",
+      "label": "PvP Archery Block",
+      "display": {
+        "inTable": true,
+        "order": 60,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.pvp_magic_block",
+      "label": "PvP Magic Block",
+      "display": {
+        "inTable": true,
+        "order": 61,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.pvp_melee_block",
+      "label": "PvP Melee Block",
+      "display": {
+        "inTable": true,
+        "order": 62,
+        "type": "number"
+      }
+    },
+    {
+      "keyPath": "params.rare_key",
+      "label": "Rare Key",
+      "display": {
+        "inTable": true,
+        "order": 63,
+        "type": "boolean"
+      }
+    },
+    {
+      "keyPath": "params.slot",
+      "label": "Slot",
+      "display": {
+        "inTable": true,
+        "order": 64,
+        "type": "number"
+      }
+    }
+  ]
+}

@@ -1,0 +1,177 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0; /* 移除預設 margin */
+    background-color: #f4f4f4;
+    display: flex; /* 使用 flexbox 佈局 */
+    min-height: 100vh; /* 確保內容佔滿整個視窗高度 */
+}
+.sidebar {
+    width: 250px;
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    flex-shrink: 0; /* 防止 sidebar 縮小 */
+}
+.sidebar h1 {
+    color: white;
+    margin-top: 0;
+    font-size: 1.5em;
+    text-align: center;
+    margin-bottom: 30px;
+}
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+}
+.sidebar-menu li {
+    margin-bottom: 10px;
+}
+.sidebar-menu a {
+    display: block;
+    padding: 10px 15px;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+.sidebar-menu a:hover, .sidebar-menu a.active {
+    background-color: #575757;
+}
+.main-content {
+    flex-grow: 1; /* 讓主內容區域佔據剩餘空間 */
+    padding: 20px;
+    overflow-y: auto; /* 允許內容滾動 */
+}
+#language-switcher {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #575757;
+}
+#language-switcher label {
+    display: block;
+    margin-bottom: 5px;
+    color: white;
+}
+#lang-select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background-color: white;
+}
+.tab-content {
+    display: none;
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 20px; /* 為每個內容區塊添加底部間距 */
+}
+.tab-content.active {
+    display: block;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+th {
+    background-color: #f2f2f2;
+}
+/* 版本比較結果樣式 */
+.comparison-section {
+    margin-bottom: 20px;
+    border: 1px solid #eee;
+    padding: 15px;
+    border-radius: 5px;
+}
+.comparison-section h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+.comparison-list {
+    list-style: none;
+    padding: 0;
+}
+.comparison-list li {
+    background-color: #f9f9f9;
+    margin-bottom: 5px;
+    padding: 8px;
+    border-radius: 3px;
+}
+.added {
+    color: green;
+    background-color: #e6ffe6;
+}
+.removed {
+    color: red;
+    background-color: #ffe6e6;
+}
+.modified {
+    color: blue;
+    background-color: #e6e6ff;
+}
+.modified-details {
+    margin-top: 5px;
+    padding-left: 20px;
+    font-size: 0.9em;
+}
+.modified-details span {
+    display: block;
+}
+.modified-details .old-value {
+    text-decoration: line-through;
+    color: #888;
+}
+.modified-details .new-value {
+    font-weight: bold;
+    color: #000;
+}
+
+/* Extracted inline styles */
+.google-sheet-url-input {
+    width: 400px;
+    padding: 8px;
+}
+
+.button-margin-left-10px {
+    padding: 8px 15px;
+    margin-left: 10px;
+}
+
+.margin-top-10px {
+    margin-top: 10px;
+}
+
+.button-padding-8px-15px {
+    padding: 8px 15px;
+}
+
+.display-none {
+    display: none;
+}
+
+.sheet-status-style {
+    margin-top: 10px;
+    color: red;
+}
+
+.margin-top-20px {
+    margin-top: 20px;
+}
+
+.margin-left-20px {
+    margin-left: 20px;
+}
+
+.compare-versions-button-style {
+    margin-left: 20px;
+    padding: 8px 15px;
+}
