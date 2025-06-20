@@ -23,7 +23,7 @@
             <li class="has-submenu">
                 <a href="#" class="submenu-toggle">Price</a>
                 <ul class="submenu">
-                    <li><a href="#" class="tab-button" data-tab="tab10">Google Sheet 市場整合</a></li>
+                    <li><a href="#" class="tab-button" data-tab="tab10">市場價格整合</a></li>
                 </ul>
             </li>
             <li class="has-submenu">
@@ -90,7 +90,7 @@
         </div>
 
         <div id="tab10-content" class="tab-content">
-            <h2>Google Sheet 市場整合</h2>
+            <h2>市場價格整合</h2>
             <div>
                 <input type="text" id="google-sheet-url" placeholder="輸入 Google Sheet URL 或 ID" class="google-sheet-url-input" value="https://docs.google.com/spreadsheets/d/10E5D6og6lQ2P19PTRheXTvaRIE8WvYjVk0rogGO4iMY/edit?gid=0#gid=0">
                 <button id="load-sheet-button" class="button-padding-8px-15px">載入數據</button>
@@ -99,7 +99,7 @@
             <div class="margin-top-10px">
                 <button id="export-csv-button" class="button-padding-8px-15px">匯出為 CSV</button>
                 <button id="import-csv-button" class="button-margin-left-10px">匯入 CSV</button>
-                <input type="file" id="import-csv-file-input" accept=".csv" class="display-none">
+                <input type="file" id="csv-file-input" accept=".csv" class="display-none">
             </div>
             <div id="sheet-status" class="sheet-status-style"></div>
             <div id="sheet-data-display" class="margin-top-20px"></div>
