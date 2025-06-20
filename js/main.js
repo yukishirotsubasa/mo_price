@@ -221,6 +221,145 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Google Sheet 市場整合功能邏輯
     // 在 Google Charts Library 載入完成後初始化
     google.charts.load('current', { packages: ['corechart', 'table'] });
+
+    let currentMarketPricesData = []; // 用於儲存當前市場價格數據的記憶體變數
+
+    // 輔助函數：檢查是否為標頭行 (前三個值都不是數字)
+    const isHeaderRow = (row) => {
+        if (!row || row.length < 3) return false;
+        return isNaN(Number(row[0])) && isNaN(Number(row[1])) && isNaN(Number(row[2]));
+    };
+
+    // 輔助函數：將原始數據轉換為標準化格式 (item_id, item_name, wiki_price, market_buy, market_sell)
+    const processRawData = (rawData, itemBase) => {
+        const processedData = [];
+        const itemNameMap = createItemNameMap(itemBase, i18n.translate); // 獲取物品名稱映射
+
+        let dataRows = rawData;
+        let hasHeader = false;
+
+        if (rawData.length > 0 && isHeaderRow(rawData[0])) {
+            hasHeader = true;
+            dataRows = rawData.slice(1); // 跳過標頭行
+        }
+
+        // 添加標準化標頭
+        processedData.push([
+            i18n.translate('item_id'),
+            i18n.translate('item_name'),
+            i18n.translate('wiki_price'),
+            i18n.translate('market_buy'),
+            i18n.translate('market_sell')
+        ]);
+
+        for (const row of dataRows) {
+            if (row.length < 3) {
+                throw new Error(i18n.translate('invalid_row_format', row.join(',')));
+            }
+
+            const itemId = Number(row[0]);
+            const marketBuy = Number(row[1]);
+            const marketSell = Number(row[2]);
+
+            if (isNaN(itemId) || isNaN(marketBuy) || isNaN(marketSell)) {
+                throw new Error(i18n.translate('invalid_number_in_row', row.join(',')));
+            }
+
+            const itemInfo = itemBase.find(item => item.b_i === itemId);
+            const itemName = itemInfo ? itemNameMap.get(itemId) : i18n.translate('unknown_item');
+            const wikiPrice = itemInfo && itemInfo.params.price ? itemInfo.params.price : 'N/A'; // 假設 item_base 中有 price 欄位作為 wiki_price
+
+            processedData.push([
+                itemId,
+                itemName,
+                wikiPrice,
+                marketBuy,
+                marketSell
+            ]);
+        }
+        return processedData;
+    };
+
+    // 輔助函數：渲染數據到表格
+    const renderMarketDataTable = (data) => {
+        const sheetDataDisplayDiv = document.getElementById('sheet-data-display'); // 確保在函數內部獲取
+        if (data.length <= 1) { // 只有標頭或沒有數據
+            sheetDataDisplayDiv.textContent = i18n.translate('no_data_to_display');
+            return;
+        }
+
+        let tableHTML = '<table><thead><tr>';
+        // 渲染標頭
+        data[0].forEach(header => {
+            tableHTML += `<th>${header}</th>`;
+        });
+        tableHTML += '</tr></thead><tbody>';
+
+        // 渲染數據行
+        for (let i = 1; i < data.length; i++) {
+            const row = data[i];
+            tableHTML += `<tr data-row-index="${i}">`;
+            row.forEach((cell, colIndex) => {
+                let cellContent = cell;
+                let editable = false;
+
+                // 根據欄位索引設定可編輯性
+                if (colIndex === 3 || colIndex === 4) { // market_buy 和 market_sell
+                    editable = true;
+                }
+
+                if (editable) {
+                    tableHTML += `<td contenteditable="true" data-col-index="${colIndex}">${cellContent}</td>`;
+                } else {
+                    tableHTML += `<td>${cellContent}</td>`;
+                }
+            });
+            tableHTML += '</tr>';
+        }
+        tableHTML += '</tbody></table>';
+        sheetDataDisplayDiv.innerHTML = tableHTML;
+
+        // 添加事件監聽器以處理行內編輯
+        sheetDataDisplayDiv.querySelectorAll('td[contenteditable="true"]').forEach(cellElement => {
+            cellElement.addEventListener('blur', (event) => {
+                handleCellEdit(event.target, currentMarketPricesData);
+            });
+            cellElement.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault(); // 防止換行
+                    event.target.blur(); // 觸發 blur 事件來儲存數據
+                }
+            });
+        });
+    };
+
+    // 輔助函數：處理儲存格編輯
+    const handleCellEdit = (cellElement, dataToUpdate) => {
+        const rowIndex = parseInt(cellElement.closest('tr').dataset.rowIndex);
+        const colIndex = parseInt(cellElement.dataset.colIndex);
+        let newValue = cellElement.textContent.trim();
+
+        // 數據驗證：確保輸入的是數字
+        const parsedValue = parseFloat(newValue);
+        if (isNaN(parsedValue)) {
+            alert(i18n.translate('please_enter_valid_number'));
+            cellElement.textContent = dataToUpdate[rowIndex][colIndex]; // 恢復原始值
+            return;
+        }
+        newValue = parsedValue; // 儲存為數字
+
+        // 更新記憶體中的數據模型
+        dataToUpdate[rowIndex][colIndex] = newValue;
+
+        // 將更新後的數據同步回 localStorage
+        try {
+            localStorage.setItem('marketPricesCache', JSON.stringify(dataToUpdate));
+            console.log(i18n.translate('market_data_updated_and_saved'));
+        } catch (e) {
+            console.error(i18n.translate('failed_to_save_updated_data'), e);
+        }
+    };
+
     google.charts.setOnLoadCallback(() => {
         const googleSheetUrlInput = document.getElementById('google-sheet-url');
         const loadSheetButton = document.getElementById('load-sheet-button');
@@ -235,143 +374,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error("市場價格整合相關 UI 元素未找到。");
             return;
         }
-
-        let currentMarketPricesData = []; // 用於儲存當前市場價格數據的記憶體變數
-
-        // 輔助函數：檢查是否為標頭行 (前三個值都不是數字)
-        const isHeaderRow = (row) => {
-            if (!row || row.length < 3) return false;
-            return isNaN(Number(row[0])) && isNaN(Number(row[1])) && isNaN(Number(row[2]));
-        };
-
-        // 輔助函數：將原始數據轉換為標準化格式 (item_id, item_name, wiki_price, market_buy, market_sell)
-        const processRawData = (rawData, itemBase) => {
-            const processedData = [];
-            const itemNameMap = createItemNameMap(itemBase, i18n.translate); // 獲取物品名稱映射
-
-            let dataRows = rawData;
-            let hasHeader = false;
-
-            if (rawData.length > 0 && isHeaderRow(rawData[0])) {
-                hasHeader = true;
-                dataRows = rawData.slice(1); // 跳過標頭行
-            }
-
-            // 添加標準化標頭
-            processedData.push([
-                i18n.translate('item_id'),
-                i18n.translate('item_name'),
-                i18n.translate('wiki_price'),
-                i18n.translate('market_buy'),
-                i18n.translate('market_sell')
-            ]);
-
-            for (const row of dataRows) {
-                if (row.length < 3) {
-                    throw new Error(i18n.translate('invalid_row_format', row.join(',')));
-                }
-
-                const itemId = Number(row[0]);
-                const marketBuy = Number(row[1]);
-                const marketSell = Number(row[2]);
-
-                if (isNaN(itemId) || isNaN(marketBuy) || isNaN(marketSell)) {
-                    throw new Error(i18n.translate('invalid_number_in_row', row.join(',')));
-                }
-
-                const itemInfo = itemBase.find(item => item.b_i === itemId);
-                const itemName = itemInfo ? itemNameMap.get(itemId) : i18n.translate('unknown_item');
-                const wikiPrice = itemInfo && itemInfo.price ? itemInfo.price : 'N/A'; // 假設 item_base 中有 price 欄位作為 wiki_price
-
-                processedData.push([
-                    itemId,
-                    itemName,
-                    wikiPrice,
-                    marketBuy,
-                    marketSell
-                ]);
-            }
-            return processedData;
-        };
-
-        // 輔助函數：渲染數據到表格
-        const renderMarketDataTable = (data) => {
-            if (data.length <= 1) { // 只有標頭或沒有數據
-                sheetDataDisplayDiv.textContent = i18n.translate('no_data_to_display');
-                return;
-            }
-
-            let tableHTML = '<table><thead><tr>';
-            // 渲染標頭
-            data[0].forEach(header => {
-                tableHTML += `<th>${header}</th>`;
-            });
-            tableHTML += '</tr></thead><tbody>';
-
-            // 渲染數據行
-            for (let i = 1; i < data.length; i++) {
-                const row = data[i];
-                tableHTML += `<tr data-row-index="${i}">`;
-                row.forEach((cell, colIndex) => {
-                    let cellContent = cell;
-                    let editable = false;
-
-                    // 根據欄位索引設定可編輯性
-                    if (colIndex === 3 || colIndex === 4) { // market_buy 和 market_sell
-                        editable = true;
-                    }
-
-                    if (editable) {
-                        tableHTML += `<td contenteditable="true" data-col-index="${colIndex}">${cellContent}</td>`;
-                    } else {
-                        tableHTML += `<td>${cellContent}</td>`;
-                    }
-                });
-                tableHTML += '</tr>';
-            }
-            tableHTML += '</tbody></table>';
-            sheetDataDisplayDiv.innerHTML = tableHTML;
-
-            // 添加事件監聽器以處理行內編輯
-            sheetDataDisplayDiv.querySelectorAll('td[contenteditable="true"]').forEach(cellElement => {
-                cellElement.addEventListener('blur', (event) => {
-                    handleCellEdit(event.target, currentMarketPricesData);
-                });
-                cellElement.addEventListener('keydown', (event) => {
-                    if (event.key === 'Enter') {
-                        event.preventDefault(); // 防止換行
-                        event.target.blur(); // 觸發 blur 事件來儲存數據
-                    }
-                });
-            });
-        };
-
-        // 輔助函數：處理儲存格編輯
-        const handleCellEdit = (cellElement, dataToUpdate) => {
-            const rowIndex = parseInt(cellElement.closest('tr').dataset.rowIndex);
-            const colIndex = parseInt(cellElement.dataset.colIndex);
-            let newValue = cellElement.textContent.trim();
-
-            // 數據驗證：確保輸入的是數字
-            const parsedValue = parseFloat(newValue);
-            if (isNaN(parsedValue)) {
-                alert(i18n.translate('please_enter_valid_number'));
-                cellElement.textContent = dataToUpdate[rowIndex][colIndex]; // 恢復原始值
-                return;
-            }
-            newValue = parsedValue; // 儲存為數字
-
-            // 更新記憶體中的數據模型
-            dataToUpdate[rowIndex][colIndex] = newValue;
-
-            // 將更新後的數據同步回 localStorage
-            try {
-                localStorage.setItem('marketPricesCache', JSON.stringify(dataToUpdate));
-                console.log(i18n.translate('market_data_updated_and_saved'));
-            } catch (e) {
-                console.error(i18n.translate('failed_to_save_updated_data'), e);
-            }
-        };
 
         // CSV 匯出功能
         exportCsvButton.addEventListener('click', () => {
