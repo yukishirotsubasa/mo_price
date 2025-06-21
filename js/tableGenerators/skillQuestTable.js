@@ -8,11 +8,11 @@ export function generateSkillQuestTable(skillQuest, generateTableHTML, createIte
     }
 
     if (!skillQuest) {
-        container.innerHTML = '<p>技能任務數據未載入。</p>';
+        container.innerHTML = '<p>skill quest data not doaded。</p>';
         return;
     }
 
-    const headers = ['ID', '技能', '所需數量', '物品ID', '最小QP', 'QP', '獎勵'];
+    const headers = ['ID', 'skill', 'count', 'item ID', 'min QP', 'QP', 'rewards'];
 
     const rowMapper = (quest) => {
         const rewards = quest.reward ? quest.reward.join(', ') : '無';

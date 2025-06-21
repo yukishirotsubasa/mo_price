@@ -10,34 +10,34 @@
 <body>
     <div class="sidebar">
         <div id="language-switcher">
-            <label for="lang-select">選擇語言:</label>
+            <label for="lang-select">Select Language:</label>
             <select id="lang-select"></select>
         </div>
         <ul class="sidebar-menu">
             <li class="has-submenu">
                 <a href="#" class="submenu-toggle">New</a>
                 <ul class="submenu">
-                    <li><a href="#" class="tab-button" data-tab="tab11">版本比較</a></li>
+                    <li><a href="#" class="tab-button" data-tab="tab11">Version Comparison</a></li>
                 </ul>
             </li>
             <li class="has-submenu">
                 <a href="#" class="submenu-toggle">Price</a>
                 <ul class="submenu">
-                    <li><a href="#" class="tab-button" data-tab="tab10">市場價格整合</a></li>
+                    <li><a href="#" class="tab-button" data-tab="tab10">Market Price Integration</a></li>
                 </ul>
             </li>
             <li class="has-submenu">
                 <a href="#" class="submenu-toggle active">Wiki</a>
                 <ul class="submenu active">
-                    <li><a href="#" class="tab-button active" data-tab="tab1">物品資料</a></li>
-                    <li><a href="#" class="tab-button" data-tab="tab2">木工配方</a></li>
-                    <li><a href="#" class="tab-button" data-tab="tab3">鍛造配方</a></li>
-                    <li><a href="#" class="tab-button" data-tab="tab4">NPC 資料</a></li>
-                    <li><a href="#" class="tab-button" data-tab="tab5">寵物資料</a></li>
-                    <li><a href="#" class="tab-button" data-tab="tab6">技能任務</a></li>
-                    <li><a href="#" class="tab-button" data-tab="tab7">物件資料</a></li>
-                    <li><a href="#" class="tab-button" data-tab="tab8">附魔機率</a></li>
-                    <li><a href="#" class="tab-button" data-tab="tab9">圖片表</a></li>
+                    <li><a href="#" class="tab-button active" data-tab="tab1">Item</a></li>
+                    <li><a href="#" class="tab-button" data-tab="tab2">carpentry</a></li>
+                    <li><a href="#" class="tab-button" data-tab="tab3">forging</a></li>
+                    <li><a href="#" class="tab-button" data-tab="tab4">npc</a></li>
+                    <li><a href="#" class="tab-button" data-tab="tab5">Pet</a></li>
+                    <li><a href="#" class="tab-button" data-tab="tab6">Skill Quest</a></li>
+                    <li><a href="#" class="tab-button" data-tab="tab7">objects</a></li>
+                    <li><a href="#" class="tab-button" data-tab="tab8">Enchanting</a></li>
+                    <li><a href="#" class="tab-button" data-tab="tab9">image_sheet</a></li>
                 </ul>
             </li>
         </ul>
@@ -45,60 +45,60 @@
 
     <div class="main-content">
         <div id="tab1-content" class="tab-content active">
-            <h2>物品資料表格</h2>
+            <h2>Item Data表格</h2>
             <div id="item-table-container"></div>
         </div>
 
         <div id="tab2-content" class="tab-content">
-            <h2>木工配方表格</h2>
+            <h2>Carpentry Recipes表格</h2>
             <div id="carpentry-table-container"></div>
         </div>
 
         <div id="tab3-content" class="tab-content">
-            <h2>鍛造配方表格</h2>
+            <h2>Forge Recipes表格</h2>
             <div id="forge-table-container"></div>
         </div>
 
         <div id="tab4-content" class="tab-content">
-            <h2>NPC 資料表格</h2>
+            <h2>NPC Data表格</h2>
             <div id="npc-table-container"></div>
         </div>
 
         <div id="tab5-content" class="tab-content">
-            <h2>寵物資料表格</h2>
+            <h2>Pet Data表格</h2>
             <div id="pets-table-container"></div>
         </div>
 
         <div id="tab6-content" class="tab-content">
-            <h2>技能任務表格</h2>
+            <h2>Skill Quests表格</h2>
             <div id="skill-quest-table-container"></div>
         </div>
 
         <div id="tab7-content" class="tab-content">
-            <h2>物件資料表格</h2>
+            <h2>Object Data表格</h2>
             <div id="object-base-table-container"></div>
         </div>
 
         <div id="tab8-content" class="tab-content">
-            <h2>附魔機率表格</h2>
+            <h2>Enchanting Chances表格</h2>
             <div id="enchanting-chances-table-container"></div>
         </div>
 
         <div id="tab9-content" class="tab-content">
-            <h2>圖片表表格</h2>
+            <h2>Image Sheet表格</h2>
             <div id="image-sheet-table-container"></div>
         </div>
 
         <div id="tab10-content" class="tab-content">
-            <h2>市場價格整合</h2>
+            <h2>Market Price Integration</h2>
             <div>
-                <input type="text" id="google-sheet-url" placeholder="輸入 Google Sheet URL 或 ID" class="google-sheet-url-input" value="https://docs.google.com/spreadsheets/d/10E5D6og6lQ2P19PTRheXTvaRIE8WvYjVk0rogGO4iMY/edit?gid=0#gid=0">
-                <button id="load-sheet-button" class="button-padding-8px-15px">載入數據</button>
-                <button id="force-reload-sheet-button" class="button-margin-left-10px">強制重新載入</button>
+                <input type="text" id="google-sheet-url" placeholder="Enter Google Sheet URL or ID" class="google-sheet-url-input" value="https://docs.google.com/spreadsheets/d/10E5D6og6lQ2P19PTRheXTvaRIE8WvYjVk0rogGO4iMY/edit?gid=0#gid=0">
+                <button id="load-sheet-button" class="button-padding-8px-15px">Load Data</button>
+                <button id="force-reload-sheet-button" class="button-margin-left-10px">Force Reload</button>
             </div>
             <div class="margin-top-10px">
-                <button id="export-csv-button" class="button-padding-8px-15px">匯出為 CSV</button>
-                <button id="import-csv-button" class="button-margin-left-10px">匯入 CSV</button>
+                <button id="export-csv-button" class="button-padding-8px-15px">Export as CSV</button>
+                <button id="import-csv-button" class="button-margin-left-10px">Import CSV</button>
                 <input type="file" id="csv-file-input" accept=".csv" class="display-none">
             </div>
             <div id="sheet-status" class="sheet-status-style"></div>
@@ -106,19 +106,19 @@
         </div>
 
         <div id="tab11-content" class="tab-content">
-            <h2>版本比較</h2>
+            <h2>Version Comparison</h2>
             <div>
-                <label for="versionA-select">版本 A:</label>
+                <label for="versionA-select">Version A:</label>
                 <select id="versionA-select">
                     <option value="releaseJs/release_2025_0417.js">04/17/2025 - 7639</option>
                     <option value="releaseJs/release_2021_0402.js">04/02/2021 - 7560</option>
                 </select>
-                <label for="versionB-select" class="margin-left-20px">版本 B:</label>
+                <label for="versionB-select" class="margin-left-20px">Version B:</label>
                 <select id="versionB-select">
                     <option value="releaseJs/release_2025_0417.js">04/17/2025 - 7639</option>
                     <option value="releaseJs/release_2021_0402.js">04/02/2021 - 7560</option>
                 </select>
-                <button id="compare-versions-button" class="compare-versions-button-style">比較版本</button>
+                <button id="compare-versions-button" class="compare-versions-button-style">Compare Versions</button>
             </div>
             <div id="version-comparison-results" class="margin-top-20px"></div>
         </div>

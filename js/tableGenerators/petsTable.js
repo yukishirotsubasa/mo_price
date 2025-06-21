@@ -8,7 +8,7 @@ export function generatePetsTable(pets, generateTableHTML, createItemNameMap, it
     }
 
     if (!pets) {
-        container.innerHTML = '<p>寵物數據未載入。</p>';
+        container.innerHTML = '<p>pets data not doaded。</p>';
         return;
     }
 

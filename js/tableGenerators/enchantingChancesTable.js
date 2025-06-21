@@ -8,11 +8,11 @@ export function generateEnchantingChancesTable(enchantingChances, generateTableH
     }
 
     if (!enchantingChances) {
-        container.innerHTML = '<p>附魔機率數據未載入。</p>';
+        container.innerHTML = '<p>enchanting chances data not doaded。</p>';
         return;
     }
 
-    const headers = ['類型', '物品ID', '材料等級', '成功機率'];
+    const headers = ['type', 'item ID', 'level', 'chance'];
 
     const data = [];
     // enchantingChances 現在是 Forge 物件

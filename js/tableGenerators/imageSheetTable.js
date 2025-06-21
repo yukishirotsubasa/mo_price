@@ -8,11 +8,11 @@ export function generateImageSheetTable(imageSheet, generateTableHTML, createIte
     }
 
     if (!imageSheet) {
-        container.innerHTML = '<p>圖片表數據未載入。</p>';
+        container.innerHTML = '<p>image sheet data not doaded。</p>';
         return;
     }
 
-    const headers = ['圖片名稱', 'URL', 'Tile Width', 'Tile Height'];
+    const headers = ['key', 'URL', 'Tile Width', 'Tile Height'];
     const data = [];
 
     for (const key in imageSheet) {

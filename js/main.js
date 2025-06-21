@@ -70,8 +70,8 @@ function updateTabTitles() {
     document.querySelector('.tab-button[data-tab="tab7"]').textContent = i18n.translate('objects');
     document.querySelector('.tab-button[data-tab="tab8"]').textContent = i18n.translate('Enchanting');
     document.querySelector('.tab-button[data-tab="tab9"]').textContent = i18n.translate('image_sheet');
-    document.querySelector('.tab-button[data-tab="tab10"]').textContent = i18n.translate('market_price_integration');
-    document.querySelector('.tab-button[data-tab="tab11"]').textContent = i18n.translate('version_comparison');
+    document.querySelector('.tab-button[data-tab="tab10"]').textContent = i18n.translate('Market Price Integration');
+    document.querySelector('.tab-button[data-tab="tab11"]').textContent = i18n.translate('Version Comparison');
 
     // 更新 Tab 內容標題
     document.querySelector('#tab1-content h2').textContent = i18n.translate('Item');
@@ -82,9 +82,9 @@ function updateTabTitles() {
     document.querySelector('#tab6-content h2').textContent = i18n.translate('Skill Quest');
     document.querySelector('#tab7-content h2').textContent = i18n.translate('objects');
     document.querySelector('#tab8-content h2').textContent = i18n.translate('Enchanting');
-    document.querySelector('#tab9-content h2').textContent = i18n.translate('image_sheet_table');
-    document.querySelector('#tab10-content h2').textContent = i18n.translate('market_price_integration');
-    document.querySelector('#tab11-content h2').textContent = i18n.translate('version_comparison');
+    document.querySelector('#tab9-content h2').textContent = i18n.translate('image_sheet');
+    document.querySelector('#tab10-content h2').textContent = i18n.translate('Market Price Integration');
+    document.querySelector('#tab11-content h2').textContent = i18n.translate('Version Comparison');
 }
 
 /**

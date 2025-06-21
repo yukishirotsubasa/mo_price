@@ -8,7 +8,7 @@ export function generateObjectBaseTable(objectBase, generateTableHTML, createIte
     }
 
     if (!objectBase) {
-        container.innerHTML = '<p>物件數據未載入。</p>';
+        container.innerHTML = '<p>object data not doaded。</p>';
         return;
     }
 

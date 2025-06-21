@@ -26,7 +26,7 @@ export function generateCarpentryTable(CARPENTRY_FORMULAS, generateTableHTML, cr
     }
 
     // 使用 i18n.translate 翻譯表頭
-    const headerKeys = ['item_name', 'required_materials', 'craftable', 'level'];
+    const headerKeys = ['item name', 'materials', 'craftable', 'level'];
     const data = allCarpentryItems;
     const rowMapper = (item) => {
         const itemName = itemNameMap.get(item.item_id) || item.item_name; // 如果沒有翻譯，使用原始名稱
