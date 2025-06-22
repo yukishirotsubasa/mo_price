@@ -1,3 +1,4 @@
+import { generateCarpentryCostTableData } from './carpentryCost.js';
 // js/main.js - 應用程式主入口點
 
 import { loadData, getItemBase, getForgeFormulas, getCarpentryFormulas, getNpcBase, getPets, getSkillQuest, getObjectBase, getEnchantingChances, getImageSheet, loadGoogleSheetData, loadJsFileVariable, processRawData, processRawDataFromLocalStorage, saveMarketDataToLocalStorage } from './dataLoader.js';
@@ -243,6 +244,41 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 } else {
                     console.error("Forging Cost Container element not found.");
+                }
+            } else if (button.dataset.tab === 'carpentry-cost-page') {
+                const carpentryCostContainer = document.getElementById('carpentry-cost-page-content');
+                if (carpentryCostContainer) {
+                    carpentryCostContainer.innerHTML = '';
+                    if (allData.itemBase && allData.CARPENTRY_FORMULAS) {
+                        const carpentryCostData = generateCarpentryCostTableData(allData.CARPENTRY_FORMULAS, generateTableHTML, createItemNameMap, allData.itemBase);
+
+                        let tableHTML = '<table><thead><tr>';
+                        tableHTML += `<th>${i18n.translate('item_name')}</th>`;
+                        tableHTML += `<th>${i18n.translate('level')}</th>`;
+                        tableHTML += `<th>${i18n.translate('pattern')}</th>`;
+                        tableHTML += `<th>${i18n.translate('material_price')}</th>`;
+                        tableHTML += `<th>${i18n.translate('cost')}</th>`;
+                        tableHTML += `<th>${i18n.translate('sell_price')}</th>`;
+                        tableHTML += '</tr></thead><tbody>';
+
+                        carpentryCostData.forEach(row => {
+                            tableHTML += '<tr>';
+                            tableHTML += `<td>${row.itemName}</td>`;
+                            tableHTML += `<td>${row.level}</td>`;
+                            tableHTML += `<td>${row.pattern}</td>`;
+                            tableHTML += `<td>${row.materialPrice}</td>`;
+                            tableHTML += `<td>${row.cost}</td>`;
+                            tableHTML += `<td>${row.sellPrice}</td>`;
+                            tableHTML += '</tr>';
+                        });
+                        tableHTML += '</tbody></table>';
+                        carpentryCostContainer.innerHTML = tableHTML;
+                    } else {
+                        carpentryCostContainer.textContent = i18n.translate('carpentry_data_not_available');
+                        console.error("For Carpentry Cost Tab, itemBase or CARPENTRY_FORMULAS data is not available.");
+                    }
+                } else {
+                    console.error("Carpentry Cost Container element not found.");
                 }
             }
         });
