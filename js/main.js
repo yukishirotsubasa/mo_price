@@ -11,6 +11,7 @@ import { generateSkillQuestTable } from './tableGenerators/skillQuestTable.js';
 import { generateObjectBaseTable } from './tableGenerators/objectBaseTable.js';
 import { generateEnchantingChancesTable } from './tableGenerators/enchantingChancesTable.js';
 import { generateImageSheetTable } from './tableGenerators/imageSheetTable.js';
+import { generateForgingCostTableData } from './forgingCost.js'; // 導入 ForgingCost 模組
 import i18n from './i18n.js'; // 導入 i18n 模組
 
 let allData = {}; // 用於儲存所有載入的數據，以便在語言切換時重新渲染
@@ -194,7 +195,56 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // 為當前點擊的按鈕和對應的內容添加 active 類別
             button.classList.add('active');
-            document.getElementById(`${button.dataset.tab}-content`).classList.add('active');
+            const targetTabContent = document.getElementById(`${button.dataset.tab}-content`);
+            if (targetTabContent) {
+                targetTabContent.classList.add('active');
+            }
+
+            // 如果是 Forging Cost Tab，則生成表格
+            if (button.dataset.tab === 'forging-cost-page') {
+                const forgingCostContainer = document.getElementById('forging-cost-page-content');
+                if (forgingCostContainer) {
+                    // 清空舊內容
+                    forgingCostContainer.innerHTML = '';
+                    // 確保 allData.itemBase 和 allData.FORGE_FORMULAS 已載入
+                    if (allData.itemBase && allData.FORGE_FORMULAS) {
+                        const forgingCostData = generateForgingCostTableData(allData.FORGE_FORMULAS, generateTableHTML, createItemNameMap, allData.itemBase)
+                        
+                        let tableHTML = '<table><thead><tr>';
+                        // 添加表頭
+                        tableHTML += `<th>${i18n.translate('id')}</th>`;
+                        tableHTML += `<th>${i18n.translate('item_name')}</th>`;
+                        tableHTML += `<th>${i18n.translate('level')}</th>`;
+                        tableHTML += `<th>${i18n.translate('pattern')}</th>`;
+                        tableHTML += `<th>${i18n.translate('material_price')}</th>`;
+                        tableHTML += `<th>${i18n.translate('chance')}</th>`;
+                        tableHTML += `<th>${i18n.translate('cost')}</th>`;
+                        tableHTML += `<th>${i18n.translate('sell_price')}</th>`;
+                        tableHTML += '</tr></thead><tbody>';
+
+                        // 渲染數據行
+                        forgingCostData.forEach(row => {
+                            tableHTML += '<tr>';
+                            tableHTML += `<td>${row.id}</td>`;
+                            tableHTML += `<td>${row.itemName}</td>`;
+                            tableHTML += `<td>${row.level}</td>`;
+                            tableHTML += `<td>${row.pattern}</td>`;
+                            tableHTML += `<td>${row.materialPrice}</td>`;
+                            tableHTML += `<td>${row.chance}</td>`;
+                            tableHTML += `<td>${row.cost}</td>`;
+                            tableHTML += `<td>${row.sellPrice}</td>`;
+                            tableHTML += '</tr>';
+                        });
+                        tableHTML += '</tbody></table>';
+                        forgingCostContainer.innerHTML = tableHTML;
+                    } else {
+                        forgingCostContainer.textContent = i18n.translate('forging_data_not_available');
+                        console.error("For Forging Cost Tab, itemBase or FORGE_FORMULAS data is not available.");
+                    }
+                } else {
+                    console.error("Forging Cost Container element not found.");
+                }
+            }
         });
     });
 
@@ -216,6 +266,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 載入數據並生成表格 (首次載入)
     await renderAllTables();
+
+    // 初始化鍛造成本計算器 (已整合到 Tab 切換邏輯中)
 
 
     // Google Sheet 市場整合功能邏輯
