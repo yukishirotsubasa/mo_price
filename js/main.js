@@ -1,6 +1,6 @@
 // js/main.js - 應用程式主入口點
 
-import { loadData, getItemBase, getForgeFormulas, getCarpentryFormulas, getNpcBase, getPets, getSkillQuest, getObjectBase, getEnchantingChances, getImageSheet, loadGoogleSheetData, loadJsFileVariable } from './dataLoader.js';
+import { loadData, getItemBase, getForgeFormulas, getCarpentryFormulas, getNpcBase, getPets, getSkillQuest, getObjectBase, getEnchantingChances, getImageSheet, loadGoogleSheetData, loadJsFileVariable, processRawData, processRawDataFromLocalStorage, saveMarketDataToLocalStorage } from './dataLoader.js';
 import { createItemNameMap, generateTableHTML, compareData } from './utils.js';
 import { generateItemTable } from './tableGenerators/itemTable.js';
 import { generateCarpentryTable } from './tableGenerators/carpentryTable.js';
@@ -224,96 +224,54 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let currentMarketPricesData = []; // 用於儲存當前市場價格數據的記憶體變數
 
-    // 輔助函數：檢查是否為標頭行 (前三個值都不是數字)
-    const isHeaderRow = (row) => {
-        if (!row || row.length < 3) return false;
-        return isNaN(Number(row[0])) && isNaN(Number(row[1])) && isNaN(Number(row[2]));
-    };
-
-    // 輔助函數：將原始數據轉換為標準化格式 (item_id, item_name, wiki_price, market_buy, market_sell)
-    const processRawData = (rawData, itemBase) => {
-        const processedData = [];
-        const itemNameMap = createItemNameMap(itemBase, i18n.translate); // 獲取物品名稱映射
-
-        let dataRows = rawData;
-        let hasHeader = false;
-
-        if (rawData.length > 0 && isHeaderRow(rawData[0])) {
-            hasHeader = true;
-            dataRows = rawData.slice(1); // 跳過標頭行
-        }
-
-        // 添加標準化標頭
-        processedData.push([
-            i18n.translate('item_id'),
-            i18n.translate('item_name'),
-            i18n.translate('wiki_price'),
-            i18n.translate('market_buy'),
-            i18n.translate('market_sell')
-        ]);
-
-        for (const row of dataRows) {
-            if (row.length < 3) {
-                throw new Error(i18n.translate('invalid_row_format', row.join(',')));
-            }
-
-            const itemId = Number(row[0]);
-            const marketBuy = Number(row[1]);
-            const marketSell = Number(row[2]);
-
-            if (isNaN(itemId) || isNaN(marketBuy) || isNaN(marketSell)) {
-                throw new Error(i18n.translate('invalid_number_in_row', row.join(',')));
-            }
-
-            const itemInfo = itemBase.find(item => item.b_i === itemId);
-            const itemName = itemInfo ? itemNameMap.get(itemId) : i18n.translate('unknown_item');
-            const wikiPrice = itemInfo && itemInfo.params.price ? itemInfo.params.price : 'N/A'; // 假設 item_base 中有 price 欄位作為 wiki_price
-
-            processedData.push([
-                itemId,
-                itemName,
-                wikiPrice,
-                marketBuy,
-                marketSell
-            ]);
-        }
-        return processedData;
-    };
-
-    // 輔助函數：渲染數據到表格
+    /**
+     * 渲染市場價格數據到表格。
+     * @param {Array<Array<any>>} data - 處理後的市場價格數據，每行包含 [item id, item name, market buy price, market sell price]。
+     */
     const renderMarketDataTable = (data) => {
-        const sheetDataDisplayDiv = document.getElementById('sheet-data-display'); // 確保在函數內部獲取
-        if (data.length <= 1) { // 只有標頭或沒有數據
+        const sheetDataDisplayDiv = document.getElementById('sheet-data-display');
+        if (!sheetDataDisplayDiv) {
+            console.error("sheet-data-display 元素未找到。");
+            return;
+        }
+
+        if (data.length === 0) {
             sheetDataDisplayDiv.textContent = i18n.translate('no_data_to_display');
             return;
         }
 
+        const itemBase = allData.itemBase;
+        const itemNameMap = createItemNameMap(itemBase, i18n.translate);
+
         let tableHTML = '<table><thead><tr>';
         // 渲染標頭
-        data[0].forEach(header => {
-            tableHTML += `<th>${header}</th>`;
-        });
+        tableHTML += `<th>${i18n.translate('item_id')}</th>`;
+        tableHTML += `<th>${i18n.translate('item_name')}</th>`;
+        tableHTML += `<th>${i18n.translate('wiki_price')}</th>`;
+        tableHTML += `<th>${i18n.translate('market_buy')}</th>`;
+        tableHTML += `<th>${i18n.translate('market_sell')}</th>`;
+        tableHTML += `<th>${i18n.translate('custom_price')}</th>`; // 新增 custom price 標頭
         tableHTML += '</tr></thead><tbody>';
 
         // 渲染數據行
-        for (let i = 1; i < data.length; i++) {
+        for (let i = 0; i < data.length; i++) {
             const row = data[i];
+            const itemId = row[0];
+            const marketBuyPrice = row[1]; // 調整索引
+            const marketSellPrice = row[2]; // 調整索引
+            const customPrice = row[3]; // 新增 custom price
+
+            const itemInfo = itemBase.find(item => item.b_i === itemId);
+            const itemName = itemInfo ? itemNameMap.get(itemId) : i18n.translate('unknown_item');
+            const wikiPrice = itemInfo && itemInfo.params && itemInfo.params.price ? itemInfo.params.price : 'N/A';
+
             tableHTML += `<tr data-row-index="${i}">`;
-            row.forEach((cell, colIndex) => {
-                let cellContent = cell;
-                let editable = false;
-
-                // 根據欄位索引設定可編輯性
-                if (colIndex === 3 || colIndex === 4) { // market_buy 和 market_sell
-                    editable = true;
-                }
-
-                if (editable) {
-                    tableHTML += `<td contenteditable="true" data-col-index="${colIndex}">${cellContent}</td>`;
-                } else {
-                    tableHTML += `<td>${cellContent}</td>`;
-                }
-            });
+            tableHTML += `<td>${itemId}</td>`;
+            tableHTML += `<td>${itemName}</td>`;
+            tableHTML += `<td>${wikiPrice}</td>`;
+            tableHTML += `<td contenteditable="true" data-col-index="1">${marketBuyPrice}</td>`; // 調整 col-index
+            tableHTML += `<td contenteditable="true" data-col-index="2">${marketSellPrice}</td>`; // 調整 col-index
+            tableHTML += `<td contenteditable="true" data-col-index="3">${customPrice}</td>`; // 新增 custom price
             tableHTML += '</tr>';
         }
         tableHTML += '</tbody></table>';
@@ -333,10 +291,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
-    // 輔助函數：處理儲存格編輯
+    /**
+     * 處理儲存格編輯。
+     * @param {HTMLElement} cellElement - 被編輯的儲存格元素。
+     * @param {Array<Array<any>>} dataToUpdate - 要更新的數據陣列。
+     */
     const handleCellEdit = (cellElement, dataToUpdate) => {
         const rowIndex = parseInt(cellElement.closest('tr').dataset.rowIndex);
-        const colIndex = parseInt(cellElement.dataset.colIndex);
+        const colIndex = parseInt(cellElement.dataset.colIndex); // 這裡的 colIndex 是原始數據的索引 (2 或 3)
         let newValue = cellElement.textContent.trim();
 
         // 數據驗證：確保輸入的是數字
@@ -352,8 +314,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         dataToUpdate[rowIndex][colIndex] = newValue;
 
         // 將更新後的數據同步回 localStorage
+        // localStorage 儲存 item id, market buy price, market sell price, custom price
+        const dataToStore = dataToUpdate.map(row => [row[0], row[1], row[2], row[3]]); // 調整索引
         try {
-            localStorage.setItem('marketPricesCache', JSON.stringify(dataToUpdate));
+            localStorage.setItem('price_data', JSON.stringify(dataToStore)); // 更改鍵名為 price_data
             console.log(i18n.translate('market_data_updated_and_saved'));
         } catch (e) {
             console.error(i18n.translate('failed_to_save_updated_data'), e);
@@ -431,16 +395,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             reader.onload = async (e) => { // 修改為 async
                 try {
                     const csvContent = e.target.result;
-                    const rawImportedData = csvContent.split(/\r?\n/).map(row => row.split(',').map(cell => cell.trim())); // 簡單解析 CSV
+                    // 簡單解析 CSV，不處理複雜的 CSV 格式 (例如包含逗號的欄位)
+                    const rawImportedData = csvContent.split(/\r?\n/).map(row => row.split(',').map(cell => cell.trim()));
 
-                    // 獲取 item_base 數據
-                    const itemBase = allData.itemBase || await getItemBase(); // 從 allData 或 dataLoader 獲取
+                    // 使用 dataLoader 中的 processRawData 函數
+                    const processedImportedData = processRawData(rawImportedData);
 
-                    const processedImportedData = processRawData(rawImportedData, itemBase);
-
-                    if (processedImportedData.length > 1) { // 至少包含標頭和一行數據
+                    if (processedImportedData.length > 0) {
                         currentMarketPricesData = processedImportedData;
-                        localStorage.setItem('marketPricesCache', JSON.stringify(currentMarketPricesData));
+                        // 將更新後的數據同步回 localStorage
+                        // localStorage 只儲存 item id, market buy price, market sell price
+                        saveMarketDataToLocalStorage(currentMarketPricesData);
+
                         renderMarketDataTable(currentMarketPricesData);
                         sheetStatusDiv.textContent = i18n.translate('csv_data_imported_successfully');
                         console.log(i18n.translate('csv_data_imported_and_updated'), currentMarketPricesData);
@@ -463,7 +429,50 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 綁定事件監聽器
         loadSheetButton.addEventListener('click', () => loadAndDisplaySheetData(false)); // 預設載入，不強制重新載入
         forceReloadSheetButton.addEventListener('click', () => loadAndDisplaySheetData(true)); // 強制重新載入
+
+        // 在 Google Charts Library 載入完成後，嘗試從 localStorage 載入數據
+        loadMarketDataFromLocalStorage();
     });
+
+    /**
+     * 從 localStorage 載入市場價格數據並顯示。
+     */
+    async function loadMarketDataFromLocalStorage() {
+        const sheetStatusDiv = document.getElementById('sheet-status');
+        const sheetDataDisplayDiv = document.getElementById('sheet-data-display');
+        const CACHE_KEY = 'price_data'; // 更改鍵名為 price_data
+
+        if (!sheetStatusDiv || !sheetDataDisplayDiv) {
+            console.error("市場價格整合相關 UI 元素未找到。");
+            return;
+        }
+
+        sheetStatusDiv.textContent = i18n.translate('loading_cached_data');
+        sheetDataDisplayDiv.innerHTML = ''; // 清空之前的數據
+
+        try {
+            const cachedData = localStorage.getItem(CACHE_KEY);
+            if (cachedData) {
+                const rawCachedData = JSON.parse(cachedData);
+                // 使用 dataLoader 中的 processRawDataFromLocalStorage 函數
+                const processedCachedData = processRawDataFromLocalStorage(rawCachedData);
+
+                if (processedCachedData.length > 0) {
+                    currentMarketPricesData = processedCachedData;
+                    renderMarketDataTable(currentMarketPricesData);
+                    sheetStatusDiv.textContent = i18n.translate('cached_data_loaded_successfully');
+                    console.log(i18n.translate('market_data_loaded_from_localstorage'), currentMarketPricesData);
+                } else {
+                    sheetStatusDiv.textContent = i18n.translate('no_valid_data_in_cache');
+                }
+            } else {
+                sheetStatusDiv.textContent = i18n.translate('no_cached_data_found');
+            }
+        } catch (error) {
+            sheetStatusDiv.textContent = i18n.translate('failed_to_load_cached_data', error.message);
+            console.error("從 localStorage 載入市場價格數據失敗:", error);
+        }
+    }
 
     /**
      * 載入並顯示 Google Sheet 數據。
@@ -490,15 +499,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         sheetDataDisplayDiv.innerHTML = ''; // 清空之前的數據
 
         try {
-            const rawSheetData = await loadGoogleSheetData(urlOrId, '', forceReload); // 傳遞 forceReload 參數
-
-            // 獲取 item_base 數據
-            const itemBase = allData.itemBase || await getItemBase(); // 從 allData 或 dataLoader 獲取
-
-            const processedSheetData = processRawData(rawSheetData, itemBase);
+            const rawSheetData = await loadGoogleSheetData(urlOrId, '', forceReload); // loadGoogleSheetData 現在直接返回處理後的數據
 
             sheetStatusDiv.textContent = i18n.translate('data_loaded_successfully');
-            currentMarketPricesData = processedSheetData; // 更新記憶體中的數據
+            currentMarketPricesData = rawSheetData; // loadGoogleSheetData 已經返回處理後的數據，直接使用
             
             renderMarketDataTable(currentMarketPricesData); // 渲染數據
 

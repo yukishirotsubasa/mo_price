@@ -89,7 +89,7 @@ export function getImageSheet() {
  */
 export function loadGoogleSheetData(urlOrId, sheetName = '', forceReload = false) {
     return new Promise((resolve, reject) => {
-        const CACHE_KEY = 'marketPricesCache';
+        const CACHE_KEY = 'price_data';
 
         // 1. 檢查 localStorage 中是否存在快取數據，除非強制重新載入
         if (!forceReload) {
@@ -97,8 +97,9 @@ export function loadGoogleSheetData(urlOrId, sheetName = '', forceReload = false
             if (cachedData) {
                 try {
                     const parsedData = JSON.parse(cachedData);
+                    const processedCachedData = processRawDataFromLocalStorage(parsedData);
                     console.log("從 localStorage 載入市場價格數據。");
-                    resolve(parsedData);
+                    resolve(processedCachedData); // 返回處理後的數據
                     return;
                 } catch (e) {
                     console.error("解析 localStorage 中的快取數據失敗，將重新載入。", e);
@@ -140,36 +141,120 @@ export function loadGoogleSheetData(urlOrId, sheetName = '', forceReload = false
 
             const dataTable = response.getDataTable();
             const rowCount = dataTable.getNumberOfRows();
-            const colCount = dataTable.getNumberOfColumns();
-            const resultData = [];
+            // 只讀取前 4 欄位
+            const colCount = Math.min(dataTable.getNumberOfColumns(), 4);
+            const rawSheetData = []; // 儲存從 Google Sheet 獲取的原始數據，包括標頭
 
-            // 獲取標題行
+            // 獲取標題行 (只取前 4 欄位)
             const headers = [];
             for (let i = 0; i < colCount; i++) {
                 headers.push(dataTable.getColumnLabel(i));
             }
-            resultData.push(headers);
+            rawSheetData.push(headers);
 
-            // 獲取數據行
+            // 獲取數據行 (只取前 4 欄位)
             for (let i = 0; i < rowCount; i++) {
                 const row = [];
                 for (let j = 0; j < colCount; j++) {
-                    row.push(String(dataTable.getValue(i, j))); // 將所有值轉換為字符串
+                    row.push(dataTable.getValue(i, j)); // 將所有值轉換為字符串
                 }
-                resultData.push(row);
+                rawSheetData.push(row);
             }
 
-            // 2. 將解析後的數據儲存到 localStorage
-            try {
-                localStorage.setItem(CACHE_KEY, JSON.stringify(resultData));
-                console.log("市場價格數據已儲存到 localStorage。");
-            } catch (e) {
-                console.error("儲存數據到 localStorage 失敗。", e);
-            }
+            // 處理原始數據
+            const processedData = processRawData(rawSheetData); // processedData 包含 id, market buy, market sell, custom price
 
-            resolve(resultData);
+            // 將處理後的數據儲存到 localStorage
+            saveMarketDataToLocalStorage(processedData);
+
+            resolve(processedData); // 返回處理後的數據
         });
     });
+}
+
+/**
+ * 處理從 localStorage 載入的原始數據，轉換為所需格式。
+ * localStorage 儲存的數據包含 item id, item name, market buy price, market sell price。
+ * @param {Array<Array<any>>} rawData - 從 localStorage 載入的原始數據。
+ * @returns {Array<Array<any>>} - 處理後的數據，每行包含 [item id, item name, market buy price, market sell price]。
+ */
+export function processRawDataFromLocalStorage(rawData) {
+    const processedData = [];
+    for (const row of rawData) {
+        if (row.length < 4) {
+            continue;
+        }
+
+        const id = parseNumericField(row[0]);
+        const marketBuy = parseNumericField(row[1]);
+        const marketSell = parseNumericField(row[2]);
+        const customPrice = parseNumericField(row[3]);
+
+        if (id === null || marketBuy === null || marketSell === null || customPrice === null) {
+            continue;
+        }
+
+        if (marketBuy === 0 && marketSell === 0 && customPrice === 0) {
+            continue;
+        }
+
+        processedData.push([id, marketBuy, marketSell, customPrice]);
+    }
+    return processedData;
+}
+
+/**
+ * 處理原始數據，過濾無效行並轉換為所需格式。
+ * @param {Array<Array<string>>} rawData - 原始的 Google Sheet 或 CSV 數據 (可能包含標頭行)。
+ * @returns {Array<Array<any>>} - 處理後的數據，每行包含 [item id, item name, market buy price, market sell price]。
+ */
+export function processRawData(rawData) {
+    const processedData = [];
+    for (let i = 0; i < rawData.length; i++) {
+        const row = rawData[i];
+        // 只考慮前 4 個欄位
+        if (row.length < 4) {
+            continue; // 行數據不足，跳過
+        }
+
+        // 欄位對應：id, market buy, market sell, custom price
+        const id = parseNumericField(row[0]);
+        const marketBuy = parseNumericField(row[1]);
+        const marketSell = parseNumericField(row[2]);
+        const customPrice = parseNumericField(row[3]);
+
+        // 嘗試轉型為數字，如轉型失敗捨棄該行
+        if (id === null || marketBuy === null || marketSell === null || customPrice === null) {
+            continue; // 轉型失敗，視為無效行
+        }
+
+        // 轉型後如後 3 個數字皆為 0 捨棄該行 (market buy, market sell, custom price)
+        if (marketBuy === 0 && marketSell === 0 && customPrice === 0) {
+            continue; // 後 3 個數字皆為 0，視為無效行
+        }
+
+        // 只保留 id, market buy, market sell, custom price 這四個欄位
+        processedData.push([id, marketBuy, marketSell, customPrice]);
+    }
+    return processedData;
+}
+
+/**
+ * 將市場價格數據儲存到 localStorage。
+ * localStorage 應儲存一個二維陣列，其中包含 item id, item name, market buy price 和 market sell price。
+ * 不儲存標頭行。
+ * @param {Array<Array<any>>} marketData - 處理後的市場價格數據。
+ */
+export function saveMarketDataToLocalStorage(marketData) {
+    const CACHE_KEY = 'price_data'; // 將鍵名設定為 price_data
+    // 儲存 id, market buy, market sell, custom price 這四個欄位
+    const dataToStore = marketData.map(row => [row[0], row[1], row[2], row[3]]);
+    try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(dataToStore));
+        //console.log("市場價格數據已儲存到 localStorage。");
+    } catch (e) {
+        console.error("儲存數據到 localStorage 失敗。", e);
+    }
 }
 
 /**
@@ -202,4 +287,22 @@ export function loadJsFileVariable(filePath, variableName) {
         };
         document.head.appendChild(script);
     });
+}
+
+/**
+ * 輔助函數：將欄位內容轉型為數字。
+ * - 如果內容為空字串，轉型為 0。
+ * - 如果內容非空但無法轉型為有效數字，返回 null。
+ * @param {string} value - 欄位原始字串內容。
+ * @returns {number|null} - 轉型後的數字或 null。
+ */
+function parseNumericField(value) {
+    if (value === '' || value === null) {
+        return 0;
+    }
+    const num = Number(value);
+    if (isNaN(num)) {
+        return null;
+    }
+    return num;
 }
