@@ -179,8 +179,23 @@ async function renderPage(pageName) {
                     return;
                 }
             case 'tab11': // 版本比較
-                // 這個 Tab 有自己的渲染邏輯，不需要在這裡處理
-                return;
+                {
+                    const container = document.getElementById('tab11-content');
+                    if (container) {
+                        // 載入 HTML 並插入
+                        fetch('views/version_comparison.html')
+                            .then(response => response.text())
+                            .then(html => {
+                                container.innerHTML = html;
+                                initVersionComparisonUI(); // 在 HTML 載入後初始化版本比較 UI
+                            })
+                            .catch(err => {
+                                container.innerHTML = '<div style="color:red;">無法載入版本比較頁面。</div>';
+                                console.error('載入 version_comparison.html 失敗:', err);
+                            });
+                    }
+                    return;
+                }
             default:
                 console.warn(`未知頁面名稱: ${pageName}`);
                 return;
@@ -380,6 +395,55 @@ function updateVersionComparisonUIText() {
     if (versionALabel) versionALabel.textContent = i18n.translate('version_a');
     if (versionBLabel) versionBLabel.textContent = i18n.translate('version_b');
     if (compareVersionsButton) compareVersionsButton.textContent = i18n.translate('compare_versions');
+}
+
+/**
+ * 初始化版本比較功能的所有邏輯，包括按鈕事件和數據載入。
+ * 這個函數應該在版本比較頁面 HTML 載入完成後被調用。
+ */
+async function initVersionComparisonUI() {
+    const versionASelect = document.getElementById('versionA-select');
+    const versionBSelect = document.getElementById('versionB-select');
+    const compareVersionsButton = document.getElementById('compare-versions-button');
+    const comparisonResultsDiv = document.getElementById('version-comparison-results');
+
+    if (versionASelect && versionBSelect && compareVersionsButton && comparisonResultsDiv) {
+        // 移除舊的事件監聽器以避免重複綁定
+        compareVersionsButton.removeEventListener('click', handleCompareVersions);
+        // 綁定新的事件監聽器
+        compareVersionsButton.addEventListener('click', handleCompareVersions);
+    } else {
+        console.error(i18n.translate('version_comparison_ui_not_found'));
+    }
+
+    async function handleCompareVersions() {
+        const versionAPath = versionASelect.value;
+        const versionBPath = versionBSelect.value;
+
+        comparisonResultsDiv.innerHTML = i18n.translate('loading_and_comparing_data');
+
+        try {
+            // 載入兩個版本的 item_base 數據
+            const itemBaseA = await loadJsFileVariable(versionAPath, 'item_base');
+            const itemBaseB = await loadJsFileVariable(versionBPath, 'item_base');
+
+            console.log(i18n.translate('version_a_loaded', versionAPath));
+            console.log(i18n.translate('version_b_loaded', versionBPath));
+            console.log(i18n.translate('version_a_item_count', itemBaseA ? itemBaseA.length : 0));
+            console.log(i18n.translate('version_b_item_count', itemBaseB ? itemBaseB.length : 0));
+
+            // 執行比較
+            const comparisonResult = compareData(itemBaseA, itemBaseB, 'b_i'); // 假設 'b_i' 是唯一 ID
+            console.log(i18n.translate('comparison_results'), comparisonResult);
+
+            // 顯示結果
+            renderComparisonResults(comparisonResult, comparisonResultsDiv);
+
+        } catch (error) {
+            comparisonResultsDiv.innerHTML = `<p style="color: red;">${i18n.translate('failed_to_load_or_compare_data', error.message)}</p>`;
+            console.error(i18n.translate('version_comparison_failed'), error);
+        }
+    }
 }
 
 /**
@@ -932,44 +996,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // 版本比較功能邏輯 (現在是 tab11)
-    const versionASelect = document.getElementById('versionA-select');
-    const versionBSelect = document.getElementById('versionB-select');
-    const compareVersionsButton = document.getElementById('compare-versions-button');
-    const comparisonResultsDiv = document.getElementById('version-comparison-results');
-
-    if (versionASelect && versionBSelect && compareVersionsButton && comparisonResultsDiv) {
-        compareVersionsButton.addEventListener('click', async () => {
-            const versionAPath = versionASelect.value;
-            const versionBPath = versionBSelect.value;
-
-            comparisonResultsDiv.innerHTML = i18n.translate('loading_and_comparing_data');
-
-            try {
-                // 載入兩個版本的 item_base 數據
-                const itemBaseA = await loadJsFileVariable(versionAPath, 'item_base');
-                const itemBaseB = await loadJsFileVariable(versionBPath, 'item_base');
-
-                console.log(i18n.translate('version_a_loaded', versionAPath));
-                console.log(i18n.translate('version_b_loaded', versionBPath));
-                console.log(i18n.translate('version_a_item_count', itemBaseA ? itemBaseA.length : 0));
-                console.log(i18n.translate('version_b_item_count', itemBaseB ? itemBaseB.length : 0));
-
-                // 執行比較
-                const comparisonResult = compareData(itemBaseA, itemBaseB, 'b_i'); // 假設 'b_i' 是唯一 ID
-                console.log(i18n.translate('comparison_results'), comparisonResult);
-
-                // 顯示結果
-                renderComparisonResults(comparisonResult, comparisonResultsDiv);
-
-            } catch (error) {
-                comparisonResultsDiv.innerHTML = `<p style="color: red;">${i18n.translate('failed_to_load_or_compare_data', error.message)}</p>`;
-                console.error(i18n.translate('version_comparison_failed'), error);
-            }
-        });
-    } else {
-        console.error(i18n.translate('version_comparison_ui_not_found'));
-    }
 });
 
 /**
