@@ -180,8 +180,10 @@ export function loadGoogleSheetData(urlOrId, sheetName = '', forceReload = false
  */
 export function processRawDataFromLocalStorage(rawData) {
     const processedData = [];
+    console.log("processRawDataFromLocalStorage: 原始數據", rawData);
     for (const row of rawData) {
         if (row.length < 4) {
+            console.warn("processRawDataFromLocalStorage: 行數據不足 4 個欄位，跳過。", row);
             continue;
         }
 
@@ -191,10 +193,12 @@ export function processRawDataFromLocalStorage(rawData) {
         const customPrice = parseNumericField(row[3]);
 
         if (id === null || marketBuy === null || marketSell === null || customPrice === null) {
+            console.warn("processRawDataFromLocalStorage: 欄位轉型失敗，跳過。", row);
             continue;
         }
 
         if (marketBuy === 0 && marketSell === 0 && customPrice === 0) {
+            console.warn("processRawDataFromLocalStorage: 後 3 個數字皆為 0，跳過。", row);
             continue;
         }
 
@@ -210,10 +214,12 @@ export function processRawDataFromLocalStorage(rawData) {
  */
 export function processRawData(rawData) {
     const processedData = [];
+    console.log("processRawData: 原始數據", rawData);
     for (let i = 0; i < rawData.length; i++) {
         const row = rawData[i];
         // 只考慮前 4 個欄位
         if (row.length < 4) {
+            console.warn("processRawData: 行數據不足 4 個欄位，跳過。", row);
             continue; // 行數據不足，跳過
         }
 
@@ -225,11 +231,13 @@ export function processRawData(rawData) {
 
         // 嘗試轉型為數字，如轉型失敗捨棄該行
         if (id === null || marketBuy === null || marketSell === null || customPrice === null) {
+            console.warn("processRawData: 欄位轉型失敗，跳過。", row);
             continue; // 轉型失敗，視為無效行
         }
 
         // 轉型後如後 3 個數字皆為 0 捨棄該行 (market buy, market sell, custom price)
         if (marketBuy === 0 && marketSell === 0 && customPrice === 0) {
+            console.warn("processRawData: 後 3 個數字皆為 0，跳過。", row);
             continue; // 後 3 個數字皆為 0，視為無效行
         }
 

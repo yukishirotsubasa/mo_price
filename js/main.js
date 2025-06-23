@@ -127,77 +127,35 @@ async function renderPage(pageName) {
                 args = [containerId, npcBase, generateTableHTML, createItemNameMap, itemBase];
                 break;
             case 'forging-cost-page': // 鍛造成本
-                const forgingCostContainer = document.getElementById('forging-cost-page-content');
-                if (forgingCostContainer) {
-                    forgingCostContainer.innerHTML = ''; // 清空舊內容
-                    if (itemBase && FORGE_FORMULAS) {
-                        const forgingCostData = generateForgingCostTableData(FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase);
-                        let tableHTML = '<table><thead><tr>';
-                        tableHTML += `<th>${i18n.translate('id')}</th>`;
-                        tableHTML += `<th>${i18n.translate('item_name')}</th>`;
-                        tableHTML += `<th>${i18n.translate('level')}</th>`;
-                        tableHTML += `<th>${i18n.translate('pattern')}</th>`;
-                        tableHTML += `<th>${i18n.translate('material_price')}</th>`;
-                        tableHTML += `<th>${i18n.translate('chance')}</th>`;
-                        tableHTML += `<th>${i18n.translate('cost')}</th>`;
-                        tableHTML += `<th>${i18n.translate('sell_price')}</th>`;
-                        tableHTML += '</tr></thead><tbody>';
-                        forgingCostData.forEach(row => {
-                            tableHTML += '<tr>';
-                            tableHTML += `<td>${row.id}</td>`;
-                            tableHTML += `<td>${row.itemName}</td>`;
-                            tableHTML += `<td>${row.level}</td>`;
-                            tableHTML += `<td>${row.pattern}</td>`;
-                            tableHTML += `<td>${row.materialPrice}</td>`;
-                            tableHTML += `<td>${row.chance}</td>`;
-                            tableHTML += `<td>${row.cost}</td>`;
-                            tableHTML += `<td>${row.sellPrice}</td>`;
-                            tableHTML += '</tr>';
-                        });
-                        tableHTML += '</tbody></table>';
-                        forgingCostContainer.innerHTML = tableHTML;
-                    } else {
+                containerId = 'forging-cost-page-content';
+                if (itemBase && FORGE_FORMULAS) {
+                    const forgingCostData = generateForgingCostTableData(FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase);
+                    generateFunction = renderForgingCostTable;
+                    args = [containerId, forgingCostData];
+                } else {
+                    const forgingCostContainer = document.getElementById(containerId);
+                    if (forgingCostContainer) {
                         forgingCostContainer.textContent = i18n.translate('forging_data_not_available');
-                        console.error("For Forging Cost Tab, itemBase or FORGE_FORMULAS data is not available.");
                     }
-                } else {
-                    console.error("Forging Cost Container element not found.");
+                    console.error("For Forging Cost Tab, itemBase or FORGE_FORMULAS data is not available.");
+                    return;
                 }
-                return; // 鍛造成本有特殊渲染邏輯，直接返回
+                break;
             case 'carpentry-cost-page': // 木工成本
-                const carpentryCostContainer = document.getElementById('carpentry-cost-page-content');
-                if (carpentryCostContainer) {
-                    carpentryCostContainer.innerHTML = '';
-                    if (itemBase && CARPENTRY_FORMULAS) {
-                        const carpentryCostData = generateCarpentryCostTableData(CARPENTRY_FORMULAS, generateTableHTML, createItemNameMap, itemBase);
-                        let tableHTML = '<table><thead><tr>';
-                        tableHTML += `<th>${i18n.translate('item_name')}</th>`;
-                        tableHTML += `<th>${i18n.translate('level')}</th>`;
-                        tableHTML += `<th>${i18n.translate('pattern')}</th>`;
-                        tableHTML += `<th>${i18n.translate('material_price')}</th>`;
-                        tableHTML += `<th>${i18n.translate('cost')}</th>`;
-                        tableHTML += `<th>${i18n.translate('sell_price')}</th>`;
-                        tableHTML += '</tr></thead><tbody>';
-                        carpentryCostData.forEach(row => {
-                            tableHTML += '<tr>';
-                            tableHTML += `<td>${row.itemName}</td>`;
-                            tableHTML += `<td>${row.level}</td>`;
-                            tableHTML += `<td>${row.pattern}</td>`;
-                            tableHTML += `<td>${row.materialPrice}</td>`;
-                            tableHTML += `<td>${row.cost}</td>`;
-                            tableHTML += `<td>${row.sellPrice}</td>`;
-                            tableHTML += '</tr>';
-                        });
-                        tableHTML += '</tbody></table>';
-                        carpentryCostContainer.innerHTML = tableHTML;
-                    } else {
-                        carpentryCostContainer.textContent = i18n.translate('carpentry_data_not_available');
-                        console.error("For Carpentry Cost Tab, itemBase or CARPENTRY_FORMULAS data is not available.");
-                    }
+                containerId = 'carpentry-cost-page-content';
+                if (itemBase && CARPENTRY_FORMULAS) {
+                    const carpentryCostData = generateCarpentryCostTableData(CARPENTRY_FORMULAS, generateTableHTML, createItemNameMap, itemBase);
+                    generateFunction = renderCarpentryCostTable;
+                    args = [containerId, carpentryCostData];
                 } else {
-                    console.error("Carpentry Cost Container element not found.");
+                    const carpentryCostContainer = document.getElementById(containerId);
+                    if (carpentryCostContainer) {
+                        carpentryCostContainer.textContent = i18n.translate('carpentry_data_not_available');
+                    }
+                    console.error("For Carpentry Cost Tab, itemBase or CARPENTRY_FORMULAS data is not available.");
+                    return;
                 }
-                return; // 木工成本有特殊渲染邏輯，直接返回
+                break;
             case 'tab10': // 市場價格整合
             case 'tab11': // 版本比較
                 // 這兩個 Tab 有自己的渲染邏輯，不需要在這裡處理
@@ -217,6 +175,92 @@ async function renderPage(pageName) {
 
     } catch (error) {
         console.error("渲染頁面失敗:", error);
+    }
+}
+
+/**
+ * 渲染鍛造成本表格。
+ * @param {string} containerId - 容器元素的 ID。
+ * @param {Array<Object>} forgingCostData - 鍛造成本數據。
+ */
+function renderForgingCostTable(containerId, forgingCostData) {
+    const forgingCostContainer = document.getElementById(containerId);
+    if (!forgingCostContainer) {
+        console.error(`找不到 ID 為 ${containerId} 的容器元素。`);
+        return;
+    }
+
+    forgingCostContainer.innerHTML = ''; // 清空舊內容
+
+    if (forgingCostData && forgingCostData.length > 0) {
+        let tableHTML = '<table><thead><tr>';
+        tableHTML += `<th>${i18n.translate('id')}</th>`;
+        tableHTML += `<th>${i18n.translate('item_name')}</th>`;
+        tableHTML += `<th>${i18n.translate('level')}</th>`;
+        tableHTML += `<th>${i18n.translate('pattern')}</th>`;
+        tableHTML += `<th>${i18n.translate('material_price')}</th>`;
+        tableHTML += `<th>${i18n.translate('chance')}</th>`;
+        tableHTML += `<th>${i18n.translate('cost')}</th>`;
+        tableHTML += `<th>${i18n.translate('sell_price')}</th>`;
+        tableHTML += '</tr></thead><tbody>';
+        forgingCostData.forEach(row => {
+            tableHTML += '<tr>';
+            tableHTML += `<td>${row.id}</td>`;
+            tableHTML += `<td>${row.itemName}</td>`;
+            tableHTML += `<td>${row.level}</td>`;
+            tableHTML += `<td>${row.pattern}</td>`;
+            tableHTML += `<td>${row.materialPrice}</td>`;
+            tableHTML += `<td>${row.chance}</td>`;
+            tableHTML += `<td>${row.cost}</td>`;
+            tableHTML += `<td>${row.sellPrice}</td>`;
+            tableHTML += '</tr>';
+        });
+        tableHTML += '</tbody></table>';
+        forgingCostContainer.innerHTML = tableHTML;
+    } else {
+        forgingCostContainer.textContent = i18n.translate('forging_data_not_available');
+        console.error("For Forging Cost Tab, data is not available or empty.");
+    }
+}
+
+/**
+ * 渲染木工成本表格。
+ * @param {string} containerId - 容器元素的 ID。
+ * @param {Array<Object>} carpentryCostData - 木工成本數據。
+ */
+function renderCarpentryCostTable(containerId, carpentryCostData) {
+    const carpentryCostContainer = document.getElementById(containerId);
+    if (!carpentryCostContainer) {
+        console.error(`找不到 ID 為 ${containerId} 的容器元素。`);
+        return;
+    }
+
+    carpentryCostContainer.innerHTML = ''; // 清空舊內容
+
+    if (carpentryCostData && carpentryCostData.length > 0) {
+        let tableHTML = '<table><thead><tr>';
+        tableHTML += `<th>${i18n.translate('item_name')}</th>`;
+        tableHTML += `<th>${i18n.translate('level')}</th>`;
+        tableHTML += `<th>${i18n.translate('pattern')}</th>`;
+        tableHTML += `<th>${i18n.translate('material_price')}</th>`;
+        tableHTML += `<th>${i18n.translate('cost')}</th>`;
+        tableHTML += `<th>${i18n.translate('sell_price')}</th>`;
+        tableHTML += '</tr></thead><tbody>';
+        carpentryCostData.forEach(row => {
+            tableHTML += '<tr>';
+            tableHTML += `<td>${row.itemName}</td>`;
+            tableHTML += `<td>${row.level}</td>`;
+            tableHTML += `<td>${row.pattern}</td>`;
+            tableHTML += `<td>${row.materialPrice}</td>`;
+            tableHTML += `<td>${row.cost}</td>`;
+            tableHTML += `<td>${row.sellPrice}</td>`;
+            tableHTML += '</tr>';
+        });
+        tableHTML += '</tbody></table>';
+        carpentryCostContainer.innerHTML = tableHTML;
+    } else {
+        carpentryCostContainer.textContent = i18n.translate('carpentry_data_not_available');
+        console.error("For Carpentry Cost Tab, data is not available or empty.");
     }
 }
 
@@ -358,14 +402,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         langSelect.addEventListener('change', async (event) => {
             const newLang = event.target.value;
             await i18n.setLanguage(newLang);
-            // 語言切換後重新渲染所有表格和 UI 文本
-            await renderAllTablesIfDataLoaded(); // 語言切換後重新渲染所有表格
             // 重新填充語言選擇器以更新語言名稱翻譯
             populateLanguageSelector();
             // 更新 UI 文本
             updateTabTitles();
             updateGoogleSheetUIText();
             updateVersionComparisonUIText();
+
+            // 獲取當前活躍的 Tab
+            const activeTabButton = document.querySelector('.tab-button.active');
+            if (activeTabButton) {
+                const activeTabName = activeTabButton.dataset.tab;
+                await renderPage(activeTabName); // 重新渲染當前活躍的 Tab
+            } else {
+                // 如果沒有活躍的 Tab，則嘗試渲染預設 Tab (例如：tab1)
+                // 這裡可以根據實際需求設定預設行為
+                console.log("沒有活躍的 Tab，跳過重新渲染當前頁面。");
+            }
         });
     } else {
         console.error("語言選擇器元素未找到。");
@@ -538,7 +591,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    google.charts.setOnLoadCallback(() => {
+    google.charts.setOnLoadCallback(async () => {
         const googleSheetUrlInput = document.getElementById('google-sheet-url');
         const loadSheetButton = document.getElementById('load-sheet-button');
         const forceReloadSheetButton = document.getElementById('force-reload-sheet-button');
@@ -645,6 +698,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         forceReloadSheetButton.addEventListener('click', () => loadAndDisplaySheetData(true)); // 強制重新載入
 
         // 在 Google Charts Library 載入完成後，嘗試從 localStorage 載入數據
+        // 在 Google Charts Library 載入完成後，嘗試從 localStorage 載入數據
+        // 注意：allData 的載入現在主要由 renderPage 處理，這裡不再強制載入
         loadMarketDataFromLocalStorage();
     });
 
