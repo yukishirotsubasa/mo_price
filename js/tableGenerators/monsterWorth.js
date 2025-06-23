@@ -1,4 +1,5 @@
 import i18n from '../i18n.js'; // 導入 i18n 模組
+import { getItemSellPrice } from '../utils.js'; // 導入 getItemSellPrice 函數
 
 export function generateMonsterWorthTable(npcBase, generateTableHTML, createItemNameMap, itemBase) {
     const container = document.getElementById('monster-worth-page-content');
@@ -23,9 +24,17 @@ export function generateMonsterWorthTable(npcBase, generateTableHTML, createItem
             return null; // 返回 null 表示跳過此行
         }
 
+        let cumulativeChance = 1;
+        let totalWorth = 0;
         const drops = monster.params.drops.map(drop => {
             const dropName = itemNameMap.get(drop.id) || i18n.translate('unknown_item', drop.id);
-            return `${dropName} (${(drop.chance * 100).toFixed(6).replace(/\.?0+$/, '')}%)`;
+            const actualChance = cumulativeChance * drop.chance;
+            cumulativeChance *= (1 - drop.chance);
+
+            const itemSellPrice = getItemSellPrice(drop.id, itemBase);
+            totalWorth += itemSellPrice * actualChance;
+
+            return `${dropName} (${(actualChance * 100).toFixed(6).replace(/\.?0+$/, '')}%)`;
         }).join(', ');
         
         return [
@@ -36,13 +45,32 @@ export function generateMonsterWorthTable(npcBase, generateTableHTML, createItem
             monster.temp ? monster.temp.total_strength : 'N/A',
             monster.temp ? monster.temp.total_accuracy : 'N/A',
             drops,
-            monster.worth ? monster.worth : 'N/A' // 新增 worth 欄位
+            totalWorth.toFixed(2) // 新增 worth 欄位，並保留兩位小數
         ];
     };
 
     const filteredNpcBase = npcBase.filter(monster =>
         monster.params && monster.params.drops && monster.params.drops.length > 0
     );
-    const tableHTML = generateTableHTML(headerKeys, filteredNpcBase, rowMapper, i18n.translate);
+
+    // 先轉換為 rows，並保留原始 monster 與其 worth 值
+    const rowsWithWorth = filteredNpcBase.map(monster => {
+        let cumulativeChance = 1;
+        let totalWorth = 0;
+        for (const drop of monster.params.drops) {
+            const actualChance = cumulativeChance * drop.chance;
+            cumulativeChance *= (1 - drop.chance);
+            const itemSellPrice = getItemSellPrice(drop.id, itemBase);
+            totalWorth += itemSellPrice * actualChance;
+        }
+        return { monster, worth: totalWorth };
+    });
+
+    // 依 worth 降序排序
+    rowsWithWorth.sort((a, b) => b.worth - a.worth);
+
+    // 擷取排序後的 monster 陣列
+    const sortedMonsters = rowsWithWorth.map(entry => entry.monster);
+    const tableHTML = generateTableHTML(headerKeys, sortedMonsters, rowMapper, i18n.translate);
     container.innerHTML = tableHTML;
 }

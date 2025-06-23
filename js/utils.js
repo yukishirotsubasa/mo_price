@@ -118,3 +118,36 @@ export function compareData(dataA, dataB, idKey) {
 
     return result;
 }
+/**
+ * 取得物品出售價格。
+ * @param {number} item_id - 物品ID。
+ * @param {Array<Object>} itemBase - 物品基礎數據。
+ * @returns {number} 物品出售價格。
+ */
+export function getItemSellPrice(item_id, itemBase) {
+    let price_data = localStorage.getItem('price_data');
+    if (price_data) {
+        try {
+            price_data = JSON.parse(price_data);
+            const row = price_data.find(row => parseInt(row[0]) === item_id); // 確保 item_id 比較時類型一致
+            if (row) {
+                const customPrice = parseFloat(row[3]);
+                if (!isNaN(customPrice) && customPrice !== 0) {
+                    return customPrice;
+                }
+                const marketSell = parseFloat(row[2]);
+                if (!isNaN(marketSell) && marketSell !== 0) {
+                    return marketSell;
+                }
+            }
+        } catch (e) {
+            console.error("解析 price_data 失敗:", e);
+        }
+    }
+    // 如果 localStorage 中沒有資料或資料無效，則從 itemBase 取得
+    const itemInfo = itemBase[item_id];
+    if (itemInfo && itemInfo.params && itemInfo.params.price) {
+        return itemInfo.params.price * 0.4;
+    }
+    return 0; // 預設值
+}
