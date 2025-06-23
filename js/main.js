@@ -12,6 +12,7 @@ import { generateSkillQuestTable } from './tableGenerators/skillQuestTable.js';
 import { generateObjectBaseTable } from './tableGenerators/objectBaseTable.js';
 import { generateEnchantingChancesTable } from './tableGenerators/enchantingChancesTable.js';
 import { generateImageSheetTable } from './tableGenerators/imageSheetTable.js';
+import { generateMonsterWorthTable } from './tableGenerators/monsterWorth.js';
 import { generateForgingCostTableData } from './forgingCost.js'; // 導入 ForgingCost 模組
 import i18n from './i18n.js'; // 導入 i18n 模組
 
@@ -40,6 +41,7 @@ async function renderAllTables(forceReload = false) {
         generateObjectBaseTable(objectBase, generateTableHTML, createItemNameMap, itemBase);
         generateEnchantingChancesTable(forge, generateTableHTML, createItemNameMap, itemBase);
         generateImageSheetTable(imageSheet, generateTableHTML, createItemNameMap, itemBase);
+        generateMonsterWorthTable(npcBase, generateTableHTML, createItemNameMap, itemBase);
 
         // 更新 Tab 標題
         updateTabTitles();
@@ -58,35 +60,64 @@ async function renderAllTables(forceReload = false) {
  */
 function updateTabTitles() {
     // 更新上層選單標題
-    document.querySelector('.sidebar-menu .has-submenu:nth-child(1) > .submenu-toggle').textContent = i18n.translate('New');
-    document.querySelector('.sidebar-menu .has-submenu:nth-child(2) > .submenu-toggle').textContent = i18n.translate('Price');
-    document.querySelector('.sidebar-menu .has-submenu:nth-child(3) > .submenu-toggle').textContent = i18n.translate('Wiki');
+const newToggle = document.querySelector('.sidebar-menu .has-submenu:nth-child(1) > .submenu-toggle');
+if (newToggle) newToggle.textContent = i18n.translate('New');
+const priceToggle = document.querySelector('.sidebar-menu .has-submenu:nth-child(2) > .submenu-toggle');
+if (priceToggle) priceToggle.textContent = i18n.translate('Price');
+const wikiToggle = document.querySelector('.sidebar-menu .has-submenu:nth-child(3) > .submenu-toggle');
+if (wikiToggle) wikiToggle.textContent = i18n.translate('Wiki');
 
-    // 更新子選單標題
-    document.querySelector('.tab-button[data-tab="tab1"]').textContent = i18n.translate('Item');
-    document.querySelector('.tab-button[data-tab="tab2"]').textContent = i18n.translate('carpentry');
-    document.querySelector('.tab-button[data-tab="tab3"]').textContent = i18n.translate('forging');
-    document.querySelector('.tab-button[data-tab="tab4"]').textContent = i18n.translate('npc');
-    document.querySelector('.tab-button[data-tab="tab5"]').textContent = i18n.translate('Pet');
-    document.querySelector('.tab-button[data-tab="tab6"]').textContent = i18n.translate('Skill Quest');
-    document.querySelector('.tab-button[data-tab="tab7"]').textContent = i18n.translate('objects');
-    document.querySelector('.tab-button[data-tab="tab8"]').textContent = i18n.translate('Enchanting');
-    document.querySelector('.tab-button[data-tab="tab9"]').textContent = i18n.translate('image_sheet');
-    document.querySelector('.tab-button[data-tab="tab10"]').textContent = i18n.translate('Market Price Integration');
-    document.querySelector('.tab-button[data-tab="tab11"]').textContent = i18n.translate('Version Comparison');
+// 更新子選單標題
+const itemTabButton = document.querySelector('.tab-button[data-tab="tab1"]');
+if (itemTabButton) itemTabButton.textContent = i18n.translate('Item');
+const carpentryTabButton = document.querySelector('.tab-button[data-tab="tab2"]');
+if (carpentryTabButton) carpentryTabButton.textContent = i18n.translate('carpentry');
+const forgingTabButton = document.querySelector('.tab-button[data-tab="tab3"]');
+if (forgingTabButton) forgingTabButton.textContent = i18n.translate('forging');
+const npcTabButton = document.querySelector('.tab-button[data-tab="tab4"]');
+if (npcTabButton) npcTabButton.textContent = i18n.translate('npc');
+const petTabButton = document.querySelector('.tab-button[data-tab="tab5"]');
+if (petTabButton) petTabButton.textContent = i18n.translate('Pet');
+const skillQuestTabButton = document.querySelector('.tab-button[data-tab="tab6"]');
+if (skillQuestTabButton) skillQuestTabButton.textContent = i18n.translate('Skill Quest');
+const objectsTabButton = document.querySelector('.tab-button[data-tab="tab7"]');
+if (objectsTabButton) objectsTabButton.textContent = i18n.translate('objects');
+const enchantingTabButton = document.querySelector('.tab-button[data-tab="tab8"]');
+if (enchantingTabButton) enchantingTabButton.textContent = i18n.translate('Enchanting');
+const imageSheetTabButton = document.querySelector('.tab-button[data-tab="tab9"]');
+if (imageSheetTabButton) imageSheetTabButton.textContent = i18n.translate('image_sheet');
+const marketPriceIntegrationTabButton = document.querySelector('.tab-button[data-tab="tab10"]');
+if (marketPriceIntegrationTabButton) marketPriceIntegrationTabButton.textContent = i18n.translate('Market Price Integration');
+const versionComparisonTabButton = document.querySelector('.tab-button[data-tab="tab11"]');
+if (versionComparisonTabButton) versionComparisonTabButton.textContent = i18n.translate('Version Comparison');
+const monsterWorthTabButton = document.querySelector('.tab-button[data-tab="monster-worth-page"]');
+if (monsterWorthTabButton) monsterWorthTabButton.textContent = i18n.translate('monster_worth');
 
-    // 更新 Tab 內容標題
-    document.querySelector('#tab1-content h2').textContent = i18n.translate('Item');
-    document.querySelector('#tab2-content h2').textContent = i18n.translate('carpentry');
-    document.querySelector('#tab3-content h2').textContent = i18n.translate('forging');
-    document.querySelector('#tab4-content h2').textContent = i18n.translate('npc');
-    document.querySelector('#tab5-content h2').textContent = i18n.translate('Pet');
-    document.querySelector('#tab6-content h2').textContent = i18n.translate('Skill Quest');
-    document.querySelector('#tab7-content h2').textContent = i18n.translate('objects');
-    document.querySelector('#tab8-content h2').textContent = i18n.translate('Enchanting');
-    document.querySelector('#tab9-content h2').textContent = i18n.translate('image_sheet');
-    document.querySelector('#tab10-content h2').textContent = i18n.translate('Market Price Integration');
-    document.querySelector('#tab11-content h2').textContent = i18n.translate('Version Comparison');
+// 更新 Tab 內容標題
+const tab1ContentH2 = document.querySelector('#tab1-content h2');
+if (tab1ContentH2) tab1ContentH2.textContent = i18n.translate('Item');
+const tab2ContentH2 = document.querySelector('#tab2-content h2');
+if (tab2ContentH2) tab2ContentH2.textContent = i18n.translate('carpentry');
+const tab3ContentH2 = document.querySelector('#tab3-content h2');
+if (tab3ContentH2) tab3ContentH2.textContent = i18n.translate('forging');
+const tab4ContentH2 = document.querySelector('#tab4-content h2');
+if (tab4ContentH2) tab4ContentH2.textContent = i18n.translate('npc');
+const tab5ContentH2 = document.querySelector('#tab5-content h2');
+if (tab5ContentH2) tab5ContentH2.textContent = i18n.translate('Pet');
+const tab6ContentH2 = document.querySelector('#tab6-content h2');
+if (tab6ContentH2) tab6ContentH2.textContent = i18n.translate('Skill Quest');
+const tab7ContentH2 = document.querySelector('#tab7-content h2');
+if (tab7ContentH2) tab7ContentH2.textContent = i18n.translate('objects');
+const tab8ContentH2 = document.querySelector('#tab8-content h2');
+if (tab8ContentH2) tab8ContentH2.textContent = i18n.translate('Enchanting');
+const tab9ContentH2 = document.querySelector('#tab9-content h2');
+if (tab9ContentH2) tab9ContentH2.textContent = i18n.translate('image_sheet');
+const tab10ContentH2 = document.querySelector('#tab10-content h2');
+if (tab10ContentH2) tab10ContentH2.textContent = i18n.translate('Market Price Integration');
+const tab11ContentH2 = document.querySelector('#tab11-content h2');
+if (tab11ContentH2) tab11ContentH2.textContent = i18n.translate('Version Comparison');
+const monsterWorthContentH2 = document.querySelector('#monster-worth-page-content h2');
+if (monsterWorthContentH2) monsterWorthContentH2.textContent = i18n.translate('monster_worth');
 }
 
 /**
