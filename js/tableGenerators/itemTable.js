@@ -1,12 +1,8 @@
 // js/tableGenerators/itemTable.js - 包含 generateItemTable 函數
 import i18n from '../i18n.js'; // 導入 i18n 模組
 
-export async function generateItemTable(itemBase, generateTableHTML, createItemNameMap) {
-    const tableContainer = document.getElementById('item-table-container');
-    if (!tableContainer) {
-        console.error("找不到 item-table-container 元素。");
-        return;
-    }
+export async function generateItemTable(containerId, itemBase, generateTableHTML, createItemNameMap) {
+    const tableContainer = document.getElementById(containerId);
 
     let item_base_config;
     try {

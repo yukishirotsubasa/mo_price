@@ -1,11 +1,7 @@
 import i18n from '../i18n.js'; // 導入 i18n 模組
 
-export function generateNpcTable(npcBase, generateTableHTML, createItemNameMap, itemBase) {
-    const container = document.getElementById('npc-table-container');
-    if (!container) {
-        console.error('NPC table container not found.');
-        return;
-    }
+export function generateNpcTable(containerId, npcBase, generateTableHTML, createItemNameMap, itemBase) {
+    const container = document.getElementById(containerId);
 
     if (!npcBase) {
         container.innerHTML = `<p>${i18n.translate('npc_data_not_loaded')}</p>`;

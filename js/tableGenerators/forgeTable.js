@@ -1,12 +1,8 @@
 // js/tableGenerators/forgeTable.js - 包含 generateForgeTable 函數
 import i18n from '../i18n.js'; // 導入 i18n 模組
 
-export function generateForgeTable(FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase) {
-    const forgeTableContainer = document.getElementById('forge-table-container');
-    if (!forgeTableContainer) {
-        console.error("找不到 forge-table-container 元素。");
-        return;
-    }
+export function generateForgeTable(containerId, FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase) {
+    const forgeTableContainer = document.getElementById(containerId);
 
     const itemNameMap = createItemNameMap(itemBase, i18n.translate);
 

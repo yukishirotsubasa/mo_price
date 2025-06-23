@@ -1,11 +1,7 @@
 import i18n from '../i18n.js'; // 導入 i18n 模組
 
-export function generateSkillQuestTable(skillQuest, generateTableHTML, createItemNameMap, itemBase) {
-    const container = document.getElementById('skill-quest-table-container');
-    if (!container) {
-        console.error('Skill Quest table container not found.');
-        return;
-    }
+export function generateSkillQuestTable(containerId, skillQuest, generateTableHTML, createItemNameMap, itemBase) {
+    const container = document.getElementById(containerId);
 
     if (!skillQuest) {
         container.innerHTML = '<p>skill quest data not doaded。</p>';

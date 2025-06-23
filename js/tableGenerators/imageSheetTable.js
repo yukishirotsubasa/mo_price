@@ -1,11 +1,7 @@
 import i18n from '../i18n.js'; // 導入 i18n 模組
 
-export function generateImageSheetTable(imageSheet, generateTableHTML, createItemNameMap, itemBase) {
-    const container = document.getElementById('image-sheet-table-container');
-    if (!container) {
-        console.error('Image Sheet table container not found.');
-        return;
-    }
+export function generateImageSheetTable(containerId, imageSheet, generateTableHTML, createItemNameMap, itemBase) {
+    const container = document.getElementById(containerId);
 
     if (!imageSheet) {
         container.innerHTML = '<p>image sheet data not doaded。</p>';

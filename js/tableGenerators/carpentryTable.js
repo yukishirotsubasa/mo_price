@@ -1,12 +1,8 @@
 // js/tableGenerators/carpentryTable.js - 包含 generateCarpentryTable 函數
 import i18n from '../i18n.js'; // 導入 i18n 模組
 
-export function generateCarpentryTable(CARPENTRY_FORMULAS, generateTableHTML, createItemNameMap, itemBase) {
-    const carpentryTableContainer = document.getElementById('carpentry-table-container');
-    if (!carpentryTableContainer) {
-        console.error("找不到 carpentry-table-container 元素。");
-        return;
-    }
+export function generateCarpentryTable(containerId, CARPENTRY_FORMULAS, generateTableHTML, createItemNameMap, itemBase) {
+    const carpentryTableContainer = document.getElementById(containerId);
 
     const itemNameMap = createItemNameMap(itemBase, i18n.translate);
 

@@ -1,12 +1,8 @@
 import i18n from '../i18n.js'; // 導入 i18n 模組
 import { getItemSellPrice } from '../utils.js'; // 導入 getItemSellPrice 函數
 
-export function generateMonsterWorthTable(npcBase, generateTableHTML, createItemNameMap, itemBase) {
-    const container = document.getElementById('monster-worth-page-content');
-    if (!container) {
-        console.error('Monster Worth table container not found.');
-        return;
-    }
+export function generateMonsterWorthTable(containerId, npcBase, generateTableHTML, createItemNameMap, itemBase) {
+    const container = document.getElementById(containerId);
 
     if (!npcBase) {
         container.innerHTML = `<p>${i18n.translate('monster_worth_data_not_loaded')}</p>`;

@@ -1,11 +1,7 @@
 import i18n from '../i18n.js'; // 導入 i18n 模組
 
-export function generateEnchantingChancesTable(enchantingChances, generateTableHTML, createItemNameMap, itemBase) {
-    const container = document.getElementById('enchanting-chances-table-container');
-    if (!container) {
-        console.error('Enchanting Chances table container not found.');
-        return;
-    }
+export function generateEnchantingChancesTable(containerId, enchantingChances, generateTableHTML, createItemNameMap, itemBase) {
+    const container = document.getElementById(containerId);
 
     if (!enchantingChances) {
         container.innerHTML = '<p>enchanting chances data not doaded。</p>';

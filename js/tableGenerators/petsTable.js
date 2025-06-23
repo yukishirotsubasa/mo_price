@@ -1,11 +1,7 @@
 import i18n from '../i18n.js'; // 導入 i18n 模組
 
-export function generatePetsTable(pets, generateTableHTML, createItemNameMap, itemBase, allPets) {
-    const container = document.getElementById('pets-table-container');
-    if (!container) {
-        console.error('Pets table container not found.');
-        return;
-    }
+export function generatePetsTable(containerId, pets, generateTableHTML, createItemNameMap, itemBase, allPets) {
+    const container = document.getElementById(containerId);
 
     if (!pets) {
         container.innerHTML = '<p>pets data not doaded。</p>';

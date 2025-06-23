@@ -1,11 +1,7 @@
 import i18n from '../i18n.js'; // 導入 i18n 模組
 
-export function generateObjectBaseTable(objectBase, generateTableHTML, createItemNameMap, itemBase) {
-    const container = document.getElementById('object-base-table-container');
-    if (!container) {
-        console.error('Object Base table container not found.');
-        return;
-    }
+export function generateObjectBaseTable(containerId, objectBase, generateTableHTML, createItemNameMap, itemBase) {
+    const container = document.getElementById(containerId);
 
     if (!objectBase) {
         container.innerHTML = '<p>object data not doaded。</p>';

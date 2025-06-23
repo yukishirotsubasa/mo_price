@@ -22,36 +22,201 @@ let allData = {}; // 用於儲存所有載入的數據，以便在語言切換�
  * 渲染所有表格。
  * @param {boolean} forceReload - 是否強制重新載入數據。
  */
-async function renderAllTables(forceReload = false) {
+async function renderAllTablesIfDataLoaded() {
     try {
-        // 如果是第一次載入或強制重新載入，則從 dataLoader 載入數據
-        if (Object.keys(allData).length === 0 || forceReload) {
-            allData = await loadData();
+        if (Object.keys(allData).length === 0) {
+            console.warn("allData 未載入，跳過 renderAllTablesIfDataLoaded。");
+            return;
         }
 
         const { itemBase, FORGE_FORMULAS, CARPENTRY_FORMULAS, npcBase, pets, skillQuest, objectBase, forge, imageSheet } = allData;
 
         // 重新生成所有表格
-        generateItemTable(itemBase, generateTableHTML, createItemNameMap);
-        generateCarpentryTable(CARPENTRY_FORMULAS, generateTableHTML, createItemNameMap, itemBase);
-        generateForgeTable(FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase);
-        generateNpcTable(npcBase, generateTableHTML, createItemNameMap, itemBase);
-        generatePetsTable(pets, generateTableHTML, createItemNameMap, itemBase, pets);
-        generateSkillQuestTable(skillQuest, generateTableHTML, createItemNameMap, itemBase);
-        generateObjectBaseTable(objectBase, generateTableHTML, createItemNameMap, itemBase);
-        generateEnchantingChancesTable(forge, generateTableHTML, createItemNameMap, itemBase);
-        generateImageSheetTable(imageSheet, generateTableHTML, createItemNameMap, itemBase);
-        generateMonsterWorthTable(npcBase, generateTableHTML, createItemNameMap, itemBase);
-
-        // 更新 Tab 標題
-        updateTabTitles();
-        // 更新 Google Sheet UI 文本
-        updateGoogleSheetUIText();
-        // 更新版本比較 UI 文本
-        updateVersionComparisonUIText();
+        generateItemTable('tab1-content', itemBase, generateTableHTML, createItemNameMap);
+        generateCarpentryTable('tab2-content', CARPENTRY_FORMULAS, generateTableHTML, createItemNameMap, itemBase);
+        generateForgeTable('tab3-content', FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase);
+        generateNpcTable('tab4-content', npcBase, generateTableHTML, createItemNameMap, itemBase);
+        generatePetsTable('tab5-content', pets, generateTableHTML, createItemNameMap, itemBase, pets);
+        generateSkillQuestTable('tab6-content', skillQuest, generateTableHTML, createItemNameMap, itemBase);
+        generateObjectBaseTable('tab7-content', objectBase, generateTableHTML, createItemNameMap, itemBase);
+        generateEnchantingChancesTable('tab8-content', forge, generateTableHTML, createItemNameMap, itemBase);
+        generateImageSheetTable('tab9-content', imageSheet, generateTableHTML, createItemNameMap, itemBase);
+        generateMonsterWorthTable('monster-worth-page-content', npcBase, generateTableHTML, createItemNameMap, itemBase);
 
     } catch (error) {
-        console.error("數據載入或表格生成失敗:", error);
+        console.error("表格生成失敗:", error);
+    }
+}
+
+/**
+ * 根據頁面名稱渲染對應的表格。
+ * @param {string} pageName - 要渲染的頁面名稱 (對應 data-tab 屬性)。
+ */
+async function renderPage(pageName) {
+    try {
+        // 如果 allData 為空，則異步載入數據
+        if (Object.keys(allData).length === 0) {
+            console.log("allData 未載入，正在載入數據...");
+            allData = await loadData();
+            // 數據載入後，更新所有 UI 文本
+            updateTabTitles();
+            updateGoogleSheetUIText();
+            updateVersionComparisonUIText();
+        }
+
+        const { itemBase, FORGE_FORMULAS, CARPENTRY_FORMULAS, npcBase, pets, skillQuest, objectBase, forge, imageSheet } = allData;
+
+        let containerId;
+        let generateFunction;
+        let args = [];
+
+        // 清空所有 tab-content 的內容，避免重複渲染和記憶體洩漏
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.innerHTML = '';
+        });
+
+        switch (pageName) {
+            case 'tab1': // 物品資料
+                containerId = 'tab1-content';
+                generateFunction = generateItemTable;
+                args = [containerId, itemBase, generateTableHTML, createItemNameMap];
+                break;
+            case 'tab2': // 木工資料
+                containerId = 'tab2-content';
+                generateFunction = generateCarpentryTable;
+                args = [containerId, CARPENTRY_FORMULAS, generateTableHTML, createItemNameMap, itemBase];
+                break;
+            case 'tab3': // 鍛造資料
+                containerId = 'tab3-content';
+                generateFunction = generateForgeTable;
+                args = [containerId, FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase];
+                break;
+            case 'tab4': // NPC 資料
+                containerId = 'tab4-content';
+                generateFunction = generateNpcTable;
+                args = [containerId, npcBase, generateTableHTML, createItemNameMap, itemBase];
+                break;
+            case 'tab5': // 寵物資料
+                containerId = 'tab5-content';
+                generateFunction = generatePetsTable;
+                args = [containerId, pets, generateTableHTML, createItemNameMap, itemBase, pets];
+                break;
+            case 'tab6': // 技能任務
+                containerId = 'tab6-content';
+                generateFunction = generateSkillQuestTable;
+                args = [containerId, skillQuest, generateTableHTML, createItemNameMap, itemBase];
+                break;
+            case 'tab7': // 物件資料
+                containerId = 'tab7-content';
+                generateFunction = generateObjectBaseTable;
+                args = [containerId, objectBase, generateTableHTML, createItemNameMap, itemBase];
+                break;
+            case 'tab8': // 附魔機率
+                containerId = 'tab8-content';
+                generateFunction = generateEnchantingChancesTable;
+                args = [containerId, forge, generateTableHTML, createItemNameMap, itemBase];
+                break;
+            case 'tab9': // 圖片資料
+                containerId = 'tab9-content';
+                generateFunction = generateImageSheetTable;
+                args = [containerId, imageSheet, generateTableHTML, createItemNameMap, itemBase];
+                break;
+            case 'monster-worth-page': // 怪物價值
+                containerId = 'monster-worth-page-content';
+                generateFunction = generateMonsterWorthTable;
+                args = [containerId, npcBase, generateTableHTML, createItemNameMap, itemBase];
+                break;
+            case 'forging-cost-page': // 鍛造成本
+                const forgingCostContainer = document.getElementById('forging-cost-page-content');
+                if (forgingCostContainer) {
+                    forgingCostContainer.innerHTML = ''; // 清空舊內容
+                    if (itemBase && FORGE_FORMULAS) {
+                        const forgingCostData = generateForgingCostTableData(FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase);
+                        let tableHTML = '<table><thead><tr>';
+                        tableHTML += `<th>${i18n.translate('id')}</th>`;
+                        tableHTML += `<th>${i18n.translate('item_name')}</th>`;
+                        tableHTML += `<th>${i18n.translate('level')}</th>`;
+                        tableHTML += `<th>${i18n.translate('pattern')}</th>`;
+                        tableHTML += `<th>${i18n.translate('material_price')}</th>`;
+                        tableHTML += `<th>${i18n.translate('chance')}</th>`;
+                        tableHTML += `<th>${i18n.translate('cost')}</th>`;
+                        tableHTML += `<th>${i18n.translate('sell_price')}</th>`;
+                        tableHTML += '</tr></thead><tbody>';
+                        forgingCostData.forEach(row => {
+                            tableHTML += '<tr>';
+                            tableHTML += `<td>${row.id}</td>`;
+                            tableHTML += `<td>${row.itemName}</td>`;
+                            tableHTML += `<td>${row.level}</td>`;
+                            tableHTML += `<td>${row.pattern}</td>`;
+                            tableHTML += `<td>${row.materialPrice}</td>`;
+                            tableHTML += `<td>${row.chance}</td>`;
+                            tableHTML += `<td>${row.cost}</td>`;
+                            tableHTML += `<td>${row.sellPrice}</td>`;
+                            tableHTML += '</tr>';
+                        });
+                        tableHTML += '</tbody></table>';
+                        forgingCostContainer.innerHTML = tableHTML;
+                    } else {
+                        forgingCostContainer.textContent = i18n.translate('forging_data_not_available');
+                        console.error("For Forging Cost Tab, itemBase or FORGE_FORMULAS data is not available.");
+                    }
+                } else {
+                    console.error("Forging Cost Container element not found.");
+                }
+                return; // 鍛造成本有特殊渲染邏輯，直接返回
+            case 'carpentry-cost-page': // 木工成本
+                const carpentryCostContainer = document.getElementById('carpentry-cost-page-content');
+                if (carpentryCostContainer) {
+                    carpentryCostContainer.innerHTML = '';
+                    if (itemBase && CARPENTRY_FORMULAS) {
+                        const carpentryCostData = generateCarpentryCostTableData(CARPENTRY_FORMULAS, generateTableHTML, createItemNameMap, itemBase);
+                        let tableHTML = '<table><thead><tr>';
+                        tableHTML += `<th>${i18n.translate('item_name')}</th>`;
+                        tableHTML += `<th>${i18n.translate('level')}</th>`;
+                        tableHTML += `<th>${i18n.translate('pattern')}</th>`;
+                        tableHTML += `<th>${i18n.translate('material_price')}</th>`;
+                        tableHTML += `<th>${i18n.translate('cost')}</th>`;
+                        tableHTML += `<th>${i18n.translate('sell_price')}</th>`;
+                        tableHTML += '</tr></thead><tbody>';
+                        carpentryCostData.forEach(row => {
+                            tableHTML += '<tr>';
+                            tableHTML += `<td>${row.itemName}</td>`;
+                            tableHTML += `<td>${row.level}</td>`;
+                            tableHTML += `<td>${row.pattern}</td>`;
+                            tableHTML += `<td>${row.materialPrice}</td>`;
+                            tableHTML += `<td>${row.cost}</td>`;
+                            tableHTML += `<td>${row.sellPrice}</td>`;
+                            tableHTML += '</tr>';
+                        });
+                        tableHTML += '</tbody></table>';
+                        carpentryCostContainer.innerHTML = tableHTML;
+                    } else {
+                        carpentryCostContainer.textContent = i18n.translate('carpentry_data_not_available');
+                        console.error("For Carpentry Cost Tab, itemBase or CARPENTRY_FORMULAS data is not available.");
+                    }
+                } else {
+                    console.error("Carpentry Cost Container element not found.");
+                }
+                return; // 木工成本有特殊渲染邏輯，直接返回
+            case 'tab10': // 市場價格整合
+            case 'tab11': // 版本比較
+                // 這兩個 Tab 有自己的渲染邏輯，不需要在這裡處理
+                return;
+            default:
+                console.warn(`未知頁面名稱: ${pageName}`);
+                return;
+        }
+
+        const container = document.getElementById(containerId);
+        if (container) {
+            container.innerHTML = ''; // 清空目標表格的 DOM 容器
+            generateFunction(...args);
+        } else {
+            console.error(`找不到 ID 為 ${containerId} 的容器元素。`);
+        }
+
+    } catch (error) {
+        console.error("渲染頁面失敗:", error);
     }
 }
 
@@ -194,9 +359,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             const newLang = event.target.value;
             await i18n.setLanguage(newLang);
             // 語言切換後重新渲染所有表格和 UI 文本
-            await renderAllTables(true); // 強制重新載入數據以確保所有文本更新
+            await renderAllTablesIfDataLoaded(); // 語言切換後重新渲染所有表格
             // 重新填充語言選擇器以更新語言名稱翻譯
             populateLanguageSelector();
+            // 更新 UI 文本
+            updateTabTitles();
+            updateGoogleSheetUIText();
+            updateVersionComparisonUIText();
         });
     } else {
         console.error("語言選擇器元素未找到。");
@@ -218,7 +387,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 處理子選單 Tab 切換邏輯
     document.querySelectorAll('.sidebar-menu .submenu .tab-button').forEach(button => {
-        button.addEventListener('click', (event) => {
+        button.addEventListener('click', async (event) => { // 添加 async
             event.preventDefault();
 
             // 移除所有 tab-button 和 tab-content 的 active 類別
@@ -232,108 +401,34 @@ document.addEventListener('DOMContentLoaded', async () => {
                 targetTabContent.classList.add('active');
             }
 
-            // 如果是 Forging Cost Tab，則生成表格
-            if (button.dataset.tab === 'forging-cost-page') {
-                const forgingCostContainer = document.getElementById('forging-cost-page-content');
-                if (forgingCostContainer) {
-                    // 清空舊內容
-                    forgingCostContainer.innerHTML = '';
-                    // 確保 allData.itemBase 和 allData.FORGE_FORMULAS 已載入
-                    if (allData.itemBase && allData.FORGE_FORMULAS) {
-                        const forgingCostData = generateForgingCostTableData(allData.FORGE_FORMULAS, generateTableHTML, createItemNameMap, allData.itemBase)
-                        
-                        let tableHTML = '<table><thead><tr>';
-                        // 添加表頭
-                        tableHTML += `<th>${i18n.translate('id')}</th>`;
-                        tableHTML += `<th>${i18n.translate('item_name')}</th>`;
-                        tableHTML += `<th>${i18n.translate('level')}</th>`;
-                        tableHTML += `<th>${i18n.translate('pattern')}</th>`;
-                        tableHTML += `<th>${i18n.translate('material_price')}</th>`;
-                        tableHTML += `<th>${i18n.translate('chance')}</th>`;
-                        tableHTML += `<th>${i18n.translate('cost')}</th>`;
-                        tableHTML += `<th>${i18n.translate('sell_price')}</th>`;
-                        tableHTML += '</tr></thead><tbody>';
-
-                        // 渲染數據行
-                        forgingCostData.forEach(row => {
-                            tableHTML += '<tr>';
-                            tableHTML += `<td>${row.id}</td>`;
-                            tableHTML += `<td>${row.itemName}</td>`;
-                            tableHTML += `<td>${row.level}</td>`;
-                            tableHTML += `<td>${row.pattern}</td>`;
-                            tableHTML += `<td>${row.materialPrice}</td>`;
-                            tableHTML += `<td>${row.chance}</td>`;
-                            tableHTML += `<td>${row.cost}</td>`;
-                            tableHTML += `<td>${row.sellPrice}</td>`;
-                            tableHTML += '</tr>';
-                        });
-                        tableHTML += '</tbody></table>';
-                        forgingCostContainer.innerHTML = tableHTML;
-                    } else {
-                        forgingCostContainer.textContent = i18n.translate('forging_data_not_available');
-                        console.error("For Forging Cost Tab, itemBase or FORGE_FORMULAS data is not available.");
-                    }
-                } else {
-                    console.error("Forging Cost Container element not found.");
-                }
-            } else if (button.dataset.tab === 'carpentry-cost-page') {
-                const carpentryCostContainer = document.getElementById('carpentry-cost-page-content');
-                if (carpentryCostContainer) {
-                    carpentryCostContainer.innerHTML = '';
-                    if (allData.itemBase && allData.CARPENTRY_FORMULAS) {
-                        const carpentryCostData = generateCarpentryCostTableData(allData.CARPENTRY_FORMULAS, generateTableHTML, createItemNameMap, allData.itemBase);
-
-                        let tableHTML = '<table><thead><tr>';
-                        tableHTML += `<th>${i18n.translate('item_name')}</th>`;
-                        tableHTML += `<th>${i18n.translate('level')}</th>`;
-                        tableHTML += `<th>${i18n.translate('pattern')}</th>`;
-                        tableHTML += `<th>${i18n.translate('material_price')}</th>`;
-                        tableHTML += `<th>${i18n.translate('cost')}</th>`;
-                        tableHTML += `<th>${i18n.translate('sell_price')}</th>`;
-                        tableHTML += '</tr></thead><tbody>';
-
-                        carpentryCostData.forEach(row => {
-                            tableHTML += '<tr>';
-                            tableHTML += `<td>${row.itemName}</td>`;
-                            tableHTML += `<td>${row.level}</td>`;
-                            tableHTML += `<td>${row.pattern}</td>`;
-                            tableHTML += `<td>${row.materialPrice}</td>`;
-                            tableHTML += `<td>${row.cost}</td>`;
-                            tableHTML += `<td>${row.sellPrice}</td>`;
-                            tableHTML += '</tr>';
-                        });
-                        tableHTML += '</tbody></table>';
-                        carpentryCostContainer.innerHTML = tableHTML;
-                    } else {
-                        carpentryCostContainer.textContent = i18n.translate('carpentry_data_not_available');
-                        console.error("For Carpentry Cost Tab, itemBase or CARPENTRY_FORMULAS data is not available.");
-                    }
-                } else {
-                    console.error("Carpentry Cost Container element not found.");
-                }
-            }
+            // 呼叫新的渲染函數
+            await renderPage(button.dataset.tab);
         });
     });
 
-    // 預設激活「Wiki」選單下的「物品資料」Tab
-    const defaultParentMenu = document.querySelector('.sidebar-menu .has-submenu:nth-child(3) > .submenu-toggle'); // Wiki
-    const defaultTabButton = document.querySelector('.tab-button[data-tab="tab1"]'); // 物品資料
+    // // 預設激活「Wiki」選單下的「物品資料」Tab
+    // const defaultParentMenu = document.querySelector('.sidebar-menu .has-submenu:nth-child(3) > .submenu-toggle'); // Wiki
+    // const defaultTabButton = document.querySelector('.tab-button[data-tab="tab1"]'); // 物品資料
 
-    if (defaultParentMenu) {
-        defaultParentMenu.classList.add('active');
-        const defaultSubmenu = defaultParentMenu.closest('.has-submenu').querySelector('.submenu');
-        if (defaultSubmenu) {
-            defaultSubmenu.classList.add('active');
-        }
-    }
+    // if (defaultParentMenu) {
+    //     defaultParentMenu.classList.add('active');
+    //     const defaultSubmenu = defaultParentMenu.closest('.has-submenu').querySelector('.submenu');
+    //     if (defaultSubmenu) {
+    //         defaultSubmenu.classList.add('active');
+    //     }
+    // }
 
-    if (defaultTabButton) {
-        defaultTabButton.click();
-    }
+    // if (defaultTabButton) {
+    //     // 預設激活「物品資料」Tab，並呼叫 renderPage 進行渲染
+    //     defaultTabButton.classList.add('active');
+    //     const targetTabContent = document.getElementById(`${defaultTabButton.dataset.tab}-content`);
+    //     if (targetTabContent) {
+    //         targetTabContent.classList.add('active');
+    //     }
+    //     await renderPage(defaultTabButton.dataset.tab);
+    // }
 
-    // 載入數據並生成表格 (首次載入)
-    await renderAllTables();
-
+    // 首次載入時不自動渲染所有表格，等待用戶點擊
     // 初始化鍛造成本計算器 (已整合到 Tab 切換邏輯中)
 
 
