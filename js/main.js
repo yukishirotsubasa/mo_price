@@ -33,7 +33,7 @@ async function renderAllTablesIfDataLoaded() {
         const { itemBase, FORGE_FORMULAS, CARPENTRY_FORMULAS, npcBase, pets, skillQuest, objectBase, forge, imageSheet } = allData;
 
         // 重新生成所有表格
-        generateItemTable('tab1-content', itemBase, generateTableHTML, createItemNameMap);
+        generateItemTable('item-table-container', itemBase, generateTableHTML, createItemNameMap);
         generateCarpentryTable('tab2-content', CARPENTRY_FORMULAS, generateTableHTML, createItemNameMap, itemBase);
         generateForgeTable('tab3-content', FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase);
         generateNpcTable('tab4-content', npcBase, generateTableHTML, createItemNameMap, itemBase);
@@ -42,7 +42,7 @@ async function renderAllTablesIfDataLoaded() {
         generateObjectBaseTable('tab7-content', objectBase, generateTableHTML, createItemNameMap, itemBase);
         generateEnchantingChancesTable('tab8-content', forge, generateTableHTML, createItemNameMap, itemBase);
         generateImageSheetTable('tab9-content', imageSheet, generateTableHTML, createItemNameMap, itemBase);
-        generateMonsterWorthTable('monster-worth-page-content', npcBase, generateTableHTML, createItemNameMap, itemBase);
+        generateMonsterWorthTable('monster-worth-table-container', npcBase, generateTableHTML, createItemNameMap, itemBase);
 
     } catch (error) {
         console.error("表格生成失敗:", error);
@@ -55,6 +55,11 @@ async function renderAllTablesIfDataLoaded() {
  */
 async function renderPage(pageName) {
     try {
+        // 統一清空所有帶有 clearable-table-content class 的元素內容
+        document.querySelectorAll('.clearable-table-content').forEach(content => {
+            content.innerHTML = '';
+        });
+
         // 如果 allData 為空，則異步載入數據
         if (Object.keys(allData).length === 0) {
             console.log("allData 未載入，正在載入數據...");
@@ -71,64 +76,60 @@ async function renderPage(pageName) {
         let generateFunction;
         let args = [];
 
-        // 清空所有 tab-content 的內容，避免重複渲染和記憶體洩漏
-        document.querySelectorAll('.tab-content').forEach(content => {
-            content.innerHTML = '';
-        });
 
         switch (pageName) {
             case 'tab1': // 物品資料
-                containerId = 'tab1-content';
+                containerId = 'item-table-container';
                 generateFunction = generateItemTable;
                 args = [containerId, itemBase, generateTableHTML, createItemNameMap];
                 break;
             case 'tab2': // 木工資料
-                containerId = 'tab2-content';
+                containerId = 'carpentry-table-container';
                 generateFunction = generateCarpentryTable;
                 args = [containerId, CARPENTRY_FORMULAS, generateTableHTML, createItemNameMap, itemBase];
                 break;
             case 'tab3': // 鍛造資料
-                containerId = 'tab3-content';
+                containerId = 'forge-table-container';
                 generateFunction = generateForgeTable;
                 args = [containerId, FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase];
                 break;
             case 'tab4': // NPC 資料
-                containerId = 'tab4-content';
+                containerId = 'npc-table-container';
                 generateFunction = generateNpcTable;
                 args = [containerId, npcBase, generateTableHTML, createItemNameMap, itemBase];
                 break;
             case 'tab5': // 寵物資料
-                containerId = 'tab5-content';
+                containerId = 'pets-table-container';
                 generateFunction = generatePetsTable;
                 args = [containerId, pets, generateTableHTML, createItemNameMap, itemBase, pets];
                 break;
             case 'tab6': // 技能任務
-                containerId = 'tab6-content';
+                containerId = 'skill-quest-table-container';
                 generateFunction = generateSkillQuestTable;
                 args = [containerId, skillQuest, generateTableHTML, createItemNameMap, itemBase];
                 break;
             case 'tab7': // 物件資料
-                containerId = 'tab7-content';
+                containerId = 'object-base-table-container';
                 generateFunction = generateObjectBaseTable;
                 args = [containerId, objectBase, generateTableHTML, createItemNameMap, itemBase];
                 break;
             case 'tab8': // 附魔機率
-                containerId = 'tab8-content';
+                containerId = 'enchanting-chances-table-container';
                 generateFunction = generateEnchantingChancesTable;
                 args = [containerId, forge, generateTableHTML, createItemNameMap, itemBase];
                 break;
             case 'tab9': // 圖片資料
-                containerId = 'tab9-content';
+                containerId = 'image-sheet-table-container';
                 generateFunction = generateImageSheetTable;
                 args = [containerId, imageSheet, generateTableHTML, createItemNameMap, itemBase];
                 break;
             case 'monster-worth-page': // 怪物價值
-                containerId = 'monster-worth-page-content';
+                containerId = 'monster-worth-table-container';
                 generateFunction = generateMonsterWorthTable;
                 args = [containerId, npcBase, generateTableHTML, createItemNameMap, itemBase];
                 break;
             case 'forging-cost-page': // 鍛造成本
-                containerId = 'forging-cost-page-content';
+                containerId = 'forging-table-container';
                 if (itemBase && FORGE_FORMULAS) {
                     const forgingCostData = generateForgingCostTableData(FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase);
                     generateFunction = renderForgingCostTable;
@@ -143,7 +144,7 @@ async function renderPage(pageName) {
                 }
                 break;
             case 'carpentry-cost-page': // 木工成本
-                containerId = 'carpentry-cost-page-content';
+                containerId = 'carpentry-table-container';
                 if (itemBase && CARPENTRY_FORMULAS) {
                     const carpentryCostData = generateCarpentryCostTableData(CARPENTRY_FORMULAS, generateTableHTML, createItemNameMap, itemBase);
                     generateFunction = renderCarpentryCostTable;
@@ -158,44 +159,11 @@ async function renderPage(pageName) {
                 }
                 break;
             case 'tab10': // 市場價格整合
-                {
-                    const container = document.getElementById('tab10-content');
-                    if (container) {
-                        // 載入 HTML 並插入
-                        fetch('views/market-price-integration.html')
-                            .then(response => response.text())
-                            .then(html => {
-                                container.innerHTML = html;
-                                // 載入後初始化 Google Sheet/CSV 相關 UI 事件
-                                if (typeof initMarketPriceIntegrationUI === 'function') {
-                                    initMarketPriceIntegrationUI();
-                                }
-                            })
-                            .catch(err => {
-                                container.innerHTML = '<div style="color:red;">無法載入市場價格整合頁面。</div>';
-                                console.error('載入 market-price-integration.html 失敗:', err);
-                            });
-                    }
-                    return;
-                }
+                initMarketPriceIntegrationUI();
+                return;
             case 'tab11': // 版本比較
-                {
-                    const container = document.getElementById('tab11-content');
-                    if (container) {
-                        // 載入 HTML 並插入
-                        fetch('views/version_comparison.html')
-                            .then(response => response.text())
-                            .then(html => {
-                                container.innerHTML = html;
-                                initVersionComparisonUI(); // 在 HTML 載入後初始化版本比較 UI
-                            })
-                            .catch(err => {
-                                container.innerHTML = '<div style="color:red;">無法載入版本比較頁面。</div>';
-                                console.error('載入 version_comparison.html 失敗:', err);
-                            });
-                    }
-                    return;
-                }
+                initVersionComparisonUI();
+                return;
             default:
                 console.warn(`未知頁面名稱: ${pageName}`);
                 return;
@@ -203,7 +171,6 @@ async function renderPage(pageName) {
 
         const container = document.getElementById(containerId);
         if (container) {
-            container.innerHTML = ''; // 清空目標表格的 DOM 容器
             generateFunction(...args);
         } else {
             console.error(`找不到 ID 為 ${containerId} 的容器元素。`);
@@ -357,12 +324,12 @@ const tab8ContentH2 = document.querySelector('#tab8-content h2');
 if (tab8ContentH2) tab8ContentH2.textContent = i18n.translate('Enchanting');
 const tab9ContentH2 = document.querySelector('#tab9-content h2');
 if (tab9ContentH2) tab9ContentH2.textContent = i18n.translate('image_sheet');
-const tab10ContentH2 = document.querySelector('#tab10-content h2');
+const tab10ContentH2 = document.querySelector('#tab10-content > h2');
 if (tab10ContentH2) tab10ContentH2.textContent = i18n.translate('Market Price Integration');
-const tab11ContentH2 = document.querySelector('#tab11-content h2');
+const tab11ContentH2 = document.querySelector('#tab11-content > h2');
 if (tab11ContentH2) tab11ContentH2.textContent = i18n.translate('Version Comparison');
 const monsterWorthContentH2 = document.querySelector('#monster-worth-page-content h2');
-if (monsterWorthContentH2) monsterWorthContentH2.textContent = i18n.translate('monster_worth');
+if (monsterWorthContentH2) monsterWorthContentH2.textContent = i18n.translate('monster worth');
 }
 
 /**
@@ -916,6 +883,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 在 Google Charts Library 載入完成後初始化
     google.charts.load('current', { packages: ['corechart', 'table'] });
     // initializeMarketPriceIntegrationLogic 將在 initMarketPriceIntegrationUI 中被調用
+
+    // 為怪物價值過濾開關添加事件監聽器
+    const monsterWorthToggles = ['hideBossToggle', 'hideRareToggle', 'hideEliteToggle'];
+    monsterWorthToggles.forEach(toggleId => {
+        const toggleElement = document.getElementById(toggleId);
+        if (toggleElement) {
+            toggleElement.addEventListener('change', async () => {
+                // 只有當怪物價值頁面是活躍狀態時才重新渲染
+                const monsterWorthTabButton = document.querySelector('.tab-button[data-tab="monster-worth-page"]');
+                if (monsterWorthTabButton && monsterWorthTabButton.classList.contains('active')) {
+                    await renderPage('monster-worth-page');
+                }
+            });
+        }
+    });
 
     /**
      * 從 localStorage 載入市場價格數據並顯示。

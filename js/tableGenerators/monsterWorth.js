@@ -45,9 +45,32 @@ export function generateMonsterWorthTable(containerId, npcBase, generateTableHTM
         ];
     };
 
-    const filteredNpcBase = npcBase.filter(monster =>
-        monster.params && monster.params.drops && monster.params.drops.length > 0
-    );
+    // 獲取開關狀態
+    const hideBoss = document.getElementById('hideBossToggle')?.checked || false;
+    const hideRare = document.getElementById('hideRareToggle')?.checked || false;
+    const hideElite = document.getElementById('hideEliteToggle')?.checked || false;
+
+    const filteredNpcBase = npcBase.filter(monster => {
+        // 篩選沒有 drops 資料的對象
+        if (!monster.params || !monster.params.drops || monster.params.drops.length === 0) {
+            return false;
+        }
+
+        const monsterNameLower = monster.name.toLowerCase(); // 直接使用 monster.name 並轉換為小寫
+
+        // 應用過濾邏輯 (不區分大小寫)
+        if (hideBoss && monsterNameLower.includes('boss')) {
+            return false;
+        }
+        if (hideRare && monsterNameLower.includes('rare')) {
+            return false;
+        }
+        if (hideElite && monsterNameLower.includes('elite')) {
+            return false;
+        }
+
+        return true;
+    });
 
     // 先轉換為 rows，並保留原始 monster 與其 worth 值
     const rowsWithWorth = filteredNpcBase.map(monster => {
