@@ -31,20 +31,29 @@ export function createItemNameMap(itemBase, translateFunction) {
  * @param {Function} translateFunction - i18n.translate 函數。
  * @returns {string} - 生成的 HTML 表格字串。
  */
-export function generateTableHTML(headerKeys, data, rowMapper, translateFunction) {
+export function generateTableHTML(headerKeys, data, rowMapper, translateFunction, customRowRendering = false) {
     let tableHTML = '<table><thead><tr>';
     headerKeys.forEach(key => {
         tableHTML += `<th>${translateFunction(key)}</th>`;
     });
     tableHTML += '</tr></thead><tbody>';
 
-    data.forEach(item => {
-        tableHTML += '<tr>';
-        rowMapper(item).forEach(cell => {
-            tableHTML += `<td>${cell}</td>`;
+    if (customRowRendering) {
+        data.forEach((item, index) => {
+            tableHTML += rowMapper(item, index); // rowMapper is expected to return a full HTML string for the row(s)
         });
-        tableHTML += '</tr>';
-    });
+    } else {
+        data.forEach((item, index) => {
+            tableHTML += '<tr>';
+            const rowData = rowMapper(item, index);
+            if (Array.isArray(rowData)) {
+                rowData.forEach(cell => {
+                    tableHTML += `<td>${cell}</td>`;
+                });
+            }
+            tableHTML += '</tr>';
+        });
+    }
 
     tableHTML += '</tbody></table>';
     return tableHTML;

@@ -1,68 +1,184 @@
 import i18n from './i18n.js'; // 導入 i18n 模組
-import { getMaterialPrice } from './utils.js'; // 導入 getMaterialPrice 函式
+import { getMaterialPrice, getItemSellPrice } from './utils.js'; // 導入所需函式
 
-/*for (const i of [0,1,4,7]) {
-    for (const j of [1,20,50,100,135]) {
-        console.log(getEnchantingPlans(i, j, enchantingChances, itemBase));
+function testEnchantPlan(enchantingChances, itemBase) {
+    for (const i of [0,1,4,7]) {
+        for (const j of [1,20,50,100,135]) {
+            console.log(getEnchantingPlans(i, j, enchantingChances, itemBase));
+        }
     }
-}*/
+}
 
 export function generateEnchantCostTableData(containerId, enchantingChances, generateTableHTML, createItemNameMap, itemBase) {
     const container = document.getElementById(containerId);
 
-    if (!itemBase) {
-        container.innerHTML = '<p>Item base data not loaded.</p>';
+    if (!itemBase || !enchantingChances) {
+        container.innerHTML = '<p>Item base data or enchanting chances not loaded.</p>';
         return;
     }
 
-    const headers = ['id', 'name', 'level', 'price', 'bonus', 'enchant_id'];
+    const headers = ['id', 'name', 'level', 'bonus', 'price', 'plan', 'prod price', 'prod name', 'prod id'];
     const data = [];
+    const LUCKY_STONE_ID = 593;
 
     for (const key in itemBase) {
         const item = itemBase[key];
-        if (item && item.params && item.params.enchant_id) {
-            const params = item.params;
-            
-            let level = 0;
-            const levelKeys = ['min_accuracy', 'min_archery', 'min_defense', 'min_health', 'min_magic', 'min_strength', 'min_jewelry'];
-            for (const levelKey of levelKeys) {
-                if (params[levelKey]) {
-                    level = params[levelKey];
-                    break;
-                }
-            }
-
-            const price = getMaterialPrice(key, itemBase);
-
-            data.push({
-                'item id': key,
-                'item name': item.name,
-                'level': level,
-                'price': price,
-                'enchant_bonus': params.enchant_bonus || '',
-                'enchant_id': params.enchant_id
-            });
+        if (!item || !item.params || !item.params.enchant_id) {
+            continue;
         }
+
+        const params = item.params;
+        let level = 0;
+        const levelKeys = ['min_accuracy', 'min_archery', 'min_defense', 'min_health', 'min_magic', 'min_strength', 'min_jewelry'];
+        for (const levelKey of levelKeys) {
+            if (params[levelKey]) {
+                level = params[levelKey];
+                break;
+            }
+        }
+
+        let slot = params.slot;
+        if (slot === 3 && item.b_t === 3) {
+            slot = 7;
+        }
+
+        const plans = getEnchantingPlans(slot, level, enchantingChances, itemBase);
+        const price = getMaterialPrice(key, itemBase);
+
+        if (!plans || plans.length === 0) {
+            continue;
+        }
+
+        const all_plans = plans.map(plan => {
+            const scrollName = i18n.translate(itemBase[plan.combo[0]].name);
+            const luckyStoneCount = plan.combo[1];
+            
+            const combo = luckyStoneCount > 0
+                ? `${scrollName}+${i18n.translate(itemBase[LUCKY_STONE_ID].name)}*${luckyStoneCount}`
+                : scrollName;
+                
+            const chance = Math.min(1, plan.probability + (params.enchant_bonus || 0));
+            const cost = chance > 0 ? (plan.cost + price) / chance : Infinity;
+
+            return {
+                ...plan,
+                combo,
+                chance,
+                cost
+            };
+        });
+
+        // --- 新增過濾邏輯 ---
+        // 當多個附魔方案的 chance（成功率）相同時，只保留其中 cost（期望成本）最低的那一個。
+        const bestPlansByChance = new Map();
+        all_plans.forEach(plan => {
+            if (!bestPlansByChance.has(plan.chance) || plan.cost < bestPlansByChance.get(plan.chance).cost) {
+                bestPlansByChance.set(plan.chance, plan);
+            }
+        });
+
+        // 從 Map 中取出所有值，形成一個新的、已過濾的 all_plans 陣列
+        let filtered_plans = Array.from(bestPlansByChance.values());
+
+        // 對這個新的 all_plans 陣列進行最終的成本排序
+        filtered_plans.sort((a, b) => a.cost - b.cost);
+
+        if (filtered_plans.length === 0) {
+            return;
+        }
+
+        const bestPlan = filtered_plans[0];
+
+        data.push({
+            'id': key,
+            'name': i18n.translate(item.name),
+            'level': level,
+            'bonus': params.enchant_bonus || '',
+            'price': price,
+            'prod price': getItemSellPrice(params.enchant_id, itemBase),
+            'prod name': i18n.translate(itemBase[params.enchant_id].name),
+            'prod id': params.enchant_id,
+            'all_plans': filtered_plans
+        });
     }
 
-    const rowMapper = (item) => {
-        return [
-            item['item id'],
-            item['item name'],
-            item['level'],
-            item['price'],
-            item['enchant_bonus'],
-            item['enchant_id']
-        ];
+    const rowMapper = (item, index) => {
+        const accordionId = `accordion-${item.id}-${index}`;
+        const bestPlan = item.all_plans[0]; // 假設第一個方案是最佳方案
+
+        const otherPlansBody = item.all_plans.slice(1).map(plan => `
+            <tr>
+                <td>${plan.combo}</td>
+                <td>${(plan.chance * 100).toFixed(2)}%</td>
+                <td>${plan.cost.toFixed(2)}</td>
+            </tr>
+        `).join('');
+
+        const planColumnContent = `
+            <table class="table table-sm table-bordered mb-0">
+                <thead>
+                    <tr>
+                        <th>${i18n.translate('combo')}</th>
+                        <th>${i18n.translate('chance')}</th>
+                        <th>${i18n.translate('cost')}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="accordion-toggle" data-bs-toggle="collapse" data-bs-target="#${accordionId}" aria-expanded="false" aria-controls="${accordionId}">
+                        <td>${bestPlan.combo}</td>
+                        <td>${(bestPlan.chance * 100).toFixed(2)}%</td>
+                        <td>${bestPlan.cost.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            <div id="${accordionId}" class="collapse">
+                                <table class="table table-sm table-bordered mb-0">
+                                    <tbody>
+                                        ${otherPlansBody}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        `;
+
+        return `
+            <tr>
+                <td>${item.id}</td>
+                <td>${item.name}</td>
+                <td>${item.level}</td>
+                <td>${item.bonus}</td>
+                <td>${item.price.toFixed(2)}</td>
+                <td>${planColumnContent}</td>
+                <td>${item['prod price'].toFixed(2)}</td>
+                <td>${item['prod name']}</td>
+                <td>${item['prod id']}</td>
+            </tr>
+        `;
     };
 
-    const tableHTML = generateTableHTML(headers, data, rowMapper, i18n.translate);
+    const tableHTML = generateTableHTML(headers, data, rowMapper, i18n.translate, true); // Pass true for custom row rendering
     container.innerHTML = tableHTML;
+
+    // --- 新增手風琴功能修復 ---
+    // 手動綁定點擊事件來觸發 Bootstrap 的 collapse 功能
+    const toggles = container.querySelectorAll('.accordion-toggle');
+    toggles.forEach(toggle => {
+        toggle.addEventListener('click', () => {
+            const targetId = toggle.getAttribute('data-bs-target');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                targetElement.classList.toggle('show');
+            }
+        });
+    });
 }
 
 /**
  * 根據裝備槽位、等級計算所有可能的附魔方案及其成本和成功率。
- * @param {number} slot - 裝備槽位 (0:頭, 1:披風, 2:胸甲, 3:盾牌, 4:武器, 6:鞋子, 7:項鍊, 8:戒指, 11:護腿)。
+ * @param {number} slot - 裝備槽位 (0:頭, 1:披風, 2:胸甲, 3:盾牌, 4:武器, 5:手套, 6:鞋子, 7:項鍊, 8:戒指, 11:護腿)。
  * @param {number} level - 裝備等級。
  * @param {object} Forge - 包含附魔機率函式的 Forge 物件。
  * @param {object} itemBase - 包含物品基礎價格的物件。
@@ -91,7 +207,7 @@ export function getEnchantingPlans(slot, level, Forge, itemBase) {
         chancesToUse = Forge.enchantingChancesWeapon;
     } else if (slot == 7 || slot == 8) {
         chancesToUse = Forge.enchantingChancesJewelry;
-    } else if ([0, 2, 3, 6, 11].includes(slot)) {
+    } else if ([0, 2, 3, 5, 6, 11].includes(slot)) {
         chancesToUse = Forge.enchantingChancesArmor;
     } else {
         // 如果 slot 不符合任何已知類型，則返回空陣列並發出警告
@@ -125,17 +241,14 @@ export function getEnchantingPlans(slot, level, Forge, itemBase) {
                 // 計算組合成本
                 const comboCost = scrollPrice + luckyStonePrice * count;
 
-                // 構建組合字串
-                let comboString = `卷軸 ${scrollId}`;
-                if (count > 0) {
-                    comboString += ` + 幸運石*${count}`;
-                }
+                // 構建組合陣列
+                const combo = [parseInt(scrollId), count];
 
                 // 檢查 probabilityMap 中是否已存在此 finalProbability
                 if (!probabilityMap.has(finalProbability)) {
                     // 如果不存在，則直接添加
                     probabilityMap.set(finalProbability, {
-                        combo: comboString,
+                        combo: combo,
                         probability: finalProbability,
                         cost: comboCost
                     });
@@ -144,7 +257,7 @@ export function getEnchantingPlans(slot, level, Forge, itemBase) {
                     const existingPlan = probabilityMap.get(finalProbability);
                     if (comboCost < existingPlan.cost) {
                         probabilityMap.set(finalProbability, {
-                            combo: comboString,
+                            combo: combo,
                             probability: finalProbability,
                             cost: comboCost
                         });
