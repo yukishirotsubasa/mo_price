@@ -193,3 +193,41 @@ export function getMaterialPrice(item_id, itemBase) {
     }
     return 0; // 預設值
 }
+/**
+ * 將數字格式化為帶有千分位分隔符號的字串。
+ * @param {number} number - 要格式化的數字。
+ * @returns {string} - 帶有千分位分隔符號的字串。
+ */
+export function formatNumberWithThousandsSeparator(number) {
+    const numStr = number.toString();
+    const parts = numStr.split('.');
+    const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+    if (parts.length > 1) {
+        let decimalPart = parts[1];
+        // 截斷到最多3位小數
+        if (decimalPart.length > 3) {
+            decimalPart = decimalPart.substring(0, 3);
+        }
+        // 移除小數部分末尾的零
+        decimalPart = decimalPart.replace(/0+$/, '');
+
+        // 如果小數部分不為空，則連接整數部分和小數部分
+        if (decimalPart !== '') {
+            return integerPart + '.' + decimalPart;
+        }
+    }
+    return integerPart;
+}
+
+/**
+ * 將小數格式化為百分比字串。
+ * @param {number} decimal - 要格式化的小數 (例如 0.75)。
+ * @returns {string} - 百分比字串 (例如 "75%")。
+ */
+export function formatAsPercentage(decimal) {
+    if (typeof decimal !== 'number' || isNaN(decimal)) {
+        return "N/A"; // 或者其他你認為合適的預設值
+    }
+    return `${(decimal * 100).toFixed(2)}%`; // 保留兩位小數
+}

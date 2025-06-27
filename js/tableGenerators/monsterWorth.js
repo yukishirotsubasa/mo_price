@@ -1,5 +1,5 @@
 import i18n from '../i18n.js'; // 導入 i18n 模組
-import { getItemSellPrice } from '../utils.js'; // 導入 getItemSellPrice 函數
+import { getItemSellPrice, formatNumberWithThousandsSeparator } from '../utils.js'; // 導入 getItemSellPrice 和 formatNumberWithThousandsSeparator 函數
 
 export function generateMonsterWorthTable(containerId, npcBase, generateTableHTML, createItemNameMap, itemBase) {
     const container = document.getElementById(containerId);
@@ -41,7 +41,7 @@ export function generateMonsterWorthTable(containerId, npcBase, generateTableHTM
             monster.temp ? monster.temp.total_strength : 'N/A',
             monster.temp ? monster.temp.total_accuracy : 'N/A',
             drops,
-            totalWorth.toFixed(2) // 新增 worth 欄位，並保留兩位小數
+            formatNumberWithThousandsSeparator(totalWorth.toFixed(2)) // 新增 worth 欄位，並保留兩位小數，應用千分位分隔符號
         ];
     };
 

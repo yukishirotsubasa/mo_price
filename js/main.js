@@ -3,7 +3,7 @@ import { generateEnchantCostTableData } from './enchantCost.js'; // 導入 Encha
 // js/main.js - 應用程式主入口點
 
 import { loadData, getItemBase, getForgeFormulas, getCarpentryFormulas, getNpcBase, getPets, getSkillQuest, getObjectBase, getEnchantingChances, getImageSheet, loadGoogleSheetData, loadJsFileVariable, processRawData, processRawDataFromLocalStorage, saveMarketDataToLocalStorage } from './dataLoader.js';
-import { createItemNameMap, generateTableHTML, compareData } from './utils.js';
+import { createItemNameMap, generateTableHTML, compareData, formatNumberWithThousandsSeparator } from './utils.js';
 import { generateItemTable } from './tableGenerators/itemTable.js';
 import { generateCarpentryTable } from './tableGenerators/carpentryTable.js';
 import { generateForgeTable } from './tableGenerators/forgeTable.js';
@@ -482,10 +482,10 @@ const renderMarketDataTable = (data) => {
         tableHTML += `<tr data-row-index="${i}">`;
         tableHTML += `<td>${itemId}</td>`;
         tableHTML += `<td>${itemName}</td>`;
-        tableHTML += `<td>${wikiPrice}</td>`;
-        tableHTML += `<td contenteditable="true" data-col-index="1">${marketBuyPrice}</td>`; // 調整 col-index
-        tableHTML += `<td contenteditable="true" data-col-index="2">${marketSellPrice}</td>`; // 調整 col-index
-        tableHTML += `<td contenteditable="true" data-col-index="3">${customPrice}</td>`; // 新增 custom price
+        tableHTML += `<td>${typeof wikiPrice === 'number' ? formatNumberWithThousandsSeparator(wikiPrice) : wikiPrice}</td>`;
+        tableHTML += `<td contenteditable="true" data-col-index="1">${typeof marketBuyPrice === 'number' ? formatNumberWithThousandsSeparator(marketBuyPrice) : marketBuyPrice}</td>`; // 調整 col-index
+        tableHTML += `<td contenteditable="true" data-col-index="2">${typeof marketSellPrice === 'number' ? formatNumberWithThousandsSeparator(marketSellPrice) : marketSellPrice}</td>`; // 調整 col-index
+        tableHTML += `<td contenteditable="true" data-col-index="3">${typeof customPrice === 'number' ? formatNumberWithThousandsSeparator(customPrice) : customPrice}</td>`; // 新增 custom price
         tableHTML += '</tr>';
     }
     tableHTML += '</tbody></table>';

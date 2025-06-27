@@ -1,5 +1,5 @@
 import i18n from './i18n.js';
-import { createItemNameMap, getMaterialPrice, getItemSellPrice } from './utils.js';
+import { createItemNameMap, getMaterialPrice, getItemSellPrice, formatNumberWithThousandsSeparator } from './utils.js';
 
 
 
@@ -45,16 +45,16 @@ export function generateCarpentryCostTableData(CARPENTRY_FORMULAS, generateTable
             patternString = consumedMaterials.join(', ');
         }
 
-        const cost = materialPriceTotal.toFixed(2); // 刪除 chance 相關邏輯
+        const cost = materialPriceTotal; // 刪除 chance 相關邏輯
         const sellPrice = getItemSellPrice(itemId, itemBase);
 
         return {
             itemName,
             level,
             pattern: patternString,
-            materialPrice: materialPriceTotal,
-            cost,
-            sellPrice
+            materialPrice: formatNumberWithThousandsSeparator(materialPriceTotal),
+            cost: formatNumberWithThousandsSeparator(cost),
+            sellPrice: formatNumberWithThousandsSeparator(sellPrice)
         };
     });
 }

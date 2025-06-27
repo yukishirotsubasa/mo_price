@@ -5,7 +5,7 @@
  * @returns {Array<Object>} 包含鍛造成本計算結果的物件陣列。
  */
 import i18n from './i18n.js'; // 導入 i18n 模組
-import { createItemNameMap, getItemSellPrice, getMaterialPrice } from './utils.js'; // 導入 createItemNameMap 和 getItemSellPrice 函數
+import { createItemNameMap, getItemSellPrice, getMaterialPrice, formatNumberWithThousandsSeparator, formatAsPercentage } from './utils.js'; // 導入相關函數
 
 export function generateForgingCostTableData(FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase) {
     const itemNameMap = createItemNameMap(itemBase, i18n.translate);
@@ -66,17 +66,19 @@ export function generateForgingCostTableData(FORGE_FORMULAS, generateTableHTML, 
         }).join(', ');
 
         const chance = formula.chance ?? 0;
-        const cost = chance > 0 ? (materialPriceTotal / chance).toFixed(2) : '∞';
-        const sellPrice = getItemSellPrice(itemId, itemBase);
+        const formattedChance = formatAsPercentage(chance);
+        const cost = chance > 0 ? (materialPriceTotal / chance) : Infinity; // 計算成本，如果 chance 為 0 則為 Infinity
+        const formattedCost = cost === Infinity ? '∞' : formatNumberWithThousandsSeparator(cost.toFixed(2)); // 格式化成本
+        const sellPrice = formatNumberWithThousandsSeparator(getItemSellPrice(itemId, itemBase));
 
         return [{
             id,
             itemName,
             level,
             pattern,
-            materialPrice: materialPriceTotal,
-            chance,
-            cost,
+            materialPrice: formatNumberWithThousandsSeparator(materialPriceTotal),
+            chance: formattedChance,
+            cost: formattedCost,
             sellPrice
         }];
     });

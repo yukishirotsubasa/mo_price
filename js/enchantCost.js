@@ -1,5 +1,5 @@
 import i18n from './i18n.js'; // 導入 i18n 模組
-import { getMaterialPrice, getItemSellPrice } from './utils.js'; // 導入所需函式
+import { getMaterialPrice, getItemSellPrice, formatNumberWithThousandsSeparator, formatAsPercentage } from './utils.js'; // 導入所需函式
 
 function testEnchantPlan(enchantingChances, itemBase) {
     for (const i of [0,1,4,7]) {
@@ -93,7 +93,7 @@ export function generateEnchantCostTableData(containerId, enchantingChances, gen
             'id': key,
             'name': i18n.translate(item.name),
             'level': level,
-            'bonus': params.enchant_bonus || '',
+            'bonus': params.enchant_bonus || 0, // 確保 bonus 為數字，以便 formatAsPercentage 處理
             'price': price,
             'prod price': getItemSellPrice(params.enchant_id, itemBase),
             'prod name': i18n.translate(itemBase[params.enchant_id].name),
@@ -109,8 +109,8 @@ export function generateEnchantCostTableData(containerId, enchantingChances, gen
         const otherPlansBody = item.all_plans.slice(1).map(plan => `
             <tr>
                 <td>${plan.combo}</td>
-                <td>${(plan.chance * 100).toFixed(2)}%</td>
-                <td>${plan.cost.toFixed(2)}</td>
+                <td>${formatAsPercentage(plan.chance)}</td>
+                <td>${formatNumberWithThousandsSeparator(plan.cost)}</td>
             </tr>
         `).join('');
 
@@ -126,8 +126,8 @@ export function generateEnchantCostTableData(containerId, enchantingChances, gen
                 <tbody>
                     <tr class="accordion-toggle" data-bs-toggle="collapse" data-bs-target="#${accordionId}" aria-expanded="false" aria-controls="${accordionId}">
                         <td>${bestPlan.combo}</td>
-                        <td>${(bestPlan.chance * 100).toFixed(2)}%</td>
-                        <td>${bestPlan.cost.toFixed(2)}</td>
+                        <td>${formatAsPercentage(bestPlan.chance)}</td>
+                        <td>${formatNumberWithThousandsSeparator(bestPlan.cost)}</td>
                     </tr>
                     <tr>
                         <td colspan="3">
@@ -149,10 +149,10 @@ export function generateEnchantCostTableData(containerId, enchantingChances, gen
                 <td>${item.id}</td>
                 <td>${item.name}</td>
                 <td>${item.level}</td>
-                <td>${item.bonus}</td>
-                <td>${item.price.toFixed(2)}</td>
+                <td>${formatAsPercentage(item.bonus)}</td>
+                <td>${formatNumberWithThousandsSeparator(item.price)}</td>
                 <td>${planColumnContent}</td>
-                <td>${item['prod price'].toFixed(2)}</td>
+                <td>${formatNumberWithThousandsSeparator(item['prod price'])}</td>
                 <td>${item['prod name']}</td>
                 <td>${item['prod id']}</td>
             </tr>
