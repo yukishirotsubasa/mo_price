@@ -98,7 +98,7 @@ export async function initPriceEditor() {
             <input type="number" class="price-input" data-price-type="1" placeholder="${i18n.translate('market buy')}" value="${marketBuy}">
             <input type="number" class="price-input" data-price-type="2" placeholder="${i18n.translate('market sell')}" value="${marketSell}">
             <input type="number" class="price-input" data-price-type="3" placeholder="${i18n.translate('custom price')}" value="${customPrice}">
-            <button class="save-and-remove-button">${i18n.translate('Save & Remove', 'Save & Remove')}</button>
+            <button class="save-and-remove-button">${i18n.translate('Complete', 'Complete')}</button>
             <button class="delete-item-button">${i18n.translate('Delete', 'Delete')}</button>
         `;
 
