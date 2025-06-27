@@ -204,13 +204,13 @@ function renderForgingCostTable(containerId, forgingCostData) {
     if (forgingCostData && forgingCostData.length > 0) {
         let tableHTML = '<table><thead><tr>';
         tableHTML += `<th>${i18n.translate('id')}</th>`;
-        tableHTML += `<th>${i18n.translate('item_name')}</th>`;
+        tableHTML += `<th>${i18n.translate('name')}</th>`;
         tableHTML += `<th>${i18n.translate('level')}</th>`;
         tableHTML += `<th>${i18n.translate('pattern')}</th>`;
-        tableHTML += `<th>${i18n.translate('material_price')}</th>`;
+        tableHTML += `<th>${i18n.translate('material price')}</th>`;
         tableHTML += `<th>${i18n.translate('chance')}</th>`;
         tableHTML += `<th>${i18n.translate('cost')}</th>`;
-        tableHTML += `<th>${i18n.translate('sell_price')}</th>`;
+        tableHTML += `<th>${i18n.translate('sell price')}</th>`;
         tableHTML += '</tr></thead><tbody>';
         forgingCostData.forEach(row => {
             tableHTML += '<tr>';
@@ -248,12 +248,12 @@ function renderCarpentryCostTable(containerId, carpentryCostData) {
 
     if (carpentryCostData && carpentryCostData.length > 0) {
         let tableHTML = '<table><thead><tr>';
-        tableHTML += `<th>${i18n.translate('item_name')}</th>`;
+        tableHTML += `<th>${i18n.translate('name')}</th>`;
         tableHTML += `<th>${i18n.translate('level')}</th>`;
         tableHTML += `<th>${i18n.translate('pattern')}</th>`;
-        tableHTML += `<th>${i18n.translate('material_price')}</th>`;
+        tableHTML += `<th>${i18n.translate('material price')}</th>`;
         tableHTML += `<th>${i18n.translate('cost')}</th>`;
-        tableHTML += `<th>${i18n.translate('sell_price')}</th>`;
+        tableHTML += `<th>${i18n.translate('sell price')}</th>`;
         tableHTML += '</tr></thead><tbody>';
         carpentryCostData.forEach(row => {
             tableHTML += '<tr>';
@@ -308,8 +308,12 @@ const marketPriceIntegrationTabButton = document.querySelector('.tab-button[data
 if (marketPriceIntegrationTabButton) marketPriceIntegrationTabButton.textContent = i18n.translate('Market Price Integration');
 const versionComparisonTabButton = document.querySelector('.tab-button[data-tab="tab11"]');
 if (versionComparisonTabButton) versionComparisonTabButton.textContent = i18n.translate('Version Comparison');
+const forgingCostTabButton = document.querySelector('.tab-button[data-tab="forging-cost-page"]');
+if (forgingCostTabButton) forgingCostTabButton.textContent = i18n.translate('forging');
+const carpentryCostTabButton = document.querySelector('.tab-button[data-tab="carpentry-cost-page"]');
+if (carpentryCostTabButton) carpentryCostTabButton.textContent = i18n.translate('Carpentry');
 const monsterWorthTabButton = document.querySelector('.tab-button[data-tab="monster-worth-page"]');
-if (monsterWorthTabButton) monsterWorthTabButton.textContent = i18n.translate('monster_worth');
+if (monsterWorthTabButton) monsterWorthTabButton.textContent = i18n.translate('monster worth');
 const enchantingCostTabButton = document.querySelector('.tab-button[data-tab="enchanting-cost-page"]');
 if (enchantingCostTabButton) enchantingCostTabButton.textContent = i18n.translate('Enchanting');
 
@@ -455,12 +459,12 @@ const renderMarketDataTable = (data) => {
 
     let tableHTML = '<table><thead><tr>';
     // 渲染標頭
-    tableHTML += `<th>${i18n.translate('item_id')}</th>`;
-    tableHTML += `<th>${i18n.translate('item_name')}</th>`;
-    tableHTML += `<th>${i18n.translate('wiki_price')}</th>`;
-    tableHTML += `<th>${i18n.translate('market_buy')}</th>`;
-    tableHTML += `<th>${i18n.translate('market_sell')}</th>`;
-    tableHTML += `<th>${i18n.translate('custom_price')}</th>`; // 新增 custom price 標頭
+    tableHTML += `<th>${i18n.translate('item id')}</th>`;
+    tableHTML += `<th>${i18n.translate('name')}</th>`;
+    tableHTML += `<th>${i18n.translate('wiki price')}</th>`;
+    tableHTML += `<th>${i18n.translate('market buy')}</th>`;
+    tableHTML += `<th>${i18n.translate('market sell')}</th>`;
+    tableHTML += `<th>${i18n.translate('custom price')}</th>`; // 新增 custom price 標頭
     tableHTML += '</tr></thead><tbody>';
 
     // 渲染數據行
