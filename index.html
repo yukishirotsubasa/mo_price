@@ -95,17 +95,29 @@
 
         <div id="tab10-content" class="tab-content">
             <h2>Market Price Integration</h2>
-            <div>
-                <input type="text" id="google-sheet-url" placeholder="Enter Google Sheet URL or ID" class="google-sheet-url-input" value="https://docs.google.com/spreadsheets/d/10E5D6og6lQ2P19PTRheXTvaRIE8WvYjVk0rogGO4iMY/edit?gid=0#gid=0">
-                <button id="load-sheet-button" class="button-padding-8px-15px">Load Data</button>
-                <button id="force-reload-sheet-button" class="button-margin-left-10px">Force Reload</button>
+            <div class="collapsible-container">
+                <h3 class="collapsible-header">資料讀取</h3>
+                <div class="collapsible-content">
+                    <input type="text" id="google-sheet-url" placeholder="Enter Google Sheet URL or ID" class="google-sheet-url-input" value="https://docs.google.com/spreadsheets/d/10E5D6og6lQ2P19PTRheXTvaRIE8WvYjVk0rogGO4iMY/edit?gid=0#gid=0">
+                    <button id="load-sheet-button" class="button-padding-8px-15px">Load Data</button>
+                    <button id="force-reload-sheet-button" class="button-margin-left-10px">Force Reload</button>
+                    <div class="margin-top-10px">
+                        <button id="export-csv-button" class="button-padding-8px-15px">Export as CSV</button>
+                        <button id="import-csv-button" class="button-margin-left-10px">Import CSV</button>
+                        <input type="file" id="csv-file-input" accept=".csv" class="display-none">
+                    </div>
+                    <div id="sheet-status" class="sheet-status-style"></div>
+                </div>
             </div>
-            <div class="margin-top-10px">
-                <button id="export-csv-button" class="button-padding-8px-15px">Export as CSV</button>
-                <button id="import-csv-button" class="button-margin-left-10px">Import CSV</button>
-                <input type="file" id="csv-file-input" accept=".csv" class="display-none">
+            <div id="price-editor-container" class="collapsible-container">
+                <h3 class="collapsible-header">價格編輯器</h3>
+                <div class="collapsible-content">
+                    <input type="text" id="item-search-input" placeholder="輸入 Item ID 或名稱...">
+                    <button id="search-item-button">搜尋</button>
+                    <div id="item-edit-area"></div>
+                    <button id="refresh-table-button">刷新預覽表格</button>
+                </div>
             </div>
-            <div id="sheet-status" class="sheet-status-style"></div>
             <div id="sheet-data-display" class="margin-top-20px clearable-table-content"></div>
         </div>
 

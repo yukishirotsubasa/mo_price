@@ -16,6 +16,7 @@ import { generateImageSheetTable } from './tableGenerators/imageSheetTable.js';
 import { generateMonsterWorthTable } from './tableGenerators/monsterWorth.js';
 import { generateForgingCostTableData } from './forgingCost.js'; // 導入 ForgingCost 模組
 import i18n from './i18n.js'; // 導入 i18n 模組
+import { initPriceEditor } from './priceEditor.js'; // 導入價格編輯器模組
 
 let allData = {}; // 用於儲存所有載入的數據，以便在語言切換時重新渲染
 let currentMarketPricesData = []; // 用於儲存當前市場價格數據的記憶體變數，提升至全域
@@ -166,6 +167,7 @@ async function renderPage(pageName) {
                 break;
             case 'tab10': // 市場價格整合
                 initMarketPriceIntegrationUI();
+                initPriceEditor(); // 初始化價格編輯器
                 return;
             case 'tab11': // 版本比較
                 initVersionComparisonUI();
@@ -431,10 +433,11 @@ async function initVersionComparisonUI() {
  */
 function initMarketPriceIntegrationUI() {
     // 需等 google.charts 載入
-    if (window.google && google.charts && typeof google.charts.setOnLoadCallback === 'function') {
-        google.charts.setOnLoadCallback(() => {
-            initializeMarketPriceIntegrationLogic();
-        });
+    if (window.google && google.charts) {
+        google.charts.load('current', { packages: ['corechart', 'table'] });
+        google.charts.setOnLoadCallback(initializeMarketPriceIntegrationLogic);
+    } else {
+        console.error('Google Charts library not loaded.');
     }
 }
 
@@ -442,7 +445,7 @@ function initMarketPriceIntegrationUI() {
  * 渲染市場價格數據到表格。
  * @param {Array<Array<any>>} data - 處理後的市場價格數據，每行包含 [item id, item name, market buy price, market sell price]。
  */
-const renderMarketDataTable = (data) => {
+export const renderMarketDataTable = (data) => {
     const sheetDataDisplayDiv = document.getElementById('sheet-data-display');
     if (!sheetDataDisplayDiv) {
         console.error("sheet-data-display 元素未找到。");
@@ -898,7 +901,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Google Sheet 市場整合功能邏輯
     // 在 Google Charts Library 載入完成後初始化
-    google.charts.load('current', { packages: ['corechart', 'table'] });
     // initializeMarketPriceIntegrationLogic 將在 initMarketPriceIntegrationUI 中被調用
 
     // 為怪物價值過濾開關添加事件監聽器
@@ -995,6 +997,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+});
+
+// 通用摺疊功能邏輯
+document.addEventListener('DOMContentLoaded', () => {
+    const collapsibleHeaders = document.querySelectorAll('.collapsible-header');
+
+    collapsibleHeaders.forEach(header => {
+        header.addEventListener('click', () => {
+            const content = header.nextElementSibling; // 假設內容是標題的下一個兄弟元素
+            if (content && content.classList.contains('collapsible-content')) {
+                content.classList.toggle('collapsed');
+                header.classList.toggle('collapsed'); // 也切換標題的 collapsed class 以更新箭頭圖示
+            }
+        });
+    });
+
+    // 預設讓「價格編輯」區塊的內容為收合狀態
+    const priceEditorHeader = document.querySelector('#price-editor-container .collapsible-header');
+    if (priceEditorHeader) {
+        const priceEditorContent = priceEditorHeader.nextElementSibling;
+        if (priceEditorContent && priceEditorContent.classList.contains('collapsible-content')) {
+            priceEditorContent.classList.add('collapsed');
+            priceEditorHeader.classList.add('collapsed');
+        }
+    }
 });
 
 /**

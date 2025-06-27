@@ -254,3 +254,67 @@ th {
 .collapse.show {
     display: block;
 }
+/* Price Editor Styles */
+#price-editor-container {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+#price-editor-container h3 {
+    margin-top: 0;
+}
+
+#price-editor-container input[type="text"] {
+    padding: 8px;
+    margin-right: 10px;
+    width: 250px;
+}
+
+#price-editor-container button {
+    padding: 8px 15px;
+    cursor: pointer;
+}
+
+#item-edit-area {
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px dashed #ddd;
+    min-height: 50px;
+    background-color: #fff;
+}
+
+#refresh-table-button {
+    margin-top: 15px;
+}
+
+/* Collapsible styles */
+.collapsible-header {
+    cursor: pointer;
+    user-select: none; /* Prevent text selection */
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Space out title and icon */
+    padding: 10px;
+    background-color: #e0e0e0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.collapsible-header::after {
+    content: '▼'; /* Down arrow for collapsed state */
+    font-size: 0.8em;
+    transition: transform 0.3s ease;
+}
+
+.collapsible-header.collapsed::after {
+    content: '▶'; /* Right arrow for expanded state */
+    transform: rotate(0deg);
+}
+
+.collapsible-content.collapsed {
+    display: none;
+}
