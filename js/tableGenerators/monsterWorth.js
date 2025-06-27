@@ -20,18 +20,26 @@ export function generateMonsterWorthTable(containerId, npcBase, generateTableHTM
             return null; // 返回 null 表示跳過此行
         }
 
-        let cumulativeChance = 1;
-        let totalWorth = 0;
+        let cumulativeChanceForTotal = 1;
+        let finalTotalWorth = 0;
+        // 首先計算所有 drops 的最終 totalWorth
+        for (const drop of monster.params.drops) {
+            const actualChance = cumulativeChanceForTotal * drop.chance;
+            cumulativeChanceForTotal *= (1 - drop.chance);
+            const itemSellPrice = getItemSellPrice(drop.id, itemBase);
+            finalTotalWorth += itemSellPrice * actualChance;
+        }
+
+        let cumulativeChanceForDisplay = 1;
         const drops = monster.params.drops.map(drop => {
             const dropName = itemNameMap.get(drop.id) || i18n.translate('unknown_item', drop.id);
-            const actualChance = cumulativeChance * drop.chance;
-            cumulativeChance *= (1 - drop.chance);
+            const actualChance = cumulativeChanceForDisplay * drop.chance;
+            cumulativeChanceForDisplay *= (1 - drop.chance);
 
             const itemSellPrice = getItemSellPrice(drop.id, itemBase);
-            totalWorth += itemSellPrice * actualChance;
-
             const dropWorth = itemSellPrice * actualChance;
-            const isSignificantDrop = dropWorth > (totalWorth * 0.1);
+            // 判斷是否為重要掉落：大於最終 totalWorth 的 10%
+            const isSignificantDrop = dropWorth > (finalTotalWorth * 0.1);
             const dropText = `${dropName} (${(actualChance * 100).toFixed(6).replace(/\.?0+$/, '')}%)`;
             return isSignificantDrop ? `<span style="color: red;">${dropText}</span>` : dropText;
         }).join(', ');
@@ -44,7 +52,7 @@ export function generateMonsterWorthTable(containerId, npcBase, generateTableHTM
             monster.temp ? monster.temp.total_strength : 'N/A',
             monster.temp ? monster.temp.total_accuracy : 'N/A',
             drops,
-            formatNumberWithThousandsSeparator(totalWorth.toFixed(2)) // 新增 worth 欄位，並保留兩位小數，應用千分位分隔符號
+            formatNumberWithThousandsSeparator(finalTotalWorth.toFixed(2)) // 新增 worth 欄位，並保留兩位小數，應用千分位分隔符號
         ];
     };
 
