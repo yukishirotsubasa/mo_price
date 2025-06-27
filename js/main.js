@@ -719,7 +719,6 @@ async function loadMarketDataFromLocalStorage() {
                 currentMarketPricesData = processedCachedData;
                 renderMarketDataTable(currentMarketPricesData);
                 sheetStatusDiv.textContent = i18n.translate('cached_data_loaded_successfully');
-                console.log(i18n.translate('market_data_loaded_from_localstorage'), currentMarketPricesData);
             } else {
                 sheetStatusDiv.textContent = i18n.translate('no_valid_data_in_cache');
             }
@@ -1013,15 +1012,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 預設讓「價格編輯」區塊的內容為收合狀態
-    const priceEditorHeader = document.querySelector('#price-editor-container .collapsible-header');
-    if (priceEditorHeader) {
-        const priceEditorContent = priceEditorHeader.nextElementSibling;
-        if (priceEditorContent && priceEditorContent.classList.contains('collapsible-content')) {
-            priceEditorContent.classList.add('collapsed');
-            priceEditorHeader.classList.add('collapsed');
+    // 預設讓所有 collapsible-content 區塊的內容為收合狀態
+    document.querySelectorAll('.collapsible-content').forEach(content => {
+        content.classList.add('collapsed');
+        // 同時為其對應的 header 添加 collapsed class
+        const header = content.previousElementSibling;
+        if (header && header.classList.contains('collapsible-header')) {
+            header.classList.add('collapsed');
         }
-    }
+    });
 });
 
 /**
