@@ -30,7 +30,10 @@ export function generateMonsterWorthTable(containerId, npcBase, generateTableHTM
             const itemSellPrice = getItemSellPrice(drop.id, itemBase);
             totalWorth += itemSellPrice * actualChance;
 
-            return `${dropName} (${(actualChance * 100).toFixed(6).replace(/\.?0+$/, '')}%)`;
+            const dropWorth = itemSellPrice * actualChance;
+            const isSignificantDrop = dropWorth > (totalWorth * 0.1);
+            const dropText = `${dropName} (${(actualChance * 100).toFixed(6).replace(/\.?0+$/, '')}%)`;
+            return isSignificantDrop ? `<span style="color: red;">${dropText}</span>` : dropText;
         }).join(', ');
         
         return [
