@@ -796,9 +796,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // 在 i18n 初始化後立即填充語言選擇器
         populateLanguageSelector();
-
         // 設定當前選定的語言
         langSelect.value = i18n.currentLang;
+        // 更新 UI 文本 (確保首次載入時也更新)
+        updateTabTitles();
+        updateGoogleSheetUIText();
+        updateVersionComparisonUIText();
 
         // 監聽語言切換事件
         langSelect.addEventListener('change', async (event) => {
@@ -806,6 +809,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             await i18n.setLanguage(newLang);
             // 重新填充語言選擇器以更新語言名稱翻譯
             populateLanguageSelector();
+            // 設定當前選定的語言 (確保下拉選單顯示正確)
+            langSelect.value = i18n.currentLang;
             // 更新 UI 文本
             updateTabTitles();
             updateGoogleSheetUIText();

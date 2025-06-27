@@ -1,6 +1,6 @@
 // js/i18n.js
 const i18n = {
-    currentLang: 'en', // 預設語言
+    currentLang: 'en', // 預設語言，將在 init 中從 localStorage 或瀏覽器設定載入
     translations: {},
     langNames: {}, // 用於翻譯語言名稱本身
     availableLanguages: [],
@@ -79,6 +79,9 @@ const i18n = {
      * @param {string} langCode - 要設定的語言代碼。
      */
     async setLanguage(langCode) {
+        // 儲存選擇的語言到 localStorage
+        localStorage.setItem('selectedLanguage', langCode);
+
         // 如果語言是英文，則不載入翻譯檔案
         if (langCode === 'en') {
             this.currentLang = langCode;
@@ -136,7 +139,25 @@ const i18n = {
      */
     async init() {
         await this.loadLanguages();
-        await this.setLanguage(this.currentLang); // 載入預設語言的翻譯
+        // 嘗試從 localStorage 載入上次選擇的語言
+        const storedLang = localStorage.getItem('selectedLanguage');
+        if (storedLang) {
+            this.currentLang = storedLang;
+        } else {
+            // 如果沒有儲存的語言，嘗試獲取瀏覽器語言
+            const browserLang = navigator.language || navigator.userLanguage;
+            // 檢查瀏覽器語言是否在可用語言列表中
+            const availableLangCodes = this.availableLanguages.map(lang => lang.code);
+            if (browserLang && availableLangCodes.includes(browserLang.toLowerCase())) {
+                this.currentLang = browserLang.toLowerCase();
+            } else if (browserLang && availableLangCodes.includes(browserLang.split('-')[0].toLowerCase())) {
+                // 如果瀏覽器語言是 'en-US' 但只有 'en' 可用，則使用 'en'
+                this.currentLang = browserLang.split('-')[0].toLowerCase();
+            } else {
+                this.currentLang = 'en'; // 預設為英文
+            }
+        }
+        await this.setLanguage(this.currentLang); // 載入設定的語言的翻譯
     }
 };
 
