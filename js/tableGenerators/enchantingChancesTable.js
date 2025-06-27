@@ -25,7 +25,7 @@ export function generateEnchantingChancesTable(containerId, enchantingChances, g
                             // 這裡我們需要執行函數來獲取機率。由於函數是基於材料等級 'a' 的，
                             // 我們需要決定要顯示哪些材料等級的機率。
                             // 為了簡化，我們假設顯示幾個代表性的材料等級的機率。
-                            const materialLevels = [1, 20, 50, 100]; // 範例材料等級
+                            const materialLevels = [1, 20, 50, 100, 135]; // 範例材料等級
                             materialLevels.forEach(level => {
                                 try {
                                     const successRate = chanceFunction(level);

@@ -1,4 +1,5 @@
 import { generateCarpentryCostTableData } from './carpentryCost.js';
+import { generateEnchantCostTableData } from './enchantCost.js'; // 導入 EnchantCost 模組
 // js/main.js - 應用程式主入口點
 
 import { loadData, getItemBase, getForgeFormulas, getCarpentryFormulas, getNpcBase, getPets, getSkillQuest, getObjectBase, getEnchantingChances, getImageSheet, loadGoogleSheetData, loadJsFileVariable, processRawData, processRawDataFromLocalStorage, saveMarketDataToLocalStorage } from './dataLoader.js';
@@ -70,7 +71,7 @@ async function renderPage(pageName) {
             updateVersionComparisonUIText();
         }
 
-        const { itemBase, FORGE_FORMULAS, CARPENTRY_FORMULAS, npcBase, pets, skillQuest, objectBase, forge, imageSheet } = allData;
+        const { itemBase, FORGE_FORMULAS, CARPENTRY_FORMULAS, npcBase, pets, skillQuest, objectBase, forge, imageSheet, enchantingChances } = allData;
 
         let containerId;
         let generateFunction;
@@ -144,7 +145,7 @@ async function renderPage(pageName) {
                 }
                 break;
             case 'carpentry-cost-page': // 木工成本
-                containerId = 'carpentry-table-container';
+                containerId = 'carpentry-cost-table-container';
                 if (itemBase && CARPENTRY_FORMULAS) {
                     const carpentryCostData = generateCarpentryCostTableData(CARPENTRY_FORMULAS, generateTableHTML, createItemNameMap, itemBase);
                     generateFunction = renderCarpentryCostTable;
@@ -157,6 +158,11 @@ async function renderPage(pageName) {
                     console.error("For Carpentry Cost Tab, itemBase or CARPENTRY_FORMULAS data is not available.");
                     return;
                 }
+                break;
+            case 'enchanting-cost-page': // 附魔成本
+                containerId = 'enchanting-cost-table-container';
+                generateFunction = generateEnchantCostTableData;
+                args = [containerId, forge, generateTableHTML, createItemNameMap, itemBase];
                 break;
             case 'tab10': // 市場價格整合
                 initMarketPriceIntegrationUI();
@@ -304,6 +310,8 @@ const versionComparisonTabButton = document.querySelector('.tab-button[data-tab=
 if (versionComparisonTabButton) versionComparisonTabButton.textContent = i18n.translate('Version Comparison');
 const monsterWorthTabButton = document.querySelector('.tab-button[data-tab="monster-worth-page"]');
 if (monsterWorthTabButton) monsterWorthTabButton.textContent = i18n.translate('monster_worth');
+const enchantingCostTabButton = document.querySelector('.tab-button[data-tab="enchanting-cost-page"]');
+if (enchantingCostTabButton) enchantingCostTabButton.textContent = i18n.translate('Enchanting');
 
 // 更新 Tab 內容標題
 const tab1ContentH2 = document.querySelector('#tab1-content h2');
@@ -1013,6 +1021,16 @@ function renderComparisonResults(results, containerElement) {
             html += `<li>${i18n.translate('id')}: ${item.b_i}, ${i18n.translate('name')}: ${item.name || 'N/A'}</li>`;
         });
         html += `</ul></div>`;
+    }
+    
+    // 在 i18n 模組中添加新的翻譯鍵值（如果不存在）
+    // 由於 i18n.js 是從遠端載入翻譯，這裡僅為新的 UI 文本提供一個預設值
+    // 實際的翻譯應該在 lang_xx.json 檔案中維護
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['enchanting_cost_data_will_be_displayed_here']) {
+        i18n.translations[i18n.currentLang]['enchanting_cost_data_will_be_displayed_here'] = '附魔成本數據將顯示在這裡。';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Enchanting']) {
+        i18n.translations[i18n.currentLang]['Enchanting'] = '附魔';
     }
 
     // 修改的條目
