@@ -87,47 +87,24 @@ export function getImageSheet() {
  * @param {string} [sheetName=''] - 工作表名稱 (可選)。
  * @returns {Promise<Array<Array<string>>>} - 解析後的 Google Sheet 數據 (陣列的陣列)。
  */
-export function loadGoogleSheetData(urlOrId, sheetName = '', forceReload = false) {
-    return new Promise((resolve, reject) => {
-        const CACHE_KEY = 'price_data';
+export async function loadGoogleSheetData(urlOrId, sheetName = '') {
+    const CACHE_KEY = 'price_data';
 
-        // 1. 檢查 localStorage 中是否存在快取數據，除非強制重新載入
-        if (!forceReload) {
-            const cachedData = localStorage.getItem(CACHE_KEY);
-            if (cachedData) {
-                try {
-                    const parsedData = JSON.parse(cachedData);
-                    const processedCachedData = processRawDataFromLocalStorage(parsedData);
-                    console.log("從 localStorage 載入市場價格數據。");
-                    resolve(processedCachedData); // 返回處理後的數據
-                    return;
-                } catch (e) {
-                    console.error("解析 localStorage 中的快取數據失敗，將重新載入。", e);
-                    // 如果解析失敗，則繼續從 Google Sheet 載入
-                }
-            }
-        }
-
-        // 在 main.js 中已經確保 Google Charts Library 載入完成，這裡不再檢查
-
+    // 1. 從 Google Sheet 載入新資料
+    const newData = await new Promise((resolve, reject) => {
         let spreadsheetId;
-        // 嘗試從 URL 中解析 spreadsheetId
         const urlMatch = urlOrId.match(/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
         if (urlMatch) {
             spreadsheetId = urlMatch[1];
         } else {
-            // 如果不是 URL，則假設是 ID
             spreadsheetId = urlOrId;
         }
 
         if (!spreadsheetId) {
-            reject(new Error("無效的 Google Sheet URL 或 ID。"));
-            return;
+            return reject(new Error("無效的 Google Sheet URL 或 ID。"));
         }
 
-        // 預設工作表名稱為 'Sheet1'，如果使用者沒有提供
         const actualSheetName = sheetName || 'Sheet1';
-
         const query = new google.visualization.Query(
             `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?sheet=${encodeURIComponent(actualSheetName)}`
         );
@@ -135,41 +112,136 @@ export function loadGoogleSheetData(urlOrId, sheetName = '', forceReload = false
         query.send(response => {
             if (response.isError()) {
                 console.error('Google Charts Query Error: ' + response.getMessage());
-                reject(new Error('Google Charts Query Error: ' + response.getMessage()));
-                return;
+                return reject(new Error('Google Charts Query Error: ' + response.getMessage()));
             }
 
             const dataTable = response.getDataTable();
             const rowCount = dataTable.getNumberOfRows();
-            // 只讀取前 4 欄位
             const colCount = Math.min(dataTable.getNumberOfColumns(), 4);
-            const rawSheetData = []; // 儲存從 Google Sheet 獲取的原始數據，包括標頭
+            const rawSheetData = [];
 
-            // 獲取標題行 (只取前 4 欄位)
             const headers = [];
             for (let i = 0; i < colCount; i++) {
                 headers.push(dataTable.getColumnLabel(i));
             }
             rawSheetData.push(headers);
 
-            // 獲取數據行 (只取前 4 欄位)
             for (let i = 0; i < rowCount; i++) {
                 const row = [];
                 for (let j = 0; j < colCount; j++) {
-                    row.push(dataTable.getValue(i, j)); // 將所有值轉換為字符串
+                    row.push(dataTable.getValue(i, j));
                 }
                 rawSheetData.push(row);
             }
 
-            // 處理原始數據
-            const processedData = processRawData(rawSheetData); // processedData 包含 id, market buy, market sell, custom price
-
-            // 將處理後的數據儲存到 localStorage
-            saveMarketDataToLocalStorage(processedData);
-
-            resolve(processedData); // 返回處理後的數據
+            const processedData = processRawData(rawSheetData);
+            resolve(processedData);
         });
     });
+
+    // 2. 從 localStorage 讀取舊資料
+    const cachedData = localStorage.getItem(CACHE_KEY);
+    if (!cachedData) {
+        // 如果沒有舊資料，直接儲存新資料並返回
+        console.log("本地無快取資料，直接儲存新載入的市場價格數據。");
+        saveMarketDataToLocalStorage(newData);
+        return newData;
+    }
+
+    try {
+        const parsedData = JSON.parse(cachedData);
+        const oldData = processRawDataFromLocalStorage(parsedData);
+        console.log("從 localStorage 載入舊市場價格數據以進行比對。");
+        
+        // 3. 呼叫衝突處理函式
+        return await handleDataConflict(newData, oldData);
+    } catch (e) {
+        console.error("解析或處理 localStorage 中的快取數據失敗，將使用新資料覆蓋。", e);
+        // 如果解析或處理舊資料失敗，則直接儲存新資料
+        saveMarketDataToLocalStorage(newData);
+        return newData;
+    }
+}
+
+/**
+ * 處理新舊資料的衝突。
+ * @param {Array<Array<any>>} newData - 從網路載入的新資料。
+ * @param {Array<Array<any>>} oldData - 從 localStorage 載入的舊資料。
+ * @returns {Promise<Array<Array<any>>>} - 合併後的最終資料。
+ */
+export async function handleDataConflict(newData, oldData) {
+    const oldDataMap = new Map(oldData.map(row => [row[0], row]));
+    const newDataMap = new Map(newData.map(row => [row[0], row]));
+
+    const addedData = [];
+    const conflictData = [];
+    const keptData = [];
+
+    // 找出新增和衝突的資料
+    for (const newRow of newData) {
+        const itemId = newRow[0];
+        if (oldDataMap.has(itemId)) {
+            const oldRow = oldDataMap.get(itemId);
+            // 比較價格是否相同 (比較到小數點後兩位)
+            if (JSON.stringify(newRow.slice(1)) !== JSON.stringify(oldRow.slice(1))) {
+                conflictData.push({
+                    item_id: itemId,
+                    old_price: oldRow.slice(1),
+                    new_price: newRow.slice(1)
+                });
+            }
+        } else {
+            addedData.push(newRow);
+        }
+    }
+
+    // 找出保留和被刪除的資料
+    for (const oldRow of oldData) {
+        const itemId = oldRow[0];
+        if (newDataMap.has(itemId)) {
+            keptData.push(oldRow);
+        }
+    }
+
+    if (conflictData.length === 0) {
+        // 沒有衝突，直接合併
+        const mergedData = [...keptData, ...addedData];
+        console.log("無資料衝突，自動合併完成。");
+        saveMarketDataToLocalStorage(mergedData);
+        return mergedData;
+    } else {
+        // 有衝突，呼叫 UI 進行處理
+        console.log(`發現 ${conflictData.length} 筆衝突資料，等待使用者處理。`);
+        try {
+            // 假設 main.js 會將 showConflictResolutionModal 掛載到 window.ui
+            const resolution = await window.ui.showConflictResolutionModal(conflictData);
+            
+            let resolvedConflicts;
+            if (resolution === 'apply_new') {
+                console.log("使用者選擇應用新資料。");
+                resolvedConflicts = conflictData.map(c => [c.item_id, ...c.new_price]);
+            } else { // 'keep_old'
+                console.log("使用者選擇保留舊資料。");
+                resolvedConflicts = conflictData.map(c => [c.item_id, ...c.old_price]);
+            }
+
+            // 更新 keptData 中的衝突項目
+            const resolvedConflictsMap = new Map(resolvedConflicts.map(row => [row[0], row]));
+            const updatedKeptData = keptData.map(row => resolvedConflictsMap.get(row[0]) || row);
+
+            const finalData = [...updatedKeptData, ...addedData];
+            saveMarketDataToLocalStorage(finalData);
+            console.log("衝突已解決，資料已合併並儲存。");
+            return finalData;
+
+        } catch (error) {
+            console.error("解決衝突時發生錯誤:", error);
+            // 發生錯誤時，預設保留舊資料並合併新增資料
+            const mergedData = [...keptData, ...addedData];
+            saveMarketDataToLocalStorage(mergedData);
+            return mergedData;
+        }
+    }
 }
 
 /**

@@ -2,7 +2,7 @@ import { generateCarpentryCostTableData } from './carpentryCost.js';
 import { generateEnchantCostTableData } from './enchantCost.js'; // 導入 EnchantCost 模組
 // js/main.js - 應用程式主入口點
 
-import { loadData, getItemBase, getForgeFormulas, getCarpentryFormulas, getNpcBase, getPets, getSkillQuest, getObjectBase, getEnchantingChances, getImageSheet, loadGoogleSheetData, loadJsFileVariable, processRawData, processRawDataFromLocalStorage, saveMarketDataToLocalStorage } from './dataLoader.js';
+import { loadData, getItemBase, getForgeFormulas, getCarpentryFormulas, getNpcBase, getPets, getSkillQuest, getObjectBase, getEnchantingChances, getImageSheet, loadGoogleSheetData, loadJsFileVariable, processRawData, processRawDataFromLocalStorage, saveMarketDataToLocalStorage, handleDataConflict } from './dataLoader.js';
 import { createItemNameMap, generateTableHTML, compareData, formatNumberWithThousandsSeparator } from './utils.js';
 import { generateItemTable } from './tableGenerators/itemTable.js';
 import { generateCarpentryTable } from './tableGenerators/carpentryTable.js';
@@ -20,6 +20,45 @@ import { initPriceEditor } from './priceEditor.js'; // 導入價格編輯器模�
 
 let allData = {}; // 用於儲存所有載入的數據，以便在語言切換時重新渲染
 let currentMarketPricesData = []; // 用於儲存當前市場價格數據的記憶體變數，提升至全域
+window.ui = {};
+
+/**
+ * 顯示衝突解決 Modal。
+ * @param {Array} conflictData - 包含衝突項目的陣列。
+ * @returns {Promise<string>} - 回傳一個 Promise，解析為用戶的選擇 ('apply_new' 或 'keep_old')。
+ */
+function showConflictResolutionModal(conflictData) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('conflict-resolution-modal');
+        const modalText = document.getElementById('conflict-modal-text');
+        const applyNewButton = document.getElementById('apply-new-button');
+        const keepOldButton = document.getElementById('keep-old-button');
+
+        modalText.textContent = `偵測到 ${conflictData.length} 個資料衝突。請選擇如何處理：`;
+        modal.style.display = 'flex';
+
+        const listenerOptions = { once: true };
+
+        const applyNewHandler = () => {
+            modal.style.display = 'none';
+            // 移除監聽器以避免記憶體洩漏
+            keepOldButton.removeEventListener('click', keepOldHandler);
+            resolve('apply_new');
+        };
+
+        const keepOldHandler = () => {
+            modal.style.display = 'none';
+            // 移除監聽器以避免記憶體洩漏
+            applyNewButton.removeEventListener('click', applyNewHandler);
+            resolve('keep_old');
+        };
+
+        applyNewButton.addEventListener('click', applyNewHandler, listenerOptions);
+        keepOldButton.addEventListener('click', keepOldHandler, listenerOptions);
+    });
+}
+
+window.ui.showConflictResolutionModal = showConflictResolutionModal;
 
 /**
  * 渲染所有表格。
@@ -352,14 +391,12 @@ if (monsterWorthContentH2) monsterWorthContentH2.textContent = i18n.translate('m
 function updateGoogleSheetUIText() {
     const googleSheetUrlInput = document.getElementById('google-sheet-url');
     const loadSheetButton = document.getElementById('load-sheet-button');
-    const forceReloadSheetButton = document.getElementById('force-reload-sheet-button');
     const exportCsvButton = document.getElementById('export-csv-button');
     const importCsvButton = document.getElementById('import-csv-button');
     const csvFileInput = document.getElementById('csv-file-input');
 
     if (googleSheetUrlInput) googleSheetUrlInput.placeholder = i18n.translate('enter_google_sheet_url_or_id');
     if (loadSheetButton) loadSheetButton.textContent = i18n.translate('load_data');
-    if (forceReloadSheetButton) forceReloadSheetButton.textContent = i18n.translate('force_reload');
     if (exportCsvButton) exportCsvButton.textContent = i18n.translate('export_as_csv');
     if (importCsvButton) importCsvButton.textContent = i18n.translate('import_csv');
     if (csvFileInput) csvFileInput.setAttribute('accept', '.csv'); // 確保只接受 CSV 檔案
@@ -561,28 +598,25 @@ const handleCellEdit = (cellElement, dataToUpdate) => {
 async function initializeMarketPriceIntegrationLogic() {
     const googleSheetUrlInput = document.getElementById('google-sheet-url');
     const loadSheetButton = document.getElementById('load-sheet-button');
-    const forceReloadSheetButton = document.getElementById('force-reload-sheet-button');
     const sheetStatusDiv = document.getElementById('sheet-status');
     const sheetDataDisplayDiv = document.getElementById('sheet-data-display');
     const exportCsvButton = document.getElementById('export-csv-button');
     const importCsvButton = document.getElementById('import-csv-button');
     const csvFileInput = document.getElementById('csv-file-input');
 
-    if (!googleSheetUrlInput || !loadSheetButton || !forceReloadSheetButton || !sheetStatusDiv || !sheetDataDisplayDiv || !exportCsvButton || !importCsvButton || !csvFileInput) {
+    if (!googleSheetUrlInput || !loadSheetButton || !sheetStatusDiv || !sheetDataDisplayDiv || !exportCsvButton || !importCsvButton || !csvFileInput) {
         console.error("市場價格整合相關 UI 元素未找到。");
         return;
     }
 
     // 移除舊的事件監聽器以避免重複綁定
     loadSheetButton.removeEventListener('click', loadAndDisplaySheetDataWrapper);
-    forceReloadSheetButton.removeEventListener('click', forceLoadAndDisplaySheetDataWrapper);
     exportCsvButton.removeEventListener('click', exportCsvData);
     importCsvButton.removeEventListener('click', triggerCsvFileInput);
     csvFileInput.removeEventListener('change', handleCsvFileChange);
 
     // 綁定新的事件監聽器
     loadSheetButton.addEventListener('click', loadAndDisplaySheetDataWrapper);
-    forceReloadSheetButton.addEventListener('click', forceLoadAndDisplaySheetDataWrapper);
     exportCsvButton.addEventListener('click', exportCsvData);
     importCsvButton.addEventListener('click', triggerCsvFileInput);
     csvFileInput.addEventListener('change', handleCsvFileChange);
@@ -594,12 +628,7 @@ async function initializeMarketPriceIntegrationLogic() {
 /**
  * loadAndDisplaySheetData 的包裝函數，用於事件監聽器。
  */
-const loadAndDisplaySheetDataWrapper = () => loadAndDisplaySheetData(false);
-
-/**
- * loadAndDisplaySheetData 的包裝函數，用於強制重新載入。
- */
-const forceLoadAndDisplaySheetDataWrapper = () => loadAndDisplaySheetData(true);
+const loadAndDisplaySheetDataWrapper = () => loadAndDisplaySheetData();
 
 /**
  * 匯出 CSV 數據。
@@ -668,11 +697,17 @@ const handleCsvFileChange = async (event) => {
         try {
             const csvContent = e.target.result;
             const rawImportedData = csvContent.split(/\r?\n/).map(row => row.split(',').map(cell => cell.trim()));
+            const newData = processRawData(rawImportedData);
 
-            const processedImportedData = processRawData(rawImportedData);
+            // 從 localStorage 讀取舊數據
+            const oldDataRaw = localStorage.getItem('price_data');
+            const oldData = oldDataRaw ? processRawDataFromLocalStorage(JSON.parse(oldDataRaw)) : [];
 
-            if (processedImportedData.length > 0) {
-                currentMarketPricesData = processedImportedData;
+            // 處理數據衝突
+            const finalData = await handleDataConflict(newData, oldData);
+
+            if (finalData.length > 0) {
+                currentMarketPricesData = finalData;
                 saveMarketDataToLocalStorage(currentMarketPricesData);
                 renderMarketDataTable(currentMarketPricesData);
                 sheetStatusDiv.textContent = i18n.translate('csv_data_imported_successfully');
@@ -735,7 +770,7 @@ async function loadMarketDataFromLocalStorage() {
  * 載入並顯示 Google Sheet 數據。
  * @param {boolean} forceReload - 是否強制重新載入數據。
  */
-async function loadAndDisplaySheetData(forceReload = false) {
+async function loadAndDisplaySheetData() {
     const googleSheetUrlInput = document.getElementById('google-sheet-url');
     const sheetStatusDiv = document.getElementById('sheet-status');
     const sheetDataDisplayDiv = document.getElementById('sheet-data-display');
@@ -751,14 +786,15 @@ async function loadAndDisplaySheetData(forceReload = false) {
         return;
     }
 
-    sheetStatusDiv.textContent = forceReload ? i18n.translate('force_reloading_data') : i18n.translate('loading_data');
+    sheetStatusDiv.textContent = i18n.translate('loading_data');
     sheetDataDisplayDiv.innerHTML = '';
 
     try {
-        const rawSheetData = await loadGoogleSheetData(urlOrId, '', forceReload);
+        // loadGoogleSheetData 現在會處理衝突並返回最終數據
+        const finalData = await loadGoogleSheetData(urlOrId, '');
 
         sheetStatusDiv.textContent = i18n.translate('data_loaded_successfully');
-        currentMarketPricesData = rawSheetData;
+        currentMarketPricesData = finalData;
         
         renderMarketDataTable(currentMarketPricesData);
 
@@ -917,84 +953,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    /**
-     * 從 localStorage 載入市場價格數據並顯示。
-     */
-    async function loadMarketDataFromLocalStorage() {
-        const sheetStatusDiv = document.getElementById('sheet-status');
-        const sheetDataDisplayDiv = document.getElementById('sheet-data-display');
-        const CACHE_KEY = 'price_data'; // 更改鍵名為 price_data
-
-        if (!sheetStatusDiv || !sheetDataDisplayDiv) {
-            console.error("市場價格整合相關 UI 元素未找到。");
-            return;
-        }
-
-        sheetStatusDiv.textContent = i18n.translate('loading_cached_data');
-        sheetDataDisplayDiv.innerHTML = ''; // 清空之前的數據
-
-        try {
-            const cachedData = localStorage.getItem(CACHE_KEY);
-            if (cachedData) {
-                const rawCachedData = JSON.parse(cachedData);
-                // 使用 dataLoader 中的 processRawDataFromLocalStorage 函數
-                const processedCachedData = processRawDataFromLocalStorage(rawCachedData);
-
-                if (processedCachedData.length > 0) {
-                    currentMarketPricesData = processedCachedData;
-                    renderMarketDataTable(currentMarketPricesData);
-                    sheetStatusDiv.textContent = i18n.translate('cached_data_loaded_successfully');
-                    console.log(i18n.translate('market_data_loaded_from_localstorage'), currentMarketPricesData);
-                } else {
-                    sheetStatusDiv.textContent = i18n.translate('no_valid_data_in_cache');
-                }
-            } else {
-                sheetStatusDiv.textContent = i18n.translate('no_cached_data_found');
-            }
-        } catch (error) {
-            sheetStatusDiv.textContent = i18n.translate('failed_to_load_cached_data', error.message);
-            console.error("從 localStorage 載入市場價格數據失敗:", error);
-        }
-    }
-
-    /**
-     * 載入並顯示 Google Sheet 數據。
-     * @param {boolean} forceReload - 是否強制重新載入數據。
-     */
-    async function loadAndDisplaySheetData(forceReload = false) {
-        const googleSheetUrlInput = document.getElementById('google-sheet-url');
-        const sheetStatusDiv = document.getElementById('sheet-status');
-        const sheetDataDisplayDiv = document.getElementById('sheet-data-display');
-        // currentMarketPricesData 在外部作用域定義，這裡不需要重新定義
-
-        if (!googleSheetUrlInput || !sheetStatusDiv || !sheetDataDisplayDiv) {
-            console.error("Google Sheet 相關 UI 元素未找到。");
-            return;
-        }
-
-        const urlOrId = googleSheetUrlInput.value.trim();
-        if (!urlOrId) {
-            sheetStatusDiv.textContent = i18n.translate('enter_google_sheet_url_or_id_message');
-            return;
-        }
-
-        sheetStatusDiv.textContent = forceReload ? i18n.translate('force_reloading_data') : i18n.translate('loading_data');
-        sheetDataDisplayDiv.innerHTML = ''; // 清空之前的數據
-
-        try {
-            const rawSheetData = await loadGoogleSheetData(urlOrId, '', forceReload); // loadGoogleSheetData 現在直接返回處理後的數據
-
-            sheetStatusDiv.textContent = i18n.translate('data_loaded_successfully');
-            currentMarketPricesData = rawSheetData; // loadGoogleSheetData 已經返回處理後的數據，直接使用
-            
-            renderMarketDataTable(currentMarketPricesData); // 渲染數據
-
-        } catch (error) {
-            sheetStatusDiv.textContent = i18n.translate('load_failed', error.message);
-            sheetDataDisplayDiv.innerHTML = '';
-            console.error("載入或處理 Google Sheet 數據失敗:", error);
-        }
-    }
 
 });
 

@@ -100,7 +100,6 @@
                 <div class="collapsible-content">
                     <input type="text" id="google-sheet-url" placeholder="Enter Google Sheet URL or ID" class="google-sheet-url-input" value="https://docs.google.com/spreadsheets/d/10E5D6og6lQ2P19PTRheXTvaRIE8WvYjVk0rogGO4iMY/edit?gid=0#gid=0">
                     <button id="load-sheet-button" class="button-padding-8px-15px">Load Data</button>
-                    <button id="force-reload-sheet-button" class="button-margin-left-10px">Force Reload</button>
                     <div class="margin-top-10px">
                         <button id="export-csv-button" class="button-padding-8px-15px">Export as CSV</button>
                         <button id="import-csv-button" class="button-margin-left-10px">Import CSV</button>
@@ -180,6 +179,16 @@
         </div>
     </div>
 
+    <div id="conflict-resolution-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2 id="conflict-modal-title">資料衝突</h2>
+            <p id="conflict-modal-text">偵測到 0 個資料衝突。請選擇如何處理：</p>
+            <div class="modal-buttons">
+                <button id="apply-new-button">全部套用新的</button>
+                <button id="keep-old-button">全部保留舊的</button>
+            </div>
+        </div>
+    </div>
     <script type="module" src="js/main.js"></script>
 </body>
 </html>
