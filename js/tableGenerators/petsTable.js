@@ -9,13 +9,13 @@ export function generatePetsTable(containerId, pets, generateTableHTML, createIt
     }
 
     // 使用 i18n.translate 翻譯表頭
-    const headers = ['id', 'name', 'breeding_level', 'eat_interval', 'eats', 'happiness', 'insurance_cost', 'item_id', 'level', 'likes', 'xp_required'];
+    const headers = ['id', 'name', 'breeding_level', 'total_eat', 'eats', 'insurance_cost', 'item_id', 'level', 'likes', 'xp_required'];
 
     const itemNameMap = createItemNameMap(itemBase, i18n.translate);
     const petNameMap = new Map(allPets.filter(p => p.b_i !== undefined && p.name !== undefined).map(p => [p.b_i, i18n.translate(p.name)]));
 
     const rowMapper = (pet) => {
-        const eats = pet.params && pet.params.eats ? Object.entries(pet.params.eats || {}).map(([itemId, value]) => `${itemNameMap.get(Number(itemId)) || `未知物品ID: ${itemId}`}(${value})`).join(', ') : '無';
+        const eats = pet.params && pet.params.eats ? Object.entries(pet.params.eats || {}).map(([itemId, value]) => `${itemNameMap.get(Number(itemId)) || `未知物品ID: ${itemId}`}(${value * pet.params.eat_interval})`).join(', ') : '無';
         const insuranceCost = pet.params && pet.params.insurance_cost ? pet.params.insurance_cost.join(', ') : '無';
         const likes = pet.params && pet.params.likes ? pet.params.likes.map(like => `${petNameMap.get(like.pet_id) || `未知寵物ID: ${like.pet_id}`} (XP: ${like.xp})`).join(', ') : '無';
 
@@ -23,9 +23,8 @@ export function generatePetsTable(containerId, pets, generateTableHTML, createIt
             pet.b_i,
             i18n.translate(pet.name), // 直接翻譯寵物名稱
             pet.params ? pet.params.breeding_level : 'N/A',
-            pet.params ? pet.params.eat_interval : 'N/A',
+            pet.params ? pet.params.happiness - pet.params.eat_interval : 'N/A',
             eats,
-            pet.params ? pet.params.happiness : 'N/A',
             insuranceCost,
             pet.params ? pet.params.item_id : 'N/A',
             pet.params ? pet.params.level : 'N/A',
