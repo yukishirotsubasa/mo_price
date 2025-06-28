@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Explanation</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <div class="explanation-content">
+        <h1>How to Use the "Market Price Integration" Page:</h3>
+        <h4>1. Load Market Price Data:</h4>
+        <ul>
+            <li><strong>Load from Google Sheet:</strong>
+                <p>Note: The Google Sheet must be set to public viewable for URL loading to work.</p>
+                <ol>
+                    <li>In the input box of the "data loader" section, paste the URL or ID of your Google Sheet.</li>
+                    <li>Click the "Load Data" button. The system will load data from your Google Sheet.</li>
+                    <li>If there is old price data locally, the system will prompt you to handle data conflicts. You can choose to "Apply All New" or "Keep All Old".</li>
+                    <li>Example Google Sheet: <a href="https://docs.google.com/spreadsheets/d/10E5D6og6lQ2P19PTRheXTvaRIE8WvYjVk0rogGO4iMY/edit?gid=0#gid=0" target="_blank">https://docs.google.com/spreadsheets/d/10E5D6og6lQ2P19PTRheXTvaRIE8WvYjVk0rogGO4iMY/edit?gid=0#gid=0</a></li>
+                </ol>
+            </li>
+            <li><strong>Import from CSV File:</strong>
+                <ol>
+                    <li>Click the "Import CSV" button.</li>
+                    <li>Select a CSV file from your computer. The system will read the file content and import the data.</li>
+                    <li>If there is old price data locally, the system will prompt you to handle data conflicts. You can choose to "Apply All New" or "Keep All Old".</li>
+                </ol>
+            </li>
+            <li><strong>Load from Local Cache:</strong>
+                <p>When you first enter this page, the system will automatically try to load previously saved market price data from your browser's local storage.</p>
+            </li>
+        </ul>
+
+        <h4>2. Edit Market Price Data:</h4>
+        <ul>
+            <li><strong>Search for Items or Monsters:</strong>
+                <ol>
+                    <li>In the input box of the "editor" section, enter the item ID, item name, or monster name you want to search for.</li>
+                    <li>Click the "Search Item" button to search for items, or click the "Search Monster" button to search for monsters.</li>
+                </ol>
+            </li>
+            <li><strong>Modify Prices:</strong>
+                <ol>
+                    <li>Search results will be displayed in the editing area. Each item or monster drop will show its ID, name, and input boxes for "Market Buy Price", "Market Sell Price", and "Custom Price".</li>
+                    <li>Directly enter new prices into these input boxes. When you finish typing and click elsewhere or press Enter, the price will be automatically saved locally.</li>
+                </ol>
+            </li>
+            <li><strong>Delete Price Data:</strong>
+                <ol>
+                    <li>In the editing area, there will be a "Delete" button to the right of each item or monster drop.</li>
+                    <li>Click the "Delete" button, and a confirmation window will pop up. After confirmation, the price data for that item will be removed locally.</li>
+                </ol>
+            </li>
+            <li><strong>Refresh Preview Table:</strong>
+                <p>After editing prices, click the "Refresh Preview Table" button, and the "sheet-data-display" section below will display the latest market price data.</p>
+            </li>
+        </ul>
+
+        <h4>3. Export Market Price Data:</h4>
+        <ul>
+            <li>In the "data loader" section, click the "Export as CSV" button.</li>
+            <li>The system will export the currently displayed market price data as a CSV file, which you can choose to save to your computer.</li>
+        </ul>
+    </div>
+</body>
+</html>

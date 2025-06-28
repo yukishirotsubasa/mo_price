@@ -211,10 +211,15 @@ async function renderPage(pageName) {
             case 'tab11': // 版本比較
                 initVersionComparisonUI();
                 return;
-            default:
-                console.warn(`未知頁面名稱: ${pageName}`);
-                return;
-        }
+case 'explanation-page': // 說明頁面
+    containerId = 'explanation-page-content';
+    generateFunction = loadExplanationPage; // 使用新的函數來載入說明頁面
+    args = [containerId];
+    break;
+default:
+    console.warn(`未知頁面名稱: ${pageName}`);
+    return;
+}
 
         const container = document.getElementById(containerId);
         if (container) {
@@ -325,6 +330,10 @@ const priceToggle = document.querySelector('.sidebar-menu .has-submenu:nth-child
 if (priceToggle) priceToggle.textContent = i18n.translate('Price');
 const wikiToggle = document.querySelector('.sidebar-menu .has-submenu:nth-child(3) > .submenu-toggle');
 if (wikiToggle) wikiToggle.textContent = i18n.translate('Wiki');
+
+// 更新「說明」連結的文本
+const explanationTabButton = document.querySelector('.tab-button[data-tab="explanation-page"]');
+if (explanationTabButton) explanationTabButton.textContent = i18n.translate('explanation');
 
 // 更新子選單標題
 const itemTabButton = document.querySelector('.tab-button[data-tab="tab1"]');
@@ -1025,6 +1034,12 @@ function renderComparisonResults(results, containerElement) {
     if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Enchanting']) {
         i18n.translations[i18n.currentLang]['Enchanting'] = '附魔';
     }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['explanation']) {
+        i18n.translations[i18n.currentLang]['explanation'] = '說明';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['failed_to_load_explanation_page']) {
+        i18n.translations[i18n.currentLang]['failed_to_load_explanation_page'] = '載入說明頁面失敗: {0}';
+    }
 
     // 修改的條目
     if (results.modified.length > 0) {
@@ -1055,4 +1070,38 @@ function renderComparisonResults(results, containerElement) {
     }
 
     containerElement.innerHTML = html;
+}
+
+/**
+ * 載入說明頁面內容。
+ * @param {string} containerId - 容器元素的 ID。
+ */
+async function loadExplanationPage(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) {
+        console.error(`找不到 ID 為 ${containerId} 的容器元素。`);
+        return;
+    }
+
+    const currentLang = i18n.currentLang;
+    let explanationPagePath = '';
+
+    if (currentLang === 'zh-tw' || currentLang === 'zh') {
+        explanationPagePath = 'views/explanation.html';
+    } else {
+        explanationPagePath = 'views/explanation_en.html';
+    }
+
+    try {
+        const response = await fetch(explanationPagePath);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const htmlContent = await response.text();
+        container.innerHTML = htmlContent;
+        console.log(`說明頁面 ${explanationPagePath} 載入成功。`);
+    } catch (error) {
+        container.innerHTML = `<p style="color: red;">${i18n.translate('failed_to_load_explanation_page', error.message)}</p>`;
+        console.error(`載入說明頁面 ${explanationPagePath} 失敗:`, error);
+    }
 }

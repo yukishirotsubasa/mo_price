@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>說明</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+    <div class="explanation-content">
+        <h1>如何使用「Market Price Integration」頁面：</h3>
+        <h4>1. 載入市場價格資料：</h4>
+        <ul>
+            <li><strong>從 Google Sheet 載入：</strong>
+                <p>注意：Google Sheet 必須設定為可公開檢視才能使用 URL 載入。</p>
+                <ol>
+                    <li>在「data loader」區塊的輸入框中，貼上您的 Google Sheet 的 URL 或 ID。</li>
+                    <li>點擊「Load Data」按鈕。系統將會從您的 Google Sheet 載入資料。</li>
+                    <li>如果本地有舊的價格資料，系統會提示您處理資料衝突，您可以選擇「全部套用新的」或「全部保留舊的」。</li>
+                    <li>範例 Google Sheet: <a href="https://docs.google.com/spreadsheets/d/10E5D6og6lQ2P19PTRheXTvaRIE8WvYjVk0rogGO4iMY/edit?gid=0#gid=0" target="_blank">https://docs.google.com/spreadsheets/d/10E5D6og6lQ2P19PTRheXTvaRIE8WvYjVk0rogGO4iMY/edit?gid=0#gid=0</a></li>
+                </ol>
+            </li>
+            <li><strong>從 CSV 檔案匯入：</strong>
+                <ol>
+                    <li>點擊「Import CSV」按鈕。</li>
+                    <li>選擇您電腦中的 CSV 檔案。系統將會讀取檔案內容並匯入資料。</li>
+                    <li>如果本地有舊的價格資料，系統會提示您處理資料衝突，您可以選擇「全部套用新的」或「全部保留舊的」。</li>
+                </ol>
+            </li>
+            <li><strong>從本地快取載入：</strong>
+                <p>當您首次進入此頁面時，系統會自動嘗試從您瀏覽器的本地儲存空間載入之前儲存的市場價格資料。</p>
+            </li>
+        </ul>
+
+        <h4>2. 編輯市場價格資料：</h4>
+        <ul>
+            <li><strong>搜尋物品或怪物：</strong>
+                <ol>
+                    <li>在「editor」區塊的輸入框中，輸入您要搜尋的物品 ID、物品名稱或怪物名稱。</li>
+                    <li>點擊「搜尋物品」按鈕來搜尋物品，或點擊「搜尋怪物」按鈕來搜尋怪物。</li>
+                </ol>
+            </li>
+            <li><strong>修改價格：</strong>
+                <ol>
+                    <li>搜尋結果會顯示在編輯區域。每個物品或怪物掉落物會顯示其 ID、名稱以及「市場買價」、「市場賣價」和「自訂價格」的輸入框。</li>
+                    <li>直接在這些輸入框中輸入新的價格。當您輸入完成並點擊其他地方或按下 Enter 鍵時，價格會自動儲存到本地。</li>
+                </ol>
+            </li>
+            <li><strong>刪除價格資料：</strong>
+                <ol>
+                    <li>在編輯區域中，每個物品或怪物掉落物的右側會有一個「刪除」按鈕。</li>
+                    <li>點擊「刪除」按鈕，系統會彈出確認視窗。確認後，該物品的價格資料將從本地移除。</li>
+                </ol>
+            </li>
+            <li><strong>刷新預覽表格：</strong>
+                <p>在編輯價格後，點擊「刷新預覽表格」按鈕，下方的「sheet-data-display」區塊將會顯示最新的市場價格資料。</p>
+            </li>
+        </ul>
+
+        <h4>3. 匯出市場價格資料：</h4>
+        <ul>
+            <li>在「data loader」區塊，點擊「Export as CSV」按鈕。</li>
+            <li>系統會將當前顯示的市場價格資料匯出為一個 CSV 檔案，您可以選擇儲存到您的電腦中。</li>
+        </ul>
+    </div>
+</body>
+</html>
