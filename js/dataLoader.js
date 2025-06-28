@@ -135,6 +135,7 @@ export async function loadGoogleSheetData(urlOrId, sheetName = '') {
             }
 
             const processedData = processRawData(rawSheetData);
+            localStorage.setItem('lastSuccessfulGoogleSheetUrl', urlOrId); // 儲存成功的 Google Sheet URL
             resolve(processedData);
         });
     });

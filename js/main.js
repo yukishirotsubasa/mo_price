@@ -632,6 +632,12 @@ async function initializeMarketPriceIntegrationLogic() {
 
     // 在 Google Charts Library 載入完成後，嘗試從 localStorage 載入數據
     loadMarketDataFromLocalStorage();
+
+    // 載入上次成功讀取的 Google Sheet URL
+    const lastUrl = localStorage.getItem('lastSuccessfulGoogleSheetUrl');
+    if (lastUrl) {
+        googleSheetUrlInput.value = lastUrl;
+    }
 }
 
 /**
@@ -806,6 +812,9 @@ async function loadAndDisplaySheetData() {
         currentMarketPricesData = finalData;
         
         renderMarketDataTable(currentMarketPricesData);
+
+        // 成功載入後，將當前 URL 儲存到 localStorage
+        localStorage.setItem('lastSuccessfulGoogleSheetUrl', urlOrId);
 
     } catch (error) {
         sheetStatusDiv.textContent = i18n.translate('load_failed', error.message);
