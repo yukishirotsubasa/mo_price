@@ -1,5 +1,5 @@
 import { createItemNameMap } from './utils.js';
-import { getItemBase } from './dataLoader.js';
+import { getItemBase, getNpcBase } from './dataLoader.js';
 import { renderMarketDataTable } from './main.js';
 import i18n from './i18n.js';
 
@@ -16,10 +16,11 @@ export async function initPriceEditor() {
     // 獲取 UI 元素
     const searchInput = document.getElementById('item-search-input');
     const searchButton = document.getElementById('search-item-button');
+    const searchMonsterButton = document.getElementById('search-monster-button'); // 新增怪物搜尋按鈕
     const editArea = document.getElementById('item-edit-area');
     const refreshButton = document.getElementById('refresh-table-button');
 
-    if (!searchInput || !searchButton || !editArea || !refreshButton) {
+    if (!searchInput || !searchButton || !editArea || !refreshButton || !searchMonsterButton) {
         console.error('Price editor UI elements not found!');
         return;
     }
@@ -27,6 +28,8 @@ export async function initPriceEditor() {
     // 初始化
     let itemBase;
     let itemNameMap;
+    let npcBase; // 新增 npcBase 變數
+    let monsterNameMap; // 新增 monsterNameMap 變數
     let priceData = [];
 
     try {
@@ -36,8 +39,27 @@ export async function initPriceEditor() {
             console.error('Failed to load item_base data.');
             return;
         }
-        // 建立物品 ID 到名稱的映射表
+        // 建立 itemNameMap
         itemNameMap = createItemNameMap(itemBase, i18n.translate);
+        if (!itemNameMap) {
+            console.error('Failed to create itemNameMap.');
+            return;
+        }
+        // 載入 npcBase 資料
+        npcBase = await getNpcBase();
+        if (!npcBase) {
+            console.error('Failed to load npcBase data.');
+            return;
+        }
+
+        // 建立怪物名稱到物件的映射表 (只包含有掉落物的怪物)
+        monsterNameMap = new Map();
+        npcBase.forEach(npc => {
+            if (npc.params && npc.params.drops) {
+                monsterNameMap.set(npc.name.toLowerCase(), npc);
+            }
+        });
+
         // 從 localStorage 載入現有價格資料
         loadPriceData();
     } catch (error) {
@@ -191,10 +213,108 @@ export async function initPriceEditor() {
         }
     }
 
+    /**
+     * 渲染單個怪物的掉落物編輯區。
+     * @param {object} monster - 怪物物件，來自 npcBase。
+     */
+    function renderMonsterDropsEditArea(monster) {
+        editArea.innerHTML = ''; // 清空編輯區
+
+        const title = document.createElement('h3');
+        title.textContent = `${i18n.translate('editing_monster_drops', '編輯怪物掉落物')}: ${monster.name}`;
+        editArea.appendChild(title);
+
+        if (!monster.params || !monster.params.drops || monster.params.drops.length === 0) {
+            const noDropsMsg = document.createElement('p');
+            noDropsMsg.textContent = i18n.translate('no_drops_found', '此怪物沒有掉落物。');
+            editArea.appendChild(noDropsMsg);
+            return;
+        }
+
+        monster.params.drops.forEach(drop => {
+            // 掉落物結構可能只有 id，需要轉換成 renderEditItem 期望的 item 結構
+            const item = {
+                b_i: drop.id,
+                name: itemNameMap.get(drop.id) || `ID: ${drop.id}` // 嘗試從 itemNameMap 獲取名稱
+            };
+            editArea.appendChild(renderEditItem(item));
+        });
+    }
+
+    /**
+     * 處理怪物搜尋邏輯。
+     */
+    function handleMonsterSearch() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        if (!searchTerm) {
+            editArea.innerHTML = `<p>${i18n.translate('enter_monster_name_or_id', '請輸入怪物名稱或ID')}</p>`;
+            return;
+        }
+
+        editArea.innerHTML = ''; // 清空先前的搜尋結果
+        let searchResults = [];
+
+        // 判斷是 ID 還是名稱關鍵字
+        if (!isNaN(searchTerm) && searchTerm !== '') { // 純數字視為怪物 ID
+            const monsterId = parseInt(searchTerm);
+            const monsterFromBase = npcBase.find(npc => npc.b_i === monsterId && npc.params && npc.params.drops);
+            if (monsterFromBase) {
+                searchResults.push(monsterFromBase);
+            }
+        } else { // 其餘視為名稱關鍵字
+            // 針對 npcBase 中每個物件的 name 屬性進行模糊匹配
+            npcBase.forEach(npc => {
+                if (npc.name.toLowerCase().includes(searchTerm) && npc.params && npc.params.drops) {
+                    searchResults.push(npc);
+                }
+            });
+        }
+
+        // 處理搜尋結果
+        if (searchResults.length === 1) {
+            // 單一結果：直接顯示其掉落物
+            renderMonsterDropsEditArea(searchResults[0]);
+        } else if (searchResults.length > 1) {
+            // 多個結果：顯示列表讓使用者選擇
+            const resultList = document.createElement('div');
+            resultList.innerHTML = `<h4>${i18n.translate('multiple_monsters_found', '找到多個怪物，請選擇:')}</h4>`;
+            searchResults.forEach(monster => {
+                const monsterDiv = document.createElement('div');
+                monsterDiv.classList.add('monster-search-result-item');
+                monsterDiv.innerHTML = `
+                    <span>${monster.name} (ID: ${monster.b_i})</span>
+                    <button class="select-monster-button" data-monster-id="${monster.b_i}">${i18n.translate('select', '選擇')}</button>
+                `;
+                resultList.appendChild(monsterDiv);
+            });
+            editArea.appendChild(resultList);
+
+            // 為每個「選擇」按鈕添加事件監聽器
+            resultList.querySelectorAll('.select-monster-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const monsterId = parseInt(e.target.dataset.monsterId);
+                    const selectedMonster = npcBase.find(npc => npc.b_i === monsterId);
+                    if (selectedMonster) {
+                        renderMonsterDropsEditArea(selectedMonster);
+                    }
+                });
+            });
+        } else {
+            // 無結果
+            editArea.innerHTML = `<p>${i18n.translate('no_monsters_found', '未找到怪物')}</p>`;
+        }
+    }
+
+    // 綁定怪物搜尋按鈕事件監聽器
+    searchMonsterButton.addEventListener('click', handleMonsterSearch, { signal: editorAbortController.signal });
+
     // 綁定事件監聽器
     searchButton.addEventListener('click', handleSearch, { signal: editorAbortController.signal });
     searchInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
+            // 根據哪個按鈕被點擊來決定執行物品搜尋還是怪物搜尋
+            // 這裡假設 Enter 鍵預設觸發物品搜尋，如果需要區分，可能需要更複雜的邏輯
+            // 或者讓使用者明確點擊按鈕
             handleSearch();
         }
     }, { signal: editorAbortController.signal });
