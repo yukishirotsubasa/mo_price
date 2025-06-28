@@ -264,7 +264,10 @@ export async function initPriceEditor() {
         } else { // 其餘視為名稱關鍵字
             // 針對 npcBase 中每個物件的 name 屬性進行模糊匹配
             npcBase.forEach(npc => {
-                if (npc.name.toLowerCase().includes(searchTerm) && npc.params && npc.params.drops) {
+                const originalName = npc.name.toLowerCase();
+                const translatedName = i18n.translate(npc.name).toLowerCase(); // 獲取翻譯後的名稱
+                
+                if ((originalName.includes(searchTerm) || translatedName.includes(searchTerm)) && npc.params && npc.params.drops) {
                     searchResults.push(npc);
                 }
             });
@@ -282,7 +285,7 @@ export async function initPriceEditor() {
                 const monsterDiv = document.createElement('div');
                 monsterDiv.classList.add('monster-search-result-item');
                 monsterDiv.innerHTML = `
-                    <span>${monster.name} (ID: ${monster.b_i})</span>
+                    <span>${i18n.translate(monster.name)} (ID: ${monster.b_i})</span>
                     <button class="select-monster-button" data-monster-id="${monster.b_i}">${i18n.translate('select', '選擇')}</button>
                 `;
                 resultList.appendChild(monsterDiv);
