@@ -15,6 +15,7 @@ import { generateEnchantingChancesTable } from './tableGenerators/enchantingChan
 import { generateImageSheetTable } from './tableGenerators/imageSheetTable.js';
 import { generateMonsterWorthTable } from './tableGenerators/monsterWorth.js';
 import openItemTable from './tableGenerators/openItemTable.js'; // 導入 openItemTable 模組
+import { generateKeyWorthTable } from './tableGenerators/keyWorth.js'; // 導入 keyCost 模組
 import { generateForgingCostTableData } from './forgingCost.js'; // 導入 ForgingCost 模組
 import i18n from './i18n.js'; // 導入 i18n 模組
 import { initPriceEditor } from './priceEditor.js'; // 導入價格編輯器模組
@@ -223,6 +224,11 @@ case 'open-item-page': // Open Item 頁面
     const utils = { getItemSellPrice };
     args = [itemBase, i18n, utils]; // 傳遞 itemBase, i18n, utils
     break;
+case 'key-page': // Key 頁面
+    containerId = 'key-page-content';
+    generateFunction = generateKeyWorthTable;
+    args = [objectBase, itemBase];
+    break;
 default:
     console.warn(`未知頁面名稱: ${pageName}`);
     return;
@@ -375,6 +381,8 @@ const enchantingCostTabButton = document.querySelector('.tab-button[data-tab="en
 if (enchantingCostTabButton) enchantingCostTabButton.textContent = i18n.translate('Enchanting');
 const openItemTabButton = document.querySelector('.tab-button[data-tab="open-item-page"]');
 if (openItemTabButton) openItemTabButton.textContent = i18n.translate('Open Item');
+const keyTabButton = document.querySelector('.tab-button[data-tab="key-page"]');
+if (keyTabButton) keyTabButton.textContent = i18n.translate('Key');
 
 // 更新 Tab 內容標題
 const tab1ContentH2 = document.querySelector('#tab1-content h2');
@@ -1070,6 +1078,24 @@ function renderComparisonResults(results, containerElement) {
     }
     if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['No data available for this item.']) {
         i18n.translations[i18n.currentLang]['No data available for this item.'] = '此物品無可用數據。';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Key']) {
+        i18n.translations[i18n.currentLang]['Key'] = '鑰匙';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Level']) {
+        i18n.translations[i18n.currentLang]['Level'] = '等級';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Name']) {
+        i18n.translations[i18n.currentLang]['Name'] = '名稱';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Base Chance']) {
+        i18n.translations[i18n.currentLang]['Base Chance'] = '基礎機率';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Real Chance']) {
+        i18n.translations[i18n.currentLang]['Real Chance'] = '實際機率';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Price']) {
+        i18n.translations[i18n.currentLang]['Price'] = '價格';
     }
     if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['base chance']) {
         i18n.translations[i18n.currentLang]['base chance'] = '基礎機率';
