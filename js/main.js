@@ -3,7 +3,7 @@ import { generateEnchantCostTableData } from './enchantCost.js'; // 導入 Encha
 // js/main.js - 應用程式主入口點
 
 import { loadData, getItemBase, getForgeFormulas, getCarpentryFormulas, getNpcBase, getPets, getSkillQuest, getObjectBase, getEnchantingChances, getImageSheet, loadGoogleSheetData, loadJsFileVariable, processRawData, processRawDataFromLocalStorage, saveMarketDataToLocalStorage, handleDataConflict } from './dataLoader.js';
-import { createItemNameMap, generateTableHTML, compareData, formatNumberWithThousandsSeparator } from './utils.js';
+import { createItemNameMap, generateTableHTML, compareData, formatNumberWithThousandsSeparator, getItemSellPrice } from './utils.js';
 import { generateItemTable } from './tableGenerators/itemTable.js';
 import { generateCarpentryTable } from './tableGenerators/carpentryTable.js';
 import { generateForgeTable } from './tableGenerators/forgeTable.js';
@@ -14,6 +14,7 @@ import { generateObjectBaseTable } from './tableGenerators/objectBaseTable.js';
 import { generateEnchantingChancesTable } from './tableGenerators/enchantingChancesTable.js';
 import { generateImageSheetTable } from './tableGenerators/imageSheetTable.js';
 import { generateMonsterWorthTable } from './tableGenerators/monsterWorth.js';
+import openItemTable from './tableGenerators/openItemTable.js'; // 導入 openItemTable 模組
 import { generateForgingCostTableData } from './forgingCost.js'; // 導入 ForgingCost 模組
 import i18n from './i18n.js'; // 導入 i18n 模組
 import { initPriceEditor } from './priceEditor.js'; // 導入價格編輯器模組
@@ -216,6 +217,12 @@ case 'explanation-page': // 說明頁面
     generateFunction = loadExplanationPage; // 使用新的函數來載入說明頁面
     args = [containerId];
     break;
+case 'open-item-page': // Open Item 頁面
+    containerId = 'open-item-page-content';
+    generateFunction = openItemTable.initOpenItemPage;
+    const utils = { getItemSellPrice };
+    args = [itemBase, i18n, utils]; // 傳遞 itemBase, i18n, utils
+    break;
 default:
     console.warn(`未知頁面名稱: ${pageName}`);
     return;
@@ -366,6 +373,8 @@ const monsterWorthTabButton = document.querySelector('.tab-button[data-tab="mons
 if (monsterWorthTabButton) monsterWorthTabButton.textContent = i18n.translate('monster worth');
 const enchantingCostTabButton = document.querySelector('.tab-button[data-tab="enchanting-cost-page"]');
 if (enchantingCostTabButton) enchantingCostTabButton.textContent = i18n.translate('Enchanting');
+const openItemTabButton = document.querySelector('.tab-button[data-tab="open-item-page"]');
+if (openItemTabButton) openItemTabButton.textContent = i18n.translate('Open Item');
 
 // 更新 Tab 內容標題
 const tab1ContentH2 = document.querySelector('#tab1-content h2');
@@ -891,6 +900,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error("語言選擇器元素未找到。");
     }
 
+    // 確保在 DOMContentLoaded 時，如果 open-item-page 是預設活躍的 Tab，則正確初始化
+    const initialActiveTabButton = document.querySelector('.tab-button.active');
+    if (initialActiveTabButton && initialActiveTabButton.dataset.tab === 'open-item-page') {
+        // 由於 renderPage 會處理數據載入，這裡不需要額外處理 itemBase, i18n, utils
+        await renderPage('open-item-page');
+    }
+
     // 處理 Tab 切換邏輯
     // 處理巢狀選單邏輯
     document.querySelectorAll('.sidebar-menu .submenu-toggle').forEach(toggle => {
@@ -1048,6 +1064,18 @@ function renderComparisonResults(results, containerElement) {
     }
     if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['failed_to_load_explanation_page']) {
         i18n.translations[i18n.currentLang]['failed_to_load_explanation_page'] = '載入說明頁面失敗: {0}';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Open Item']) {
+        i18n.translations[i18n.currentLang]['Open Item'] = '開啟物品';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['No data available for this item.']) {
+        i18n.translations[i18n.currentLang]['No data available for this item.'] = '此物品無可用數據。';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['base chance']) {
+        i18n.translations[i18n.currentLang]['base chance'] = '基礎機率';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['real chance']) {
+        i18n.translations[i18n.currentLang]['real chance'] = '實際機率';
     }
 
     // 修改的條目
