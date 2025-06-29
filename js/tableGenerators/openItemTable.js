@@ -59,7 +59,7 @@ export default (() => {
         table.appendChild(thead);
 
         // Table Body
-        let previousRealChanceSum = 0;
+        let cumulative = 1; // 連乘法
         let totalPrice = 0; // 宣告 totalPrice 變數並初始化為 0
 
         selectedItem.params.results.forEach(result => {
@@ -80,16 +80,11 @@ export default (() => {
                     baseChanceTd.textContent = `${baseChance}%`;
                     tr.appendChild(baseChanceTd);
 
-                    // Real Chance
+                    // Real Chance (連乘)
                     const realChanceTd = document.createElement('td');
-                    let realChance = 0;
-                    if (previousRealChanceSum === 0) {
-                        realChance = returnItem.base_chance;
-                    } else {
-                        realChance = (1 - previousRealChanceSum) * returnItem.base_chance;
-                    }
+                    const realChance = cumulative * returnItem.base_chance;
                     realChanceTd.textContent = `${(realChance * 100).toFixed(2)}%`;
-                    previousRealChanceSum += realChance;
+                    cumulative *= (1 - returnItem.base_chance);
                     tr.appendChild(realChanceTd);
 
                     // Price
