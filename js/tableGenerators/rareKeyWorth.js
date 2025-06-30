@@ -87,8 +87,6 @@ function displayRareKeyDetails(selectedData, selectedItemId, itemBase, tableCont
         return;
     }
 
-    console.log('displayRareKeyDetails called with:', { selectedData, selectedItemId });
-
     const table = document.createElement('table');
     table.className = 'key-details-table';
     tableContainer.appendChild(table);
@@ -115,9 +113,7 @@ function displayRareKeyDetails(selectedData, selectedItemId, itemBase, tableCont
                 const hasMatchingConsume = ret.consumes && Array.isArray(ret.consumes) && 
                     ret.consumes.some(consume => consume.id === selectedItemId);
                 
-                if (hasMatchingConsume) {
-                    console.log('找到匹配的 return:', ret);
-                    
+                if (hasMatchingConsume) {                    
                     const row = tbody.insertRow();
                     const level = ret.level;
                     const itemId = ret.id;
