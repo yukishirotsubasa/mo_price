@@ -16,6 +16,7 @@ import { generateImageSheetTable } from './tableGenerators/imageSheetTable.js';
 import { generateMonsterWorthTable } from './tableGenerators/monsterWorth.js';
 import openItemTable from './tableGenerators/openItemTable.js'; // 導入 openItemTable 模組
 import { generateKeyWorthTable } from './tableGenerators/keyWorth.js'; // 導入 keyCost 模組
+import { generateRareKeyWorthTable } from './tableGenerators/rareKeyWorth.js'; // 導入 rareKeyCost 模組
 import { generateForgingCostTableData } from './forgingCost.js'; // 導入 ForgingCost 模組
 import i18n from './i18n.js'; // 導入 i18n 模組
 import { initPriceEditor } from './priceEditor.js'; // 導入價格編輯器模組
@@ -229,6 +230,11 @@ case 'key-page': // Key 頁面
     generateFunction = generateKeyWorthTable;
     args = [objectBase, itemBase];
     break;
+case 'rare-key-page': // Rare Key 頁面
+    containerId = 'rare-key-page-content';
+    generateFunction = generateRareKeyWorthTable;
+    args = [objectBase, itemBase];
+    break;
 default:
     console.warn(`未知頁面名稱: ${pageName}`);
     return;
@@ -383,6 +389,8 @@ const openItemTabButton = document.querySelector('.tab-button[data-tab="open-ite
 if (openItemTabButton) openItemTabButton.textContent = i18n.translate('Open Item');
 const keyTabButton = document.querySelector('.tab-button[data-tab="key-page"]');
 if (keyTabButton) keyTabButton.textContent = i18n.translate('Key');
+const rareKeyTabButton = document.querySelector('.tab-button[data-tab="rare-key-page"]');
+if (rareKeyTabButton) rareKeyTabButton.textContent = i18n.translate('Rare Key');
 
 // 更新 Tab 內容標題
 const tab1ContentH2 = document.querySelector('#tab1-content h2');
@@ -409,6 +417,10 @@ const tab11ContentH2 = document.querySelector('#tab11-content > h2');
 if (tab11ContentH2) tab11ContentH2.textContent = i18n.translate('Version Comparison');
 const monsterWorthContentH2 = document.querySelector('#monster-worth-page-content h2');
 if (monsterWorthContentH2) monsterWorthContentH2.textContent = i18n.translate('monster worth');
+const keyContentH2 = document.querySelector('#key-page-content h2');
+if (keyContentH2) keyContentH2.textContent = i18n.translate('Key');
+const rareKeyContentH2 = document.querySelector('#rare-key-page-content h2');
+if (rareKeyContentH2) rareKeyContentH2.textContent = i18n.translate('Rare Key');
 }
 
 /**
