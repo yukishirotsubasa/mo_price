@@ -120,6 +120,6 @@ function displayPresentDetails(selectedItemId, items, itemBase, tableContainer) 
     
     // Custom Price 欄顯示 total value
     const totalCell = totalRow.insertCell();
-    totalCell.textContent = `Total: ${totalCustomPrice.toFixed(2)}`;
+    totalCell.textContent = `avg: ${(totalCustomPrice/filteredItems.length).toFixed(2)}`;
     totalCell.style.fontWeight = 'bold';
 }
