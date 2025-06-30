@@ -9,6 +9,7 @@ let _skillQuest = null;
 let _objectBase = null;
 let _forge = null; // 新增 _forge 變數
 let _imageSheet = null;
+let _items = null; // 新增 _items 變數
 
 export function loadData() {
     return new Promise(async (resolve, reject) => {
@@ -25,6 +26,7 @@ export function loadData() {
             _objectBase = await loadJsFileVariable(jsFilePath, 'object_base');
             _forge = await loadJsFileVariable(jsFilePath, 'Forge');
             _imageSheet = await loadJsFileVariable(jsFilePath, 'IMAGE_SHEET');
+            _items = await loadJsFileVariable(jsFilePath, 'Items');
 
             resolve({
                 itemBase: _itemBase,
@@ -35,7 +37,8 @@ export function loadData() {
                 skillQuest: _skillQuest,
                 objectBase: _objectBase,
                 forge: _forge,
-                imageSheet: _imageSheet
+                imageSheet: _imageSheet,
+                items: _items
             });
         } catch (error) {
             console.error("數據載入失敗:", error);
@@ -79,6 +82,10 @@ export function getEnchantingChances() {
 
 export function getImageSheet() {
     return _imageSheet;
+}
+
+export function getItems() {
+    return _items;
 }
 
 /**

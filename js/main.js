@@ -17,6 +17,7 @@ import { generateMonsterWorthTable } from './tableGenerators/monsterWorth.js';
 import openItemTable from './tableGenerators/openItemTable.js'; // 導入 openItemTable 模組
 import { generateKeyWorthTable } from './tableGenerators/keyWorth.js'; // 導入 keyCost 模組
 import { generateRareKeyWorthTable } from './tableGenerators/rareKeyWorth.js'; // 導入 rareKeyCost 模組
+import { generatePresentTable } from './tableGenerators/presentTable.js'; // 導入 present 模組
 import { generateForgingCostTableData } from './forgingCost.js'; // 導入 ForgingCost 模組
 import i18n from './i18n.js'; // 導入 i18n 模組
 import { initPriceEditor } from './priceEditor.js'; // 導入價格編輯器模組
@@ -114,7 +115,7 @@ async function renderPage(pageName) {
             updateVersionComparisonUIText();
         }
 
-        const { itemBase, FORGE_FORMULAS, CARPENTRY_FORMULAS, npcBase, pets, skillQuest, objectBase, forge, imageSheet, enchantingChances } = allData;
+        const { itemBase, FORGE_FORMULAS, CARPENTRY_FORMULAS, npcBase, pets, skillQuest, objectBase, forge, imageSheet, enchantingChances, items } = allData;
 
         let containerId;
         let generateFunction;
@@ -234,6 +235,11 @@ case 'rare-key-page': // Rare Key 頁面
     containerId = 'rare-key-page-content';
     generateFunction = generateRareKeyWorthTable;
     args = [objectBase, itemBase];
+    break;
+case 'present-page': // Present 頁面
+    containerId = 'present-page-content';
+    generateFunction = generatePresentTable;
+    args = [items, itemBase];
     break;
 default:
     console.warn(`未知頁面名稱: ${pageName}`);
@@ -391,6 +397,8 @@ const keyTabButton = document.querySelector('.tab-button[data-tab="key-page"]');
 if (keyTabButton) keyTabButton.textContent = i18n.translate('Key');
 const rareKeyTabButton = document.querySelector('.tab-button[data-tab="rare-key-page"]');
 if (rareKeyTabButton) rareKeyTabButton.textContent = i18n.translate('Rare Key');
+const presentTabButton = document.querySelector('.tab-button[data-tab="present-page"]');
+if (presentTabButton) presentTabButton.textContent = i18n.translate('Present');
 
 // 更新 Tab 內容標題
 const tab1ContentH2 = document.querySelector('#tab1-content h2');
@@ -421,6 +429,8 @@ const keyContentH2 = document.querySelector('#key-page-content h2');
 if (keyContentH2) keyContentH2.textContent = i18n.translate('Key');
 const rareKeyContentH2 = document.querySelector('#rare-key-page-content h2');
 if (rareKeyContentH2) rareKeyContentH2.textContent = i18n.translate('Rare Key');
+const presentContentH2 = document.querySelector('#present-page-content h2');
+if (presentContentH2) presentContentH2.textContent = i18n.translate('Present');
 }
 
 /**
