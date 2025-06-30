@@ -183,6 +183,7 @@ export async function handleDataConflict(newData, oldData) {
 
     const addedData = [];
     const conflictData = [];
+    const unchangedData = [];
     const keptData = [];
 
     // 找出新增和衝突的資料
@@ -197,24 +198,30 @@ export async function handleDataConflict(newData, oldData) {
                     old_price: oldRow.slice(1),
                     new_price: newRow.slice(1)
                 });
+            } else {
+                // 新舊數據相同，保留舊數據
+                unchangedData.push(oldRow);
             }
         } else {
             addedData.push(newRow);
         }
     }
 
-    // 找出保留和被刪除的資料
+    // 找出需要保留的舊資料（不在新數據中的舊數據應該被保留）
     for (const oldRow of oldData) {
         const itemId = oldRow[0];
-        if (newDataMap.has(itemId)) {
+        if (!newDataMap.has(itemId)) {
+            // 舊數據中的項目在新數據中不存在，應該保留
             keptData.push(oldRow);
         }
+        // 如果舊數據中的項目在新數據中存在，則會在上面的循環中處理
     }
 
     if (conflictData.length === 0) {
-        // 沒有衝突，直接合併
-        const mergedData = [...keptData, ...addedData];
+        // 沒有衝突，直接合併：保留的舊數據 + 無變化的數據 + 新增的數據
+        const mergedData = [...keptData, ...unchangedData, ...addedData];
         console.log("無資料衝突，自動合併完成。");
+        console.log(`合併結果: 保留舊數據 ${keptData.length} 筆, 無變化數據 ${unchangedData.length} 筆, 新增數據 ${addedData.length} 筆`);
         saveMarketDataToLocalStorage(mergedData);
         return mergedData;
     } else {
@@ -233,11 +240,8 @@ export async function handleDataConflict(newData, oldData) {
                 resolvedConflicts = conflictData.map(c => [c.item_id, ...c.old_price]);
             }
 
-            // 更新 keptData 中的衝突項目
-            const resolvedConflictsMap = new Map(resolvedConflicts.map(row => [row[0], row]));
-            const updatedKeptData = keptData.map(row => resolvedConflictsMap.get(row[0]) || row);
-
-            const finalData = [...updatedKeptData, ...addedData];
+            // 合併所有數據：保留的舊數據 + 無變化的數據 + 解決衝突的數據 + 新增的數據
+            const finalData = [...keptData, ...unchangedData, ...resolvedConflicts, ...addedData];
             saveMarketDataToLocalStorage(finalData);
             console.log("衝突已解決，資料已合併並儲存。");
             return finalData;
@@ -245,7 +249,7 @@ export async function handleDataConflict(newData, oldData) {
         } catch (error) {
             console.error("解決衝突時發生錯誤:", error);
             // 發生錯誤時，預設保留舊資料並合併新增資料
-            const mergedData = [...keptData, ...addedData];
+            const mergedData = [...keptData, ...unchangedData, ...addedData];
             saveMarketDataToLocalStorage(mergedData);
             return mergedData;
         }
