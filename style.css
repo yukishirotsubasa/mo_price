@@ -410,3 +410,104 @@ th {
     background-color: #f8f9fa;
     border-top: 2px solid #007bff;
 }
+
+/* Skill Quest Controls Styles */
+.skill-quest-controls {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    border: 1px solid #dee2e6;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.skill-quest-controls .control-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.skill-quest-controls label {
+    font-weight: bold;
+    color: #495057;
+    white-space: nowrap;
+}
+
+.skill-quest-controls select {
+    padding: 6px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 14px;
+    min-width: 120px;
+}
+
+.skill-quest-controls select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Difficulty Buttons Styles */
+.difficulty-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.difficulty-btn {
+    padding: 8px 16px;
+    border: 2px solid #007bff;
+    border-radius: 4px;
+    background-color: white;
+    color: #007bff;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.difficulty-btn:hover {
+    background-color: #e3f2fd;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+}
+
+.difficulty-btn.active {
+    background-color: #007bff;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+}
+
+.difficulty-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.difficulty-btn:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+    .skill-quest-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .skill-quest-controls .control-group {
+        justify-content: space-between;
+    }
+    
+    .difficulty-buttons {
+        justify-content: center;
+    }
+    
+    .difficulty-btn {
+        flex: 1;
+        min-width: 80px;
+    }
+}
