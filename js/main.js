@@ -18,6 +18,7 @@ import openItemTable from './tableGenerators/openItemTable.js'; // 導入 openIt
 import { generateKeyWorthTable } from './tableGenerators/keyWorth.js'; // 導入 keyCost 模組
 import { generateRareKeyWorthTable } from './tableGenerators/rareKeyWorth.js'; // 導入 rareKeyCost 模組
 import { generatePresentTable } from './tableGenerators/presentTable.js'; // 導入 present 模組
+import { generateBreedingCostTable } from './tableGenerators/breedingCost.js'; // 導入 breeding 模組
 import { generateForgingCostTableData } from './forgingCost.js'; // 導入 ForgingCost 模組
 import i18n from './i18n.js'; // 導入 i18n 模組
 import { initPriceEditor } from './priceEditor.js'; // 導入價格編輯器模組
@@ -241,6 +242,11 @@ case 'present-page': // Present 頁面
     generateFunction = generatePresentTable;
     args = [items, itemBase];
     break;
+case 'breeding-page': // Breeding 頁面
+    containerId = 'breeding-cost-table-container';
+    generateFunction = generateBreedingCostTable;
+    args = [containerId, pets, itemBase];
+    break;
 default:
     console.warn(`未知頁面名稱: ${pageName}`);
     return;
@@ -399,6 +405,8 @@ const rareKeyTabButton = document.querySelector('.tab-button[data-tab="rare-key-
 if (rareKeyTabButton) rareKeyTabButton.textContent = i18n.translate('Rare Key');
 const presentTabButton = document.querySelector('.tab-button[data-tab="present-page"]');
 if (presentTabButton) presentTabButton.textContent = i18n.translate('Present');
+const breedingTabButton = document.querySelector('.tab-button[data-tab="breeding-page"]');
+if (breedingTabButton) breedingTabButton.textContent = i18n.translate('Breeding');
 
 // 更新 Tab 內容標題
 const tab1ContentH2 = document.querySelector('#tab1-content h2');
@@ -431,6 +439,8 @@ const rareKeyContentH2 = document.querySelector('#rare-key-page-content h2');
 if (rareKeyContentH2) rareKeyContentH2.textContent = i18n.translate('Rare Key');
 const presentContentH2 = document.querySelector('#present-page-content h2');
 if (presentContentH2) presentContentH2.textContent = i18n.translate('Present');
+const breedingContentH2 = document.querySelector('#breeding-page-content h2');
+if (breedingContentH2) breedingContentH2.textContent = i18n.translate('Breeding Cost Calculator');
 }
 
 /**
@@ -1124,6 +1134,59 @@ function renderComparisonResults(results, containerElement) {
     }
     if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['real chance']) {
         i18n.translations[i18n.currentLang]['real chance'] = '實際機率';
+    }
+    
+    // 添加 breeding 相關的翻譯鍵值
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['parent1']) {
+        i18n.translations[i18n.currentLang]['parent1'] = '父寵物1';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['parent2']) {
+        i18n.translations[i18n.currentLang]['parent2'] = '父寵物2';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['plan']) {
+        i18n.translations[i18n.currentLang]['plan'] = '計劃';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['one bar']) {
+        i18n.translations[i18n.currentLang]['one bar'] = '一格';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['full']) {
+        i18n.translations[i18n.currentLang]['full'] = '滿格';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['comp']) {
+        i18n.translations[i18n.currentLang]['comp'] = '完成';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['exp']) {
+        i18n.translations[i18n.currentLang]['exp'] = '經驗值';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['adjustment']) {
+        i18n.translations[i18n.currentLang]['adjustment'] = '修正機率';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['total value']) {
+        i18n.translations[i18n.currentLang]['total value'] = '總價值';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Breeding']) {
+        i18n.translations[i18n.currentLang]['Breeding'] = '繁殖';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Breeding Cost Calculator']) {
+        i18n.translations[i18n.currentLang]['Breeding Cost Calculator'] = '繁殖成本計算器';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['other plans']) {
+        i18n.translations[i18n.currentLang]['other plans'] = '其他計劃';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['no available plans']) {
+        i18n.translations[i18n.currentLang]['no available plans'] = '無可用計劃';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['pet data not loaded or unavailable']) {
+        i18n.translations[i18n.currentLang]['pet data not loaded or unavailable'] = '寵物數據未載入或不可用';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['item data not loaded']) {
+        i18n.translations[i18n.currentLang]['item data not loaded'] = '物品數據未載入';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['no available breeding combinations']) {
+        i18n.translations[i18n.currentLang]['no available breeding combinations'] = '沒有可用的繁殖組合';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['cost']) {
+        i18n.translations[i18n.currentLang]['cost'] = '成本';
     }
 
     // 修改的條目

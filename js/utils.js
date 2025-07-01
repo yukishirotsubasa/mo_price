@@ -154,7 +154,12 @@ export function getItemSellPrice(item_id, itemBase) {
         }
     }
     // 如果 localStorage 中沒有資料或資料無效，則從 itemBase 取得
-    const itemInfo = itemBase[item_id];
+    let itemInfo;
+    if (Array.isArray(itemBase)) {
+        itemInfo = itemBase.find(item => item.b_i === item_id);
+    } else {
+        itemInfo = itemBase[item_id];
+    }
     if (itemInfo && itemInfo.params && itemInfo.params.price) {
         return itemInfo.params.price * 0.4;
     }
@@ -187,7 +192,12 @@ export function getMaterialPrice(item_id, itemBase) {
         }
     }
     // 如果 localStorage 中沒有資料或資料無效，則從 itemBase 取得
-    const itemInfo = itemBase[item_id];
+    let itemInfo;
+    if (Array.isArray(itemBase)) {
+        itemInfo = itemBase.find(item => item.b_i === item_id);
+    } else {
+        itemInfo = itemBase[item_id];
+    }
     if (itemInfo && itemInfo.params && itemInfo.params.price) {
         return itemInfo.params.price;
     }

@@ -511,3 +511,273 @@ th {
         min-width: 80px;
     }
 }
+
+/* Breeding Cost Calculator Styles */
+.parent-info {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    margin: 5px 0;
+}
+
+.parent-info .pet-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.parent-info .insurance-cost {
+    margin-bottom: 5px;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.parent-info .food-consumption {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.parent-info .food-item {
+    background-color: #e7f3ff;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.8em;
+    border: 1px solid #b3d9ff;
+}
+
+.plan-accordion {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin: 5px 0;
+}
+
+.plan-header {
+    background-color: #f0f0f0;
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 5px 5px 0 0;
+}
+
+.plan-header:hover {
+    background-color: #e0e0e0;
+}
+
+.plan-content {
+    padding: 10px;
+    border-top: 1px solid #ddd;
+}
+
+.plan-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.plan-table th,
+.plan-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.plan-table th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+.accordion-arrow {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+.no-plan {
+    color: #999;
+    font-style: italic;
+    padding: 10px;
+    text-align: center;
+}
+
+/* Responsive adjustments for breeding table */
+@media (max-width: 1200px) {
+    .parent-info .food-consumption {
+        flex-direction: column;
+    }
+    
+    .plan-table {
+        font-size: 0.9em;
+    }
+}
+
+/* Breeding Cost Table Styles */
+.breeding-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.breeding-table th,
+.breeding-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    vertical-align: top;
+}
+
+.breeding-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.parent-info-table {
+    width: 100%;
+}
+
+.parent-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+}
+
+.parent-table td {
+    border: 1px solid #eee;
+    padding: 4px 6px;
+    background-color: #f9f9f9;
+}
+
+/* Accordion styles for breeding plans */
+.accordion-toggle {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.accordion-toggle:hover {
+    background-color: #f5f5f5;
+}
+
+.collapse {
+    display: none;
+}
+
+.collapse.show {
+    display: block;
+}
+
+/* Improve parent columns width */
+.breeding-table th:nth-child(2),
+.breeding-table th:nth-child(3) {
+    max-width: 200px;
+    word-wrap: break-word;
+}
+
+.breeding-table td:nth-child(2),
+.breeding-table td:nth-child(3) {
+    max-width: 200px;
+    word-wrap: break-word;
+}
+
+/* Limit plan column width */
+.breeding-table th:nth-child(4),
+.breeding-table td:nth-child(4) {
+    /*max-width: 800px;*/
+    word-wrap: break-word;
+}
+
+.parent-table .pet-name {
+    font-weight: bold;
+    color: #333;
+    background-color: #e8f4f8;
+}
+
+.parent-table .insurance-cost {
+    color: #666;
+    font-size: 0.85em;
+}
+
+.parent-table .food-item {
+    color: #555;
+    font-size: 0.85em;
+}
+
+.plan-direct {
+    width: 100%;
+}
+
+.plan-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+}
+
+.plan-table th,
+.plan-table td {
+    border: 1px solid #ddd;
+    padding: 6px 8px;
+    text-align: center;
+}
+
+.plan-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.accordion-arrow {
+    font-size: 0.8em;
+    transition: transform 0.3s ease;
+}
+
+.no-plan {
+    color: #999;
+    font-style: italic;
+    padding: 10px;
+    text-align: center;
+}
+
+/* Plan Container Styles */
+.plan-container {
+    width: 100%;
+}
+
+.plan-best {
+    margin-bottom: 10px;
+}
+
+.plan-accordion {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-top: 5px;
+}
+
+.accordion-header {
+    background-color: #f8f9fa;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.accordion-header:hover {
+    background-color: #e9ecef;
+}
+
+.accordion-content {
+    padding: 10px;
+    background-color: #fff;
+}
+
+.plan-table.best-plan {
+    border: 2px solid #28a745;
+}
+
+.plan-table.other-plan {
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+}
