@@ -10,6 +10,7 @@ let _objectBase = null;
 let _forge = null; // 新增 _forge 變數
 let _imageSheet = null;
 let _items = null; // 新增 _items 變數
+let _monsterBook = null; // 新增 _monsterBook 變數
 
 export function loadData() {
     return new Promise(async (resolve, reject) => {
@@ -27,6 +28,7 @@ export function loadData() {
             _forge = await loadJsFileVariable(jsFilePath, 'Forge');
             _imageSheet = await loadJsFileVariable(jsFilePath, 'IMAGE_SHEET');
             _items = await loadJsFileVariable(jsFilePath, 'Items');
+            _monsterBook = await loadJsFileVariable(jsFilePath, 'MonsterBook');
 
             resolve({
                 itemBase: _itemBase,
@@ -38,7 +40,8 @@ export function loadData() {
                 objectBase: _objectBase,
                 forge: _forge,
                 imageSheet: _imageSheet,
-                items: _items
+                items: _items,
+                monsterBook: _monsterBook
             });
         } catch (error) {
             console.error("數據載入失敗:", error);
@@ -86,6 +89,10 @@ export function getImageSheet() {
 
 export function getItems() {
     return _items;
+}
+
+export function getMonsterBook() {
+    return _monsterBook;
 }
 
 /**

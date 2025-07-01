@@ -14,6 +14,7 @@ import { generateObjectBaseTable } from './tableGenerators/objectBaseTable.js';
 import { generateEnchantingChancesTable } from './tableGenerators/enchantingChancesTable.js';
 import { generateImageSheetTable } from './tableGenerators/imageSheetTable.js';
 import { generateMonsterWorthTable } from './tableGenerators/monsterWorth.js';
+import { generateMonsterBookTable } from './tableGenerators/monsterBookTable.js';
 import openItemTable from './tableGenerators/openItemTable.js'; // 導入 openItemTable 模組
 import { generateKeyWorthTable } from './tableGenerators/keyWorth.js'; // 導入 keyCost 模組
 import { generateRareKeyWorthTable } from './tableGenerators/rareKeyWorth.js'; // 導入 rareKeyCost 模組
@@ -116,7 +117,7 @@ async function renderPage(pageName) {
             updateVersionComparisonUIText();
         }
 
-        const { itemBase, FORGE_FORMULAS, CARPENTRY_FORMULAS, npcBase, pets, skillQuest, objectBase, forge, imageSheet, enchantingChances, items } = allData;
+        const { itemBase, FORGE_FORMULAS, CARPENTRY_FORMULAS, npcBase, pets, skillQuest, objectBase, forge, imageSheet, enchantingChances, items, monsterBook } = allData;
 
         let containerId;
         let generateFunction;
@@ -168,6 +169,11 @@ async function renderPage(pageName) {
                 containerId = 'image-sheet-table-container';
                 generateFunction = generateImageSheetTable;
                 args = [containerId, imageSheet, generateTableHTML, createItemNameMap, itemBase];
+                break;
+            case 'monster-book': // MonsterBook 資料
+                containerId = 'monster-book-table-container';
+                generateFunction = generateMonsterBookTable;
+                args = [containerId, monsterBook, npcBase, itemBase, generateTableHTML, createItemNameMap];
                 break;
             case 'monster-worth-page': // 怪物價值
                 containerId = 'monster-worth-table-container';
@@ -385,6 +391,8 @@ const enchantingTabButton = document.querySelector('.tab-button[data-tab="tab8"]
 if (enchantingTabButton) enchantingTabButton.textContent = i18n.translate('Enchanting');
 const imageSheetTabButton = document.querySelector('.tab-button[data-tab="tab9"]');
 if (imageSheetTabButton) imageSheetTabButton.textContent = i18n.translate('image_sheet');
+const monsterBookTabButton = document.querySelector('.tab-button[data-tab="monster-book"]');
+if (monsterBookTabButton) monsterBookTabButton.textContent = i18n.translate('Monster Book');
 const marketPriceIntegrationTabButton = document.querySelector('.tab-button[data-tab="tab10"]');
 if (marketPriceIntegrationTabButton) marketPriceIntegrationTabButton.textContent = i18n.translate('Market Price Integration');
 const versionComparisonTabButton = document.querySelector('.tab-button[data-tab="tab11"]');
@@ -427,6 +435,8 @@ const tab8ContentH2 = document.querySelector('#tab8-content h2');
 if (tab8ContentH2) tab8ContentH2.textContent = i18n.translate('Enchanting');
 const tab9ContentH2 = document.querySelector('#tab9-content h2');
 if (tab9ContentH2) tab9ContentH2.textContent = i18n.translate('image_sheet');
+const monsterBookContentH2 = document.querySelector('#monster-book-content h2');
+if (monsterBookContentH2) monsterBookContentH2.textContent = i18n.translate('Monster Book');
 const tab10ContentH2 = document.querySelector('#tab10-content > h2');
 if (tab10ContentH2) tab10ContentH2.textContent = i18n.translate('Market Price Integration');
 const tab11ContentH2 = document.querySelector('#tab11-content > h2');
@@ -1187,6 +1197,26 @@ function renderComparisonResults(results, containerElement) {
     }
     if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['cost']) {
         i18n.translations[i18n.currentLang]['cost'] = '成本';
+    }
+
+    // 添加 MonsterBook 相關的翻譯鍵值
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['MonsterBook']) {
+        i18n.translations[i18n.currentLang]['MonsterBook'] = '怪物圖鑑';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['monster_book_data_not_loaded']) {
+        i18n.translations[i18n.currentLang]['monster_book_data_not_loaded'] = '怪物圖鑑數據未載入或不可用';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['unknown_npc']) {
+        i18n.translations[i18n.currentLang]['unknown_npc'] = '未知NPC';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['kills']) {
+        i18n.translations[i18n.currentLang]['kills'] = '擊殺數';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['count']) {
+        i18n.translations[i18n.currentLang]['count'] = '數量';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['drop']) {
+        i18n.translations[i18n.currentLang]['drop'] = '掉落';
     }
 
     // 修改的條目
