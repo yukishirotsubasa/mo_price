@@ -12,7 +12,7 @@ export function generateForgingCostTableData(FORGE_FORMULAS, generateTableHTML, 
 
     return Object.keys(FORGE_FORMULAS).flatMap(id => {
         const formula = FORGE_FORMULAS[id];
-        if (formula.hidden) return [];
+        if (formula.chance == 0) return [];
 
         const itemId = formula.item_id;
         const itemName = itemNameMap.get(itemId) || formula.item_name;
@@ -33,33 +33,7 @@ export function generateForgingCostTableData(FORGE_FORMULAS, generateTableHTML, 
             const item_id = parseInt(mid);
             const name = itemNameMap.get(item_id) || i18n.translate('unknown_item', item_id);
             
-            let price_data = localStorage.getItem('price_data');
-            let price = 0; // Default price
-            if (price_data) {
-                try {
-                    price_data = JSON.parse(price_data);
-                    const row = price_data.find(row => parseInt(row[0]) === item_id);
-                    if (row) {
-                        const customPrice = parseFloat(row[3]);
-                        if (!isNaN(customPrice) && customPrice !== 0) {
-                            price = customPrice;
-                        } else {
-                            const marketBuy = parseFloat(row[1]);
-                            if (!isNaN(marketBuy) && marketBuy !== 0) {
-                                price = marketBuy;
-                            }
-                        }
-                    }
-                } catch (e) {
-                    console.error("解析 price_data 失敗:", e);
-                }
-            }
-            if (price === 0) { // If no price from localStorage or invalid, get from itemBase
-                const itemInfo = itemBase[item_id];
-                if (itemInfo && itemInfo.params && itemInfo.params.price) {
-                    price = itemInfo.params.price;
-                }
-            }
+            const price = getMaterialPrice(item_id, itemBase);
             
             materialPriceTotal += price * count;
             return `${name}(${price})*${count}`;
