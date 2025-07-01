@@ -1,5 +1,5 @@
 import i18n from '../i18n.js';
-import { getItemSellPrice, createItemNameMap, formatNumberWithThousandsSeparator } from '../utils.js';
+import { getItemSellPrice, getMaterialPrice, createItemNameMap, formatNumberWithThousandsSeparator } from '../utils.js';
 
 /**
  * 生成繁殖成本表格
@@ -56,7 +56,7 @@ export function generateBreedingCostTable(containerId, pets, itemBase) {
     tableHTML += `<th>${i18n.translate('plan')}</th>`;
     tableHTML += `<th>${i18n.translate('cost')}</th>`;
     tableHTML += `<th>${i18n.translate('one bar')}</th>`;
-    tableHTML += `<th>${i18n.translate('full')}</th>`;
+    tableHTML += `<th>${i18n.translate('full ')}</th>`;
     tableHTML += `<th>${i18n.translate('comp')}</th>`;
     tableHTML += `<th>${i18n.translate('exp')}</th>`;
     tableHTML += '</tr></thead><tbody>';
@@ -151,7 +151,7 @@ function calculateBreedingCombination(parent1, parent2, activeLike, unused, item
     // one bar: pets[parent1].params.eat_interval | pets[parent2].params.eat_interval，尾巴敘述加上min
     const oneBar = `${parent1.params.eat_interval || 0} | ${parent2.params.eat_interval || 0} (min)`;
     
-    // full: pets[parent1].params.happiness-pets[parent1].params.eat_interval | pets[parent2].params.happiness-pets[parent2].params.insurance_cost，尾巴敘述加上min
+    // full: pets[parent1].params.happiness-pets[parent1].params.eat_interval | pets[parent2].params.happiness-pets[parent2].params.eat_interval，尾巴敘述加上min
     const full1 = (parent1.params.happiness || 0) - (parent1.params.eat_interval || 0);
     const full2 = (parent2.params.happiness || 0) - (parent2.params.eat_interval || 0);
     const full = `${full1} | ${full2} (min)`;
@@ -162,18 +162,41 @@ function calculateBreedingCombination(parent1, parent2, activeLike, unused, item
     // exp: pets[parent1].params.likes[parent2].xp
     const exp = activeLike ? activeLike.xp || 0 : 0;
     
-    // cost: parent1的insurance_cost[0]和getItemSellPrice(parent1的pets[].params.item_id,item_base)*0.25取小的
-    // + parent2的insurance_cost[0]和getItemSellPrice(parent2的pets[].params.item_id,item_base)*0.25取小的
+    // cost: parent的cost:parent的insurance_cost[0]和getMaterialPrice(parent1的pets[].params.item_id,item_base)*0.25取小的
+    // + parent的食物cost:eat的key對應的getMaterialPrice
+    // + parent的食物數量:(happiness - eat_interval) / (eat的value * eat_interval)
+    // 食物有數種，取食物cost*食物數量小的一種運算
+    
+    // Parent1 costs
     const parent1InsuranceCost = parent1.params.insurance_cost ? parent1.params.insurance_cost[0] : 0;
-    const parent1ItemPrice = parent1.params.item_id ? getItemSellPrice(parent1.params.item_id, itemBase) * 0.25 : 0;
+    const parent1ItemPrice = parent1.params.item_id ? getMaterialPrice(parent1.params.item_id, itemBase) * 0.25 : 0;
     const parent1Cost = Math.min(parent1InsuranceCost, parent1ItemPrice);
     
+    // Parent1 food costs
+    const parent1FoodCost = calculateCheapestFoodCost(parent1, itemBase);
+    
+    // Parent2 costs
     const parent2InsuranceCost = parent2.params.insurance_cost ? parent2.params.insurance_cost[0] : 0;
-    const parent2ItemPrice = parent2.params.item_id ? getItemSellPrice(parent2.params.item_id, itemBase) * 0.25 : 0;
+    const parent2ItemPrice = parent2.params.item_id ? getMaterialPrice(parent2.params.item_id, itemBase) * 0.25 : 0;
     const parent2Cost = Math.min(parent2InsuranceCost, parent2ItemPrice);
     
-    const totalCost = parent1Cost + parent2Cost;
-    const cost = `${formatNumberWithThousandsSeparator(parent1Cost)}+${formatNumberWithThousandsSeparator(parent2Cost)}=${formatNumberWithThousandsSeparator(totalCost)}`;
+    // Parent2 food costs
+    const parent2FoodCost = calculateCheapestFoodCost(parent2, itemBase);
+    
+    const totalCost = parent1Cost + parent1FoodCost.totalCost + parent2Cost + parent2FoodCost.totalCost;
+    
+    // 顯示為parent1的cost+parent1的食物cost*parent1的食物數量+parent2的cost+parent2的食物cost*parent2的食物數量=計算結果
+    let costFormula = `${formatNumberWithThousandsSeparator(parent1Cost)}`;
+    if (parent1FoodCost.totalCost > 0) {
+        costFormula += `+${formatNumberWithThousandsSeparator(parent1FoodCost.unitCost)}*${parent1FoodCost.quantity}`;
+    }
+    costFormula += `+${formatNumberWithThousandsSeparator(parent2Cost)}`;
+    if (parent2FoodCost.totalCost > 0) {
+        costFormula += `+${formatNumberWithThousandsSeparator(parent2FoodCost.unitCost)}*${parent2FoodCost.quantity}`;
+    }
+    costFormula += `=${formatNumberWithThousandsSeparator(totalCost)}`;
+    
+    const cost = costFormula;
     
     return {
         parent1,
@@ -210,7 +233,10 @@ function calculateOptimalPlan(like, itemBase, originalPets) {
             totalValue: 0
         };
         
-        like.returns.forEach(returnItem => {
+        // 計算序列機率：前面項都沒有選中的情況下再乘以當前項的機率
+        let cumulativeFailureRate = 1; // 累積失敗率，初始為1（100%）
+        
+        like.returns.forEach((returnItem, index) => {
             // 原始資料為機率（0.6 = 60%），需要轉換為百分比
             const baseChancePercent = (returnItem.base_chance || 0) * 100;
             const maxChancePercent = (returnItem.max_chance || 0) * 100;
@@ -220,18 +246,25 @@ function calculateOptimalPlan(like, itemBase, originalPets) {
                 maxChancePercent
             );
             
+            // 計算實際機率：前面項都沒有選中的情況下再乘以當前項的機率
+            const actualChancePercent = cumulativeFailureRate * adjustedChancePercent;
+            
+            // 更新累積失敗率：乘以當前項的失敗率
+            cumulativeFailureRate *= (1 - adjustedChancePercent / 100);
+            
             // 根據需求，使用 pets[item.pet_id].params.item_id 來查找價格
             // 首先找到對應的寵物，然後使用其 item_id 來查找價格
             const pet = originalPets[returnItem.pet_id];
             const itemId = pet?.params?.item_id;
             const itemPrice = itemId ? getItemSellPrice(itemId, itemBase) : 0;
-            const expectedValue = (adjustedChancePercent / 100) * itemPrice;
+            const expectedValue = (actualChancePercent / 100) * itemPrice;
             
             planData.items.push({
                 ...returnItem,
                 baseChancePercent,
                 maxChancePercent,
                 adjustedChance: adjustedChancePercent,
+                actualChance: actualChancePercent, // 新增實際機率欄位
                 itemPrice,
                 expectedValue
             });
@@ -262,6 +295,49 @@ function getMaxAdjustment(returns) {
         maxAdjustment = Math.max(maxAdjustment, adjustment);
     });
     return maxAdjustment;
+}
+
+/**
+ * 計算最便宜的食物成本
+ * @param {Object} parent - 父寵物
+ * @param {Array} itemBase - 物品基礎數據
+ * @returns {Object} 包含最便宜食物的成本信息
+ */
+function calculateCheapestFoodCost(parent, itemBase) {
+    const eats = parent.params.eats || {};
+    const eatInterval = parent.params.eat_interval || 1;
+    const happiness = parent.params.happiness || 0;
+    
+    if (Object.keys(eats).length === 0) {
+        return { totalCost: 0, itemId: null, quantity: 0, unitCost: 0 };
+    }
+    
+    let cheapestOption = null;
+    let minTotalCost = Infinity;
+    
+    Object.entries(eats).forEach(([itemId, eatValue]) => {
+        // parent的食物數量:(happiness - eat_interval) / (eat的value * eat_interval)，向上取整
+        const quantity = Math.ceil((happiness - eatInterval) / (eatValue * eatInterval));
+        
+        // 只考慮正數數量
+        if (quantity > 0) {
+            // parent的食物cost:eat的key對應的getMaterialPrice
+            const unitCost = getMaterialPrice(Number(itemId), itemBase);
+            const totalCost = unitCost * quantity;
+            
+            if (totalCost < minTotalCost) {
+                minTotalCost = totalCost;
+                cheapestOption = {
+                    totalCost,
+                    itemId: Number(itemId),
+                    quantity,
+                    unitCost
+                };
+            }
+        }
+    });
+    
+    return cheapestOption || { totalCost: 0, itemId: null, quantity: 0, unitCost: 0 };
 }
 
 /**
@@ -330,7 +406,7 @@ function generatePlanInfo(plans, originalPets, itemBase, index) {
         plan.items.forEach(item => {
             const pet = originalPets[item.pet_id];
             const petName = pet ? i18n.translate(pet.name || 'Unknown Pet') : `Pet ${item.pet_id}`;
-            row += `<td>${petName}(${item.adjustedChance.toFixed(1)}% | ${formatNumberWithThousandsSeparator(item.itemPrice)})</td>`;
+            row += `<td>${petName}(${item.actualChance.toFixed(1)}% | ${formatNumberWithThousandsSeparator(item.itemPrice)})</td>`;
         });
         
         row += `<td>${formatNumberWithThousandsSeparator(plan.totalValue.toFixed(2))}</td></tr>`;
@@ -348,7 +424,7 @@ function generatePlanInfo(plans, originalPets, itemBase, index) {
     bestPlan.items.forEach(item => {
         const pet = originalPets[item.pet_id];
         const petName = pet ? i18n.translate(pet.name || 'Unknown Pet') : `Pet ${item.pet_id}`;
-        html += `<td>${petName}(${item.adjustedChance.toFixed(1)}% | ${formatNumberWithThousandsSeparator(item.itemPrice)})</td>`;
+        html += `<td>${petName}(${item.actualChance.toFixed(1)}% | ${formatNumberWithThousandsSeparator(item.itemPrice)})</td>`;
     });
     
     html += `<td>${formatNumberWithThousandsSeparator(bestPlan.totalValue.toFixed(2))}</td>
