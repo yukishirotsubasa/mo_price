@@ -21,6 +21,7 @@ import { generateRareKeyWorthTable } from './tableGenerators/rareKeyWorth.js'; /
 import { generatePresentTable } from './tableGenerators/presentTable.js'; // 導入 present 模組
 import { generateBreedingCostTable } from './tableGenerators/breedingCost.js'; // 導入 breeding 模組
 import { generateForgingCostTableData } from './forgingCost.js'; // 導入 ForgingCost 模組
+import { generateRecycleCostTableData } from './recycleCost.js'; // 導入 RecycleCost 模組
 import i18n from './i18n.js'; // 導入 i18n 模組
 import { initPriceEditor } from './priceEditor.js'; // 導入價格編輯器模組
 
@@ -253,6 +254,21 @@ case 'breeding-page': // Breeding 頁面
     generateFunction = generateBreedingCostTable;
     args = [containerId, pets, itemBase];
     break;
+case 'recycle-page': // Recycle 頁面
+    containerId = 'recycle-cost-table-container';
+    if (itemBase && FORGE_FORMULAS) {
+        const recycleCostData = generateRecycleCostTableData(FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase);
+        generateFunction = renderRecycleCostTable;
+        args = [containerId, recycleCostData];
+    } else {
+        const recycleCostContainer = document.getElementById(containerId);
+        if (recycleCostContainer) {
+            recycleCostContainer.textContent = i18n.translate('recycle_data_not_available');
+        }
+        console.error("For Recycle Cost Tab, itemBase or FORGE_FORMULAS data is not available.");
+        return;
+    }
+    break;
 default:
     console.warn(`未知頁面名稱: ${pageName}`);
     return;
@@ -357,6 +373,49 @@ function renderCarpentryCostTable(containerId, carpentryCostData) {
 }
 
 /**
+ * 渲染分解成本表格。
+ * @param {string} containerId - 容器元素的 ID。
+ * @param {Array<Object>} recycleCostData - 分解成本數據。
+ */
+function renderRecycleCostTable(containerId, recycleCostData) {
+    const recycleCostContainer = document.getElementById(containerId);
+    if (!recycleCostContainer) {
+        console.error(`找不到 ID 為 ${containerId} 的容器元素。`);
+        return;
+    }
+
+    recycleCostContainer.innerHTML = ''; // 清空舊內容
+
+    if (recycleCostData && recycleCostData.length > 0) {
+        let tableHTML = '<table><thead><tr>';
+        tableHTML += `<th>${i18n.translate('id')}</th>`;
+        tableHTML += `<th>${i18n.translate('itemName')}</th>`;
+        tableHTML += `<th>${i18n.translate('level')}</th>`;
+        tableHTML += `<th>${i18n.translate('pattern')}</th>`;
+        tableHTML += `<th>${i18n.translate('chance')}</th>`;
+        tableHTML += `<th>${i18n.translate('price')}</th>`;
+        tableHTML += `<th>${i18n.translate('worth')}</th>`;
+        tableHTML += '</tr></thead><tbody>';
+        recycleCostData.forEach(row => {
+            tableHTML += '<tr>';
+            tableHTML += `<td>${row.id}</td>`;
+            tableHTML += `<td>${row.itemName}</td>`;
+            tableHTML += `<td>${row.level}</td>`;
+            tableHTML += `<td>${row.pattern}</td>`;
+            tableHTML += `<td>${row.chance}</td>`;
+            tableHTML += `<td>${row.price}</td>`;
+            tableHTML += `<td>${row.worth}</td>`;
+            tableHTML += '</tr>';
+        });
+        tableHTML += '</tbody></table>';
+        recycleCostContainer.innerHTML = tableHTML;
+    } else {
+        recycleCostContainer.textContent = i18n.translate('recycle_data_not_available');
+        console.error("For Recycle Cost Tab, data is not available or empty.");
+    }
+}
+
+/**
  * 更新 Tab 標題的翻譯。
  */
 function updateTabTitles() {
@@ -415,6 +474,8 @@ const presentTabButton = document.querySelector('.tab-button[data-tab="present-p
 if (presentTabButton) presentTabButton.textContent = i18n.translate('Present');
 const breedingTabButton = document.querySelector('.tab-button[data-tab="breeding-page"]');
 if (breedingTabButton) breedingTabButton.textContent = i18n.translate('Breeding');
+const recycleTabButton = document.querySelector('.tab-button[data-tab="recycle-page"]');
+if (recycleTabButton) recycleTabButton.textContent = i18n.translate('Recycle');
 
 // 更新 Tab 內容標題
 const tab1ContentH2 = document.querySelector('#tab1-content h2');
@@ -451,6 +512,8 @@ const presentContentH2 = document.querySelector('#present-page-content h2');
 if (presentContentH2) presentContentH2.textContent = i18n.translate('Present');
 const breedingContentH2 = document.querySelector('#breeding-page-content h2');
 if (breedingContentH2) breedingContentH2.textContent = i18n.translate('Breeding Cost Calculator');
+const recycleContentH2 = document.querySelector('#recycle-page-content h2');
+if (recycleContentH2) recycleContentH2.textContent = i18n.translate('Recycle Cost Calculator');
 }
 
 /**
@@ -1197,6 +1260,23 @@ function renderComparisonResults(results, containerElement) {
     }
     if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['cost']) {
         i18n.translations[i18n.currentLang]['cost'] = '成本';
+    }
+
+    // 添加 Recycle 相關的翻譯鍵值
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Recycle']) {
+        i18n.translations[i18n.currentLang]['Recycle'] = '分解';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Recycle Cost Calculator']) {
+        i18n.translations[i18n.currentLang]['Recycle Cost Calculator'] = '分解成本計算器';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['recycle_data_not_available']) {
+        i18n.translations[i18n.currentLang]['recycle_data_not_available'] = '分解數據未載入或不可用';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['itemName']) {
+        i18n.translations[i18n.currentLang]['itemName'] = '物品名稱';
+    }
+    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['worth']) {
+        i18n.translations[i18n.currentLang]['worth'] = '價值';
     }
 
     // 添加 MonsterBook 相關的翻譯鍵值
