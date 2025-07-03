@@ -1,0 +1,135 @@
+/* css/base.css - 基礎樣式和CSS變數 */
+
+/* CSS 變數定義 - 支援主題切換 */
+:root {
+    /* 顏色系統 - 亮色主題 */
+    --primary-color: #333;
+    --secondary-color: #575757;
+    --background-color: #f4f4f4;
+    --surface-color: #ffffff;
+    --text-color: #333;
+    --text-secondary: #666;
+    --border-color: #ddd;
+    --shadow-color: rgba(0,0,0,0.1);
+    --hover-color: #f0f0f0;
+    
+    /* 間距系統 */
+    --spacing-xs: 5px;
+    --spacing-sm: 10px;
+    --spacing-md: 15px;
+    --spacing-lg: 20px;
+    --spacing-xl: 30px;
+    
+    /* 字體系統 */
+    --font-family: Arial, sans-serif;
+    --font-size-sm: 0.8em;
+    --font-size-base: 1em;
+    --font-size-lg: 1.2em;
+    --font-size-xl: 1.5em;
+    
+    /* 邊框半徑 */
+    --border-radius-sm: 3px;
+    --border-radius-md: 5px;
+    --border-radius-lg: 8px;
+    
+    /* 陰影系統 */
+    --shadow-sm: 0 1px 3px var(--shadow-color);
+    --shadow-md: 0 2px 5px var(--shadow-color);
+    --shadow-lg: 0 4px 10px var(--shadow-color);
+    
+    /* 轉場動畫 */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+}
+
+/* 暗色主題變數 */
+[data-theme="dark"] {
+    --primary-color: #2d2d2d;
+    --secondary-color: #404040;
+    --background-color: #1a1a1a;
+    --surface-color: #2d2d2d;
+    --text-color: #ffffff;
+    --text-secondary: #cccccc;
+    --border-color: #404040;
+    --shadow-color: rgba(0,0,0,0.3);
+    --hover-color: #404040;
+}
+
+/* 基礎重置和標準化 */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+/* 基礎排版 */
+h1, h2, h3, h4, h5, h6 {
+    margin: 0 0 var(--spacing-md) 0;
+    color: var(--text-color);
+}
+
+h1 { font-size: var(--font-size-xl); }
+h2 { font-size: var(--font-size-lg); }
+h3 { font-size: var(--font-size-base); }
+
+p {
+    margin: 0 0 var(--spacing-md) 0;
+    color: var(--text-secondary);
+}
+
+/* 連結樣式 */
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--secondary-color);
+}
+
+/* 基礎表單元素 */
+input, select, textarea {
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-sm);
+    background-color: var(--surface-color);
+    color: var(--text-color);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(51, 51, 51, 0.1);
+}
+
+/* 滾動條樣式 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: var(--border-radius-md);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-color);
+}

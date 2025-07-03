@@ -39,7 +39,15 @@ export function generatePresentTable(items, itemBase) {
         
         button.textContent = buttonText;
         button.className = 'present-select-button';
-        button.onclick = () => displayPresentDetails(targetId, items, itemBase, tableContainer);
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons
+            buttonContainer.querySelectorAll('.present-select-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // Add active class to the clicked button
+            button.classList.add('active');
+            displayPresentDetails(targetId, items, itemBase, tableContainer);
+        });
         buttonContainer.appendChild(button);
     });
 }

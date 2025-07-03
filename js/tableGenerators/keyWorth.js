@@ -26,7 +26,15 @@ export function generateKeyWorthTable(objectBase, itemBase) {
         const button = document.createElement('button');
         button.textContent = i18n.translate(obj.name);
         button.className = 'key-select-button';
-        button.onclick = () => displayKeyDetails(obj, itemBase, tableContainer, valueTableContainer);
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons
+            buttonContainer.querySelectorAll('.key-select-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // Add active class to the clicked button
+            button.classList.add('active');
+            displayKeyDetails(obj, itemBase, tableContainer, valueTableContainer);
+        });
         buttonContainer.appendChild(button);
     });
 }

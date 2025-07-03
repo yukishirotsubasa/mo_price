@@ -1,0 +1,192 @@
+/* css/themes.css - 主題樣式 (亮色/暗色主題) */
+
+/* 主題切換按鈕 */
+.theme-toggle {
+    position: fixed;
+    top: var(--spacing-lg);
+    right: var(--spacing-lg);
+    z-index: 1000;
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-sm);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-fast);
+}
+
+.theme-toggle:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+.theme-toggle-icon {
+    width: 20px;
+    height: 20px;
+    display: block;
+}
+
+/* 亮色主題特定樣式 */
+[data-theme="light"] {
+    /* 已在 base.css 中定義為預設值 */
+}
+
+/* 暗色主題特定樣式 */
+[data-theme="dark"] {
+    /* CSS 變數已在 base.css 中重新定義 */
+}
+
+/* 暗色主題下的特殊組件調整 */
+[data-theme="dark"] .sidebar {
+    background-color: #1f1f1f;
+    border-right: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .sidebar-menu a:hover,
+[data-theme="dark"] .sidebar-menu a.active {
+    background-color: #404040;
+}
+
+[data-theme="dark"] .data-table th,
+[data-theme="dark"] .cost-table th,
+[data-theme="dark"] .market-data-table th {
+    background-color: #404040;
+}
+
+[data-theme="dark"] .data-table tr:nth-child(even) td,
+[data-theme="dark"] .cost-table tr:nth-child(even) td,
+[data-theme="dark"] .market-data-table tr:nth-child(even) td {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+[data-theme="dark"] .data-table tr:hover td,
+[data-theme="dark"] .cost-table tr:hover td,
+[data-theme="dark"] .market-data-table tr:hover td {
+    background-color: #404040;
+}
+
+[data-theme="dark"] .btn {
+    background-color: #404040;
+    border: 1px solid #555;
+}
+
+[data-theme="dark"] .btn:hover {
+    background-color: #555;
+}
+
+[data-theme="dark"] .btn-secondary {
+    background-color: #555;
+    color: #fff;
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+    background-color: #666;
+}
+
+[data-theme="dark"] .card {
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .collapsible {
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .collapsible-header {
+    background-color: #404040;
+}
+
+[data-theme="dark"] .collapsible-header:hover {
+    background-color: #555;
+}
+
+/* 暗色主題下的表單元素 */
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+    background-color: #404040;
+    border-color: #555;
+    color: #fff;
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] select:focus,
+[data-theme="dark"] textarea:focus {
+    border-color: #666;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+/* 暗色主題下的滾動條 */
+[data-theme="dark"] ::-webkit-scrollbar-track {
+    background: #2d2d2d;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: #555;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+
+/* 主題轉換動畫 */
+* {
+    transition: background-color var(--transition-normal), 
+                color var(--transition-normal), 
+                border-color var(--transition-normal);
+}
+
+/* 高對比度主題支援 */
+@media (prefers-contrast: high) {
+    :root {
+        --border-color: #000;
+        --shadow-color: rgba(0,0,0,0.5);
+    }
+    
+    [data-theme="dark"] {
+        --border-color: #fff;
+        --text-color: #fff;
+        --background-color: #000;
+    }
+}
+
+/* 減少動畫偏好支援 */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* 系統主題偏好檢測 */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+        --primary-color: #2d2d2d;
+        --secondary-color: #404040;
+        --background-color: #1a1a1a;
+        --surface-color: #2d2d2d;
+        --text-color: #ffffff;
+        --text-secondary: #cccccc;
+        --border-color: #404040;
+        --shadow-color: rgba(0,0,0,0.3);
+        --hover-color: #404040;
+    }
+}
+
+/* 列印樣式 */
+@media print {
+    .theme-toggle,
+    .sidebar {
+        display: none !important;
+    }
+    
+    .main-content {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    * {
+        background: white !important;
+        color: black !important;
+        box-shadow: none !important;
+    }
+}

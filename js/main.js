@@ -1,7 +1,8 @@
-import { generateCarpentryCostTableData } from './carpentryCost.js';
-import { generateEnchantCostTableData } from './enchantCost.js'; // 導入 EnchantCost 模組
 // js/main.js - 應用程式主入口點
+import themeManager from './themeManager.js';
 
+import { generateCarpentryCostTableData } from './carpentryCost.js';
+import { generateEnchantCostTableData } from './enchantCost.js';
 import { loadData, getItemBase, getForgeFormulas, getCarpentryFormulas, getNpcBase, getPets, getSkillQuest, getObjectBase, getEnchantingChances, getImageSheet, loadGoogleSheetData, loadJsFileVariable, processRawData, processRawDataFromLocalStorage, saveMarketDataToLocalStorage, handleDataConflict } from './dataLoader.js';
 import { createItemNameMap, generateTableHTML, compareData, formatNumberWithThousandsSeparator, getItemSellPrice } from './utils.js';
 import { generateItemTable } from './tableGenerators/itemTable.js';
@@ -15,19 +16,43 @@ import { generateEnchantingChancesTable } from './tableGenerators/enchantingChan
 import { generateImageSheetTable } from './tableGenerators/imageSheetTable.js';
 import { generateMonsterWorthTable } from './tableGenerators/monsterWorth.js';
 import { generateMonsterBookTable } from './tableGenerators/monsterBookTable.js';
-import openItemTable from './tableGenerators/openItemTable.js'; // 導入 openItemTable 模組
-import { generateKeyWorthTable } from './tableGenerators/keyWorth.js'; // 導入 keyCost 模組
-import { generateRareKeyWorthTable } from './tableGenerators/rareKeyWorth.js'; // 導入 rareKeyCost 模組
-import { generatePresentTable } from './tableGenerators/presentTable.js'; // 導入 present 模組
-import { generateBreedingCostTable } from './tableGenerators/breedingCost.js'; // 導入 breeding 模組
-import { generateForgingCostTableData } from './forgingCost.js'; // 導入 ForgingCost 模組
-import { generateRecycleCostTableData } from './recycleCost.js'; // 導入 RecycleCost 模組
-import i18n from './i18n.js'; // 導入 i18n 模組
-import { initPriceEditor } from './priceEditor.js'; // 導入價格編輯器模組
+import openItemTable from './tableGenerators/openItemTable.js';
+import { generateKeyWorthTable } from './tableGenerators/keyWorth.js';
+import { generateRareKeyWorthTable } from './tableGenerators/rareKeyWorth.js';
+import { generatePresentTable } from './tableGenerators/presentTable.js';
+import { generateBreedingCostTable } from './tableGenerators/breedingCost.js';
+import { generateForgingCostTableData } from './forgingCost.js';
+import { generateRecycleCostTableData } from './recycleCost.js';
+import i18n from './i18n.js';
+import { initPriceEditor } from './priceEditor.js';
+
+// 導入新的控制器
+import { TabController } from './controllers/TabController.js';
+import { UIController } from './controllers/UIController.js';
+import { LanguageController } from './controllers/LanguageController.js';
+
+// 導入新的渲染器
+import { TableRenderer } from './renderers/TableRenderer.js';
+import { CostTableRenderer } from './renderers/CostTableRenderer.js';
+
+// 導入事件管理器
+import { EventManager } from './core/EventManager.js';
 
 let allData = {}; // 用於儲存所有載入的數據，以便在語言切換時重新渲染
 let currentMarketPricesData = []; // 用於儲存當前市場價格數據的記憶體變數，提升至全域
 window.ui = {};
+
+// 初始化控制器
+let tabController;
+let uiController;
+let languageController;
+
+// 初始化渲染器
+let tableRenderer;
+let costTableRenderer;
+
+// 初始化事件管理器
+let eventManager;
 
 /**
  * 顯示衝突解決 Modal。
@@ -103,19 +128,21 @@ async function renderAllTablesIfDataLoaded() {
  */
 async function renderPage(pageName) {
     try {
-        // 統一清空所有帶有 clearable-table-content class 的元素內容
-        document.querySelectorAll('.clearable-table-content').forEach(content => {
-            content.innerHTML = '';
-        });
+        // 清空表格內容
+        if (uiController) {
+            uiController.clearTableContents();
+        }
 
         // 如果 allData 為空，則異步載入數據
         if (Object.keys(allData).length === 0) {
             console.log("allData 未載入，正在載入數據...");
             allData = await loadData();
             // 數據載入後，更新所有 UI 文本
-            updateTabTitles();
-            updateGoogleSheetUIText();
-            updateVersionComparisonUIText();
+            if (uiController) {
+                uiController.updateTabTitles();
+                uiController.updateGoogleSheetUIText();
+                uiController.updateVersionComparisonUIText();
+            }
         }
 
         const { itemBase, FORGE_FORMULAS, CARPENTRY_FORMULAS, npcBase, pets, skillQuest, objectBase, forge, imageSheet, enchantingChances, items, monsterBook } = allData;
@@ -185,32 +212,30 @@ async function renderPage(pageName) {
                 containerId = 'forging-table-container';
                 if (itemBase && FORGE_FORMULAS) {
                     const forgingCostData = generateForgingCostTableData(FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase);
-                    generateFunction = renderForgingCostTable;
-                    args = [containerId, forgingCostData];
+                    if (costTableRenderer) {
+                        costTableRenderer.renderForgingCostTable(containerId, forgingCostData);
+                    }
                 } else {
-                    const forgingCostContainer = document.getElementById(containerId);
-                    if (forgingCostContainer) {
-                        forgingCostContainer.textContent = i18n.translate('forging_data_not_available');
+                    if (tableRenderer) {
+                        tableRenderer.showError(containerId, i18n.translate('forging_data_not_available'));
                     }
                     console.error("For Forging Cost Tab, itemBase or FORGE_FORMULAS data is not available.");
-                    return;
                 }
-                break;
+                return;
             case 'carpentry-cost-page': // 木工成本
                 containerId = 'carpentry-cost-table-container';
                 if (itemBase && CARPENTRY_FORMULAS) {
                     const carpentryCostData = generateCarpentryCostTableData(CARPENTRY_FORMULAS, generateTableHTML, createItemNameMap, itemBase);
-                    generateFunction = renderCarpentryCostTable;
-                    args = [containerId, carpentryCostData];
+                    if (costTableRenderer) {
+                        costTableRenderer.renderCarpentryCostTable(containerId, carpentryCostData);
+                    }
                 } else {
-                    const carpentryCostContainer = document.getElementById(containerId);
-                    if (carpentryCostContainer) {
-                        carpentryCostContainer.textContent = i18n.translate('carpentry_data_not_available');
+                    if (tableRenderer) {
+                        tableRenderer.showError(containerId, i18n.translate('carpentry_data_not_available'));
                     }
                     console.error("For Carpentry Cost Tab, itemBase or CARPENTRY_FORMULAS data is not available.");
-                    return;
                 }
-                break;
+                return;
             case 'enchanting-cost-page': // 附魔成本
                 containerId = 'enchanting-cost-table-container';
                 generateFunction = generateEnchantCostTableData;
@@ -258,17 +283,16 @@ case 'recycle-page': // Recycle 頁面
     containerId = 'recycle-cost-table-container';
     if (itemBase && FORGE_FORMULAS) {
         const recycleCostData = generateRecycleCostTableData(FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase);
-        generateFunction = renderRecycleCostTable;
-        args = [containerId, recycleCostData];
+        if (costTableRenderer) {
+            costTableRenderer.renderRecycleCostTable(containerId, recycleCostData);
+        }
     } else {
-        const recycleCostContainer = document.getElementById(containerId);
-        if (recycleCostContainer) {
-            recycleCostContainer.textContent = i18n.translate('recycle_data_not_available');
+        if (tableRenderer) {
+            tableRenderer.showError(containerId, i18n.translate('recycle_data_not_available'));
         }
         console.error("For Recycle Cost Tab, itemBase or FORGE_FORMULAS data is not available.");
-        return;
     }
-    break;
+    return;
 default:
     console.warn(`未知頁面名稱: ${pageName}`);
     return;
@@ -286,265 +310,9 @@ default:
     }
 }
 
-/**
- * 渲染鍛造成本表格。
- * @param {string} containerId - 容器元素的 ID。
- * @param {Array<Object>} forgingCostData - 鍛造成本數據。
- */
-function renderForgingCostTable(containerId, forgingCostData) {
-    const forgingCostContainer = document.getElementById(containerId);
-    if (!forgingCostContainer) {
-        console.error(`找不到 ID 為 ${containerId} 的容器元素。`);
-        return;
-    }
+// 這些渲染函數已移動到 CostTableRenderer 中
 
-    forgingCostContainer.innerHTML = ''; // 清空舊內容
-
-    if (forgingCostData && forgingCostData.length > 0) {
-        let tableHTML = '<table><thead><tr>';
-        tableHTML += `<th>${i18n.translate('id')}</th>`;
-        tableHTML += `<th>${i18n.translate('name')}</th>`;
-        tableHTML += `<th>${i18n.translate('level')}</th>`;
-        tableHTML += `<th>${i18n.translate('pattern')}</th>`;
-        tableHTML += `<th>${i18n.translate('material price')}</th>`;
-        tableHTML += `<th>${i18n.translate('chance')}</th>`;
-        tableHTML += `<th>${i18n.translate('cost')}</th>`;
-        tableHTML += `<th>${i18n.translate('sell price')}</th>`;
-        tableHTML += '</tr></thead><tbody>';
-        forgingCostData.forEach(row => {
-            tableHTML += '<tr>';
-            tableHTML += `<td>${row.id}</td>`;
-            tableHTML += `<td>${row.itemName}</td>`;
-            tableHTML += `<td>${row.level}</td>`;
-            tableHTML += `<td>${row.pattern}</td>`;
-            tableHTML += `<td>${row.materialPrice}</td>`;
-            tableHTML += `<td>${row.chance}</td>`;
-            tableHTML += `<td>${row.cost}</td>`;
-            tableHTML += `<td>${row.sellPrice}</td>`;
-            tableHTML += '</tr>';
-        });
-        tableHTML += '</tbody></table>';
-        forgingCostContainer.innerHTML = tableHTML;
-    } else {
-        forgingCostContainer.textContent = i18n.translate('forging_data_not_available');
-        console.error("For Forging Cost Tab, data is not available or empty.");
-    }
-}
-
-/**
- * 渲染木工成本表格。
- * @param {string} containerId - 容器元素的 ID。
- * @param {Array<Object>} carpentryCostData - 木工成本數據。
- */
-function renderCarpentryCostTable(containerId, carpentryCostData) {
-    const carpentryCostContainer = document.getElementById(containerId);
-    if (!carpentryCostContainer) {
-        console.error(`找不到 ID 為 ${containerId} 的容器元素。`);
-        return;
-    }
-
-    carpentryCostContainer.innerHTML = ''; // 清空舊內容
-
-    if (carpentryCostData && carpentryCostData.length > 0) {
-        let tableHTML = '<table><thead><tr>';
-        tableHTML += `<th>${i18n.translate('name')}</th>`;
-        tableHTML += `<th>${i18n.translate('level')}</th>`;
-        tableHTML += `<th>${i18n.translate('pattern')}</th>`;
-        tableHTML += `<th>${i18n.translate('material price')}</th>`;
-        tableHTML += `<th>${i18n.translate('cost')}</th>`;
-        tableHTML += `<th>${i18n.translate('sell price')}</th>`;
-        tableHTML += '</tr></thead><tbody>';
-        carpentryCostData.forEach(row => {
-            tableHTML += '<tr>';
-            tableHTML += `<td>${row.itemName}</td>`;
-            tableHTML += `<td>${row.level}</td>`;
-            tableHTML += `<td>${row.pattern}</td>`;
-            tableHTML += `<td>${row.materialPrice}</td>`;
-            tableHTML += `<td>${row.cost}</td>`;
-            tableHTML += `<td>${row.sellPrice}</td>`;
-            tableHTML += '</tr>';
-        });
-        tableHTML += '</tbody></table>';
-        carpentryCostContainer.innerHTML = tableHTML;
-    } else {
-        carpentryCostContainer.textContent = i18n.translate('carpentry_data_not_available');
-        console.error("For Carpentry Cost Tab, data is not available or empty.");
-    }
-}
-
-/**
- * 渲染分解成本表格。
- * @param {string} containerId - 容器元素的 ID。
- * @param {Array<Object>} recycleCostData - 分解成本數據。
- */
-function renderRecycleCostTable(containerId, recycleCostData) {
-    const recycleCostContainer = document.getElementById(containerId);
-    if (!recycleCostContainer) {
-        console.error(`找不到 ID 為 ${containerId} 的容器元素。`);
-        return;
-    }
-
-    recycleCostContainer.innerHTML = ''; // 清空舊內容
-
-    if (recycleCostData && recycleCostData.length > 0) {
-        let tableHTML = '<table><thead><tr>';
-        tableHTML += `<th>${i18n.translate('id')}</th>`;
-        tableHTML += `<th>${i18n.translate('itemName')}</th>`;
-        tableHTML += `<th>${i18n.translate('level')}</th>`;
-        tableHTML += `<th>${i18n.translate('pattern')}</th>`;
-        tableHTML += `<th>${i18n.translate('chance')}</th>`;
-        tableHTML += `<th>${i18n.translate('price')}</th>`;
-        tableHTML += `<th>${i18n.translate('worth')}</th>`;
-        tableHTML += '</tr></thead><tbody>';
-        recycleCostData.forEach(row => {
-            tableHTML += '<tr>';
-            tableHTML += `<td>${row.id}</td>`;
-            tableHTML += `<td>${row.itemName}</td>`;
-            tableHTML += `<td>${row.level}</td>`;
-            tableHTML += `<td>${row.pattern}</td>`;
-            tableHTML += `<td>${row.chance}</td>`;
-            tableHTML += `<td>${row.price}</td>`;
-            tableHTML += `<td>${row.worth}</td>`;
-            tableHTML += '</tr>';
-        });
-        tableHTML += '</tbody></table>';
-        recycleCostContainer.innerHTML = tableHTML;
-    } else {
-        recycleCostContainer.textContent = i18n.translate('recycle_data_not_available');
-        console.error("For Recycle Cost Tab, data is not available or empty.");
-    }
-}
-
-/**
- * 更新 Tab 標題的翻譯。
- */
-function updateTabTitles() {
-    // 更新上層選單標題
-const newToggle = document.querySelector('.sidebar-menu .has-submenu:nth-child(1) > .submenu-toggle');
-if (newToggle) newToggle.textContent = i18n.translate('New');
-const priceToggle = document.querySelector('.sidebar-menu .has-submenu:nth-child(2) > .submenu-toggle');
-if (priceToggle) priceToggle.textContent = i18n.translate('Price');
-const wikiToggle = document.querySelector('.sidebar-menu .has-submenu:nth-child(3) > .submenu-toggle');
-if (wikiToggle) wikiToggle.textContent = i18n.translate('Wiki');
-
-// 更新「說明」連結的文本
-const explanationTabButton = document.querySelector('.tab-button[data-tab="explanation-page"]');
-if (explanationTabButton) explanationTabButton.textContent = i18n.translate('explanation');
-
-// 更新子選單標題
-const itemTabButton = document.querySelector('.tab-button[data-tab="tab1"]');
-if (itemTabButton) itemTabButton.textContent = i18n.translate('Item');
-const carpentryTabButton = document.querySelector('.tab-button[data-tab="tab2"]');
-if (carpentryTabButton) carpentryTabButton.textContent = i18n.translate('carpentry');
-const forgingTabButton = document.querySelector('.tab-button[data-tab="tab3"]');
-if (forgingTabButton) forgingTabButton.textContent = i18n.translate('forging');
-const npcTabButton = document.querySelector('.tab-button[data-tab="tab4"]');
-if (npcTabButton) npcTabButton.textContent = i18n.translate('npc');
-const petTabButton = document.querySelector('.tab-button[data-tab="tab5"]');
-if (petTabButton) petTabButton.textContent = i18n.translate('Pet');
-const skillQuestTabButton = document.querySelector('.tab-button[data-tab="tab6"]');
-if (skillQuestTabButton) skillQuestTabButton.textContent = i18n.translate('Skill Quest');
-const objectsTabButton = document.querySelector('.tab-button[data-tab="tab7"]');
-if (objectsTabButton) objectsTabButton.textContent = i18n.translate('objects');
-const enchantingTabButton = document.querySelector('.tab-button[data-tab="tab8"]');
-if (enchantingTabButton) enchantingTabButton.textContent = i18n.translate('Enchanting');
-const imageSheetTabButton = document.querySelector('.tab-button[data-tab="tab9"]');
-if (imageSheetTabButton) imageSheetTabButton.textContent = i18n.translate('image_sheet');
-const monsterBookTabButton = document.querySelector('.tab-button[data-tab="monster-book"]');
-if (monsterBookTabButton) monsterBookTabButton.textContent = i18n.translate('Monster Book');
-const marketPriceIntegrationTabButton = document.querySelector('.tab-button[data-tab="tab10"]');
-if (marketPriceIntegrationTabButton) marketPriceIntegrationTabButton.textContent = i18n.translate('Market Price Integration');
-const versionComparisonTabButton = document.querySelector('.tab-button[data-tab="tab11"]');
-if (versionComparisonTabButton) versionComparisonTabButton.textContent = i18n.translate('Version Comparison');
-const forgingCostTabButton = document.querySelector('.tab-button[data-tab="forging-cost-page"]');
-if (forgingCostTabButton) forgingCostTabButton.textContent = i18n.translate('forging');
-const carpentryCostTabButton = document.querySelector('.tab-button[data-tab="carpentry-cost-page"]');
-if (carpentryCostTabButton) carpentryCostTabButton.textContent = i18n.translate('Carpentry');
-const monsterWorthTabButton = document.querySelector('.tab-button[data-tab="monster-worth-page"]');
-if (monsterWorthTabButton) monsterWorthTabButton.textContent = i18n.translate('monster worth');
-const enchantingCostTabButton = document.querySelector('.tab-button[data-tab="enchanting-cost-page"]');
-if (enchantingCostTabButton) enchantingCostTabButton.textContent = i18n.translate('Enchanting');
-const openItemTabButton = document.querySelector('.tab-button[data-tab="open-item-page"]');
-if (openItemTabButton) openItemTabButton.textContent = i18n.translate('Open Item');
-const keyTabButton = document.querySelector('.tab-button[data-tab="key-page"]');
-if (keyTabButton) keyTabButton.textContent = i18n.translate('Key');
-const rareKeyTabButton = document.querySelector('.tab-button[data-tab="rare-key-page"]');
-if (rareKeyTabButton) rareKeyTabButton.textContent = i18n.translate('Rare Key');
-const presentTabButton = document.querySelector('.tab-button[data-tab="present-page"]');
-if (presentTabButton) presentTabButton.textContent = i18n.translate('Present');
-const breedingTabButton = document.querySelector('.tab-button[data-tab="breeding-page"]');
-if (breedingTabButton) breedingTabButton.textContent = i18n.translate('Breeding');
-const recycleTabButton = document.querySelector('.tab-button[data-tab="recycle-page"]');
-if (recycleTabButton) recycleTabButton.textContent = i18n.translate('Recycle');
-
-// 更新 Tab 內容標題
-const tab1ContentH2 = document.querySelector('#tab1-content h2');
-if (tab1ContentH2) tab1ContentH2.textContent = i18n.translate('Item');
-const tab2ContentH2 = document.querySelector('#tab2-content h2');
-if (tab2ContentH2) tab2ContentH2.textContent = i18n.translate('carpentry');
-const tab3ContentH2 = document.querySelector('#tab3-content h2');
-if (tab3ContentH2) tab3ContentH2.textContent = i18n.translate('forging');
-const tab4ContentH2 = document.querySelector('#tab4-content h2');
-if (tab4ContentH2) tab4ContentH2.textContent = i18n.translate('npc');
-const tab5ContentH2 = document.querySelector('#tab5-content h2');
-if (tab5ContentH2) tab5ContentH2.textContent = i18n.translate('Pet');
-const tab6ContentH2 = document.querySelector('#tab6-content h2');
-if (tab6ContentH2) tab6ContentH2.textContent = i18n.translate('Skill Quest');
-const tab7ContentH2 = document.querySelector('#tab7-content h2');
-if (tab7ContentH2) tab7ContentH2.textContent = i18n.translate('objects');
-const tab8ContentH2 = document.querySelector('#tab8-content h2');
-if (tab8ContentH2) tab8ContentH2.textContent = i18n.translate('Enchanting');
-const tab9ContentH2 = document.querySelector('#tab9-content h2');
-if (tab9ContentH2) tab9ContentH2.textContent = i18n.translate('image_sheet');
-const monsterBookContentH2 = document.querySelector('#monster-book-content h2');
-if (monsterBookContentH2) monsterBookContentH2.textContent = i18n.translate('Monster Book');
-const tab10ContentH2 = document.querySelector('#tab10-content > h2');
-if (tab10ContentH2) tab10ContentH2.textContent = i18n.translate('Market Price Integration');
-const tab11ContentH2 = document.querySelector('#tab11-content > h2');
-if (tab11ContentH2) tab11ContentH2.textContent = i18n.translate('Version Comparison');
-const monsterWorthContentH2 = document.querySelector('#monster-worth-page-content h2');
-if (monsterWorthContentH2) monsterWorthContentH2.textContent = i18n.translate('monster worth');
-const keyContentH2 = document.querySelector('#key-page-content h2');
-if (keyContentH2) keyContentH2.textContent = i18n.translate('Key');
-const rareKeyContentH2 = document.querySelector('#rare-key-page-content h2');
-if (rareKeyContentH2) rareKeyContentH2.textContent = i18n.translate('Rare Key');
-const presentContentH2 = document.querySelector('#present-page-content h2');
-if (presentContentH2) presentContentH2.textContent = i18n.translate('Present');
-const breedingContentH2 = document.querySelector('#breeding-page-content h2');
-if (breedingContentH2) breedingContentH2.textContent = i18n.translate('Breeding Cost Calculator');
-const recycleContentH2 = document.querySelector('#recycle-page-content h2');
-if (recycleContentH2) recycleContentH2.textContent = i18n.translate('Recycle Cost Calculator');
-}
-
-/**
- * 更新市場價格整合功能中的 UI 文本。
- */
-function updateGoogleSheetUIText() {
-    const googleSheetUrlInput = document.getElementById('google-sheet-url');
-    const loadSheetButton = document.getElementById('load-sheet-button');
-    const exportCsvButton = document.getElementById('export-csv-button');
-    const importCsvButton = document.getElementById('import-csv-button');
-    const csvFileInput = document.getElementById('csv-file-input');
-
-    if (googleSheetUrlInput) googleSheetUrlInput.placeholder = i18n.translate('enter_google_sheet_url_or_id');
-    if (loadSheetButton) loadSheetButton.textContent = i18n.translate('load_data');
-    if (exportCsvButton) exportCsvButton.textContent = i18n.translate('export_as_csv');
-    if (importCsvButton) importCsvButton.textContent = i18n.translate('import_csv');
-    if (csvFileInput) csvFileInput.setAttribute('accept', '.csv'); // 確保只接受 CSV 檔案
-}
-
-/**
- * 更新版本比較功能中的 UI 文本。
- */
-function updateVersionComparisonUIText() {
-    const versionALabel = document.querySelector('label[for="versionA-select"]');
-    const versionBLabel = document.querySelector('label[for="versionB-select"]');
-    const compareVersionsButton = document.getElementById('compare-versions-button');
-
-    if (versionALabel) versionALabel.textContent = i18n.translate('version_a');
-    if (versionBLabel) versionBLabel.textContent = i18n.translate('version_b');
-    if (compareVersionsButton) compareVersionsButton.textContent = i18n.translate('compare_versions');
-}
+// 這些函數已移動到 UIController 中
 
 /**
  * 初始化版本比較功能的所有邏輯，包括按鈕事件和數據載入。
@@ -614,64 +382,21 @@ function initMarketPriceIntegrationUI() {
  * @param {Array<Array<any>>} data - 處理後的市場價格數據，每行包含 [item id, item name, market buy price, market sell price]。
  */
 export const renderMarketDataTable = (data) => {
-    const sheetDataDisplayDiv = document.getElementById('sheet-data-display');
-    if (!sheetDataDisplayDiv) {
-        console.error("sheet-data-display 元素未找到。");
-        return;
-    }
-
-    if (data.length === 0) {
-        sheetDataDisplayDiv.textContent = i18n.translate('no_data_to_display');
+    if (!costTableRenderer) {
+        console.error("CostTableRenderer 未初始化。");
         return;
     }
 
     const itemBase = allData.itemBase;
     const itemNameMap = createItemNameMap(itemBase, i18n.translate);
-
-    let tableHTML = '<table><thead><tr>';
-    // 渲染標頭
-    tableHTML += `<th>${i18n.translate('item id')}</th>`;
-    tableHTML += `<th>${i18n.translate('name')}</th>`;
-    tableHTML += `<th>${i18n.translate('wiki price')}</th>`;
-    tableHTML += `<th>${i18n.translate('market buy')}</th>`;
-    tableHTML += `<th>${i18n.translate('market sell')}</th>`;
-    tableHTML += `<th>${i18n.translate('custom price')}</th>`; // 新增 custom price 標頭
-    tableHTML += '</tr></thead><tbody>';
-
-    // 渲染數據行
-    for (let i = 0; i < data.length; i++) {
-        const row = data[i];
-        const itemId = row[0];
-        const marketBuyPrice = row[1]; // 調整索引
-        const marketSellPrice = row[2]; // 調整索引
-        const customPrice = row[3]; // 新增 custom price
-
-        const itemInfo = itemBase.find(item => item.b_i === itemId);
-        const itemName = itemInfo ? itemNameMap.get(itemId) : i18n.translate('unknown_item');
-        const wikiPrice = itemInfo && itemInfo.params && itemInfo.params.price ? itemInfo.params.price : 'N/A';
-
-        tableHTML += `<tr data-row-index="${i}">`;
-        tableHTML += `<td>${itemId}</td>`;
-        tableHTML += `<td>${itemName}</td>`;
-        tableHTML += `<td>${typeof wikiPrice === 'number' ? formatNumberWithThousandsSeparator(wikiPrice) : wikiPrice}</td>`;
-        tableHTML += `<td contenteditable="true" data-col-index="1">${typeof marketBuyPrice === 'number' ? formatNumberWithThousandsSeparator(marketBuyPrice) : marketBuyPrice}</td>`; // 調整 col-index
-        tableHTML += `<td contenteditable="true" data-col-index="2">${typeof marketSellPrice === 'number' ? formatNumberWithThousandsSeparator(marketSellPrice) : marketSellPrice}</td>`; // 調整 col-index
-        tableHTML += `<td contenteditable="true" data-col-index="3">${typeof customPrice === 'number' ? formatNumberWithThousandsSeparator(customPrice) : customPrice}</td>`; // 新增 custom price
-        tableHTML += '</tr>';
-    }
-    tableHTML += '</tbody></table>';
-    sheetDataDisplayDiv.innerHTML = tableHTML;
-
-    // 添加事件監聽器以處理行內編輯
-    sheetDataDisplayDiv.querySelectorAll('td[contenteditable="true"]').forEach(cellElement => {
-        // 移除舊的事件監聽器以避免重複綁定
-        cellElement.removeEventListener('blur', handleCellEditWrapper);
-        cellElement.removeEventListener('keydown', handleCellEditKeydownWrapper);
-
-        // 綁定新的事件監聽器
-        cellElement.addEventListener('blur', handleCellEditWrapper);
-        cellElement.addEventListener('keydown', handleCellEditKeydownWrapper);
-    });
+    
+    costTableRenderer.renderMarketDataTable(
+        'sheet-data-display', 
+        data, 
+        itemNameMap, 
+        itemBase, 
+        handleCellEditWrapper
+    );
 };
 
 /**
@@ -947,71 +672,41 @@ async function loadAndDisplaySheetData() {
 
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // 初始化 i18n 模組
-    await i18n.init();
+    // 初始化控制器
+    uiController = new UIController();
+    tabController = new TabController();
+    languageController = new LanguageController(uiController);
 
-    // 語言切換邏輯
-    const langSelect = document.getElementById('lang-select');
-    if (langSelect) {
-        /**
-         * 動態填充語言選擇器。
-         */
-        const populateLanguageSelector = () => {
-            langSelect.innerHTML = ''; // 清空現有選項
-            // 確保 availableLanguages 是陣列且有數據
-            if (Array.isArray(i18n.availableLanguages) && i18n.availableLanguages.length > 0) {
-                i18n.availableLanguages.forEach(lang => {
-                    const option = document.createElement('option');
-                    option.value = lang.code;
-                    option.textContent = i18n.translateLangName(lang.name); // 翻譯語言名稱
-                    langSelect.appendChild(option);
-                });
-            } else {
-                console.warn("i18n.availableLanguages 為空或不是陣列，無法填充語言選擇器。");
-                // 可以添加預設選項，例如：
-                const defaultOption = document.createElement('option');
-                defaultOption.value = 'en';
-                defaultOption.textContent = 'English';
-                langSelect.appendChild(defaultOption);
-            }
-        };
+    // 初始化渲染器
+    tableRenderer = new TableRenderer();
+    costTableRenderer = new CostTableRenderer();
 
-        // 在 i18n 初始化後立即填充語言選擇器
-        populateLanguageSelector();
-        // 設定當前選定的語言
-        langSelect.value = i18n.currentLang;
-        // 更新 UI 文本 (確保首次載入時也更新)
-        updateTabTitles();
-        updateGoogleSheetUIText();
-        updateVersionComparisonUIText();
+    // 初始化事件管理器
+    eventManager = new EventManager();
+    eventManager.init();
 
-        // 監聽語言切換事件
-        langSelect.addEventListener('change', async (event) => {
-            const newLang = event.target.value;
-            await i18n.setLanguage(newLang);
-            // 重新填充語言選擇器以更新語言名稱翻譯
-            populateLanguageSelector();
-            // 設定當前選定的語言 (確保下拉選單顯示正確)
-            langSelect.value = i18n.currentLang;
-            // 更新 UI 文本
-            updateTabTitles();
-            updateGoogleSheetUIText();
-            updateVersionComparisonUIText();
+    // 監聽Tab切換事件
+    document.addEventListener('tabChanged', async (event) => {
+        await renderPage(event.detail.tabName);
+    });
 
-            // 獲取當前活躍的 Tab
-            const activeTabButton = document.querySelector('.tab-button.active');
-            if (activeTabButton) {
-                const activeTabName = activeTabButton.dataset.tab;
-                await renderPage(activeTabName); // 重新渲染當前活躍的 Tab
-            } else {
-                // 如果沒有活躍的 Tab，則嘗試渲染預設 Tab (例如：tab1)
-                // 這裡可以根據實際需求設定預設行為
-                console.log("沒有活躍的 Tab，跳過重新渲染當前頁面。");
-            }
-        });
-    } else {
-        console.error("語言選擇器元素未找到。");
-    }
+    // 監聽語言變更事件
+    eventManager.registerCustomEventHandler('languageChanged', async (event) => {
+        // 獲取當前活躍的Tab並重新渲染
+        const currentTab = tabController.getCurrentActiveTab();
+        if (currentTab) {
+            await renderPage(currentTab);
+        }
+    });
+
+    // 監聽怪物價值過濾器變更事件
+    eventManager.registerCustomEventHandler('monsterWorthFilterChanged', async (event) => {
+        // 只有當怪物價值頁面是活躍狀態時才重新渲染
+        const currentTab = tabController.getCurrentActiveTab();
+        if (currentTab === 'monster-worth-page') {
+            await renderPage('monster-worth-page');
+        }
+    });
 
     // 確保在 DOMContentLoaded 時，如果 open-item-page 是預設活躍的 Tab，則正確初始化
     const initialActiveTabButton = document.querySelector('.tab-button.active');
@@ -1020,112 +715,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         await renderPage('open-item-page');
     }
 
-    // 處理 Tab 切換邏輯
-    // 處理巢狀選單邏輯
-    document.querySelectorAll('.sidebar-menu .submenu-toggle').forEach(toggle => {
-        toggle.addEventListener('click', (event) => {
-            event.preventDefault();
-            const parentLi = toggle.closest('.has-submenu');
-            const submenu = parentLi.querySelector('.submenu');
+    // Tab切換邏輯已移動到TabController中
+    // 摺疊功能邏輯已移動到EventManager中
+    // 怪物價值過濾器邏輯已移動到EventManager中
 
-            // 切換 active 類別
-            toggle.classList.toggle('active');
-            submenu.classList.toggle('active');
-        });
-    });
-
-    // 處理子選單 Tab 切換邏輯
-    document.querySelectorAll('.sidebar-menu .submenu .tab-button').forEach(button => {
-        button.addEventListener('click', async (event) => { // 添加 async
-            event.preventDefault();
-
-            // 移除所有 tab-button 和 tab-content 的 active 類別
-            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-            // 為當前點擊的按鈕和對應的內容添加 active 類別
-            button.classList.add('active');
-            const targetTabContent = document.getElementById(`${button.dataset.tab}-content`);
-            if (targetTabContent) {
-                targetTabContent.classList.add('active');
-            }
-
-            // 呼叫新的渲染函數
-            await renderPage(button.dataset.tab);
-        });
-    });
-
-    // // 預設激活「Wiki」選單下的「物品資料」Tab
-    // const defaultParentMenu = document.querySelector('.sidebar-menu .has-submenu:nth-child(3) > .submenu-toggle'); // Wiki
-    // const defaultTabButton = document.querySelector('.tab-button[data-tab="tab1"]'); // 物品資料
-
-    // if (defaultParentMenu) {
-    //     defaultParentMenu.classList.add('active');
-    //     const defaultSubmenu = defaultParentMenu.closest('.has-submenu').querySelector('.submenu');
-    //     if (defaultSubmenu) {
-    //         defaultSubmenu.classList.add('active');
-    //     }
-    // }
-
-    // if (defaultTabButton) {
-    //     // 預設激活「物品資料」Tab，並呼叫 renderPage 進行渲染
-    //     defaultTabButton.classList.add('active');
-    //     const targetTabContent = document.getElementById(`${defaultTabButton.dataset.tab}-content`);
-    //     if (targetTabContent) {
-    //         targetTabContent.classList.add('active');
-    //     }
-    //     await renderPage(defaultTabButton.dataset.tab);
-    // }
-
-    // 首次載入時不自動渲染所有表格，等待用戶點擊
-    // 初始化鍛造成本計算器 (已整合到 Tab 切換邏輯中)
-
-
-    // Google Sheet 市場整合功能邏輯
-    // 在 Google Charts Library 載入完成後初始化
-    // initializeMarketPriceIntegrationLogic 將在 initMarketPriceIntegrationUI 中被調用
-
-    // 為怪物價值過濾開關添加事件監聽器
-    const monsterWorthToggles = ['hideBossToggle', 'hideRareToggle', 'hideEliteToggle'];
-    monsterWorthToggles.forEach(toggleId => {
-        const toggleElement = document.getElementById(toggleId);
-        if (toggleElement) {
-            toggleElement.addEventListener('change', async () => {
-                // 只有當怪物價值頁面是活躍狀態時才重新渲染
-                const monsterWorthTabButton = document.querySelector('.tab-button[data-tab="monster-worth-page"]');
-                if (monsterWorthTabButton && monsterWorthTabButton.classList.contains('active')) {
-                    await renderPage('monster-worth-page');
-                }
-            });
-        }
-    });
-
-
-});
-
-// 通用摺疊功能邏輯
-document.addEventListener('DOMContentLoaded', () => {
-    const collapsibleHeaders = document.querySelectorAll('.collapsible-header');
-
-    collapsibleHeaders.forEach(header => {
-        header.addEventListener('click', () => {
-            const content = header.nextElementSibling; // 假設內容是標題的下一個兄弟元素
-            if (content && content.classList.contains('collapsible-content')) {
-                content.classList.toggle('collapsed');
-                header.classList.toggle('collapsed'); // 也切換標題的 collapsed class 以更新箭頭圖示
-            }
-        });
-    });
-
-    // 預設讓所有 collapsible-content 區塊的內容為收合狀態
-    document.querySelectorAll('.collapsible-content').forEach(content => {
-        content.classList.add('collapsed');
-        // 同時為其對應的 header 添加 collapsed class
-        const header = content.previousElementSibling;
-        if (header && header.classList.contains('collapsible-header')) {
-            header.classList.add('collapsed');
-        }
-    });
 });
 
 /**

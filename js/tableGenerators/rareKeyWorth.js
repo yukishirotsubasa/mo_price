@@ -72,7 +72,15 @@ export function generateRareKeyWorthTable(objectBase, itemBase) {
         
         button.textContent = buttonText;
         button.className = 'key-select-button';
-        button.onclick = () => displayRareKeyDetails(data, itemId, itemBase, tableContainer, valueTableContainer);
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons
+            buttonContainer.querySelectorAll('.key-select-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // Add active class to the clicked button
+            button.classList.add('active');
+            displayRareKeyDetails(data, itemId, itemBase, tableContainer, valueTableContainer);
+        });
         buttonContainer.appendChild(button);
     });
 }

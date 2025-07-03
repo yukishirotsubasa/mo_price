@@ -1,0 +1,508 @@
+/* css/overrides.css - 強制覆蓋原有樣式 */
+
+/* 強制統一所有按鈕樣式 - 採用skill quest的difficulty-btn樣式 */
+button,
+.btn,
+.button-padding-8px-15px,
+.button-margin-left-10px,
+.compare-versions-button-style,
+.present-select-button,
+.difficulty-btn,
+.save-and-remove-button,
+.delete-item-button,
+.select-monster-button,
+.key-select-button,
+input[type="button"],
+input[type="submit"] {
+    padding: 8px 16px !important;
+    border: 2px solid #007bff !important;
+    border-radius: 4px !important;
+    background-color: white !important;
+    color: #007bff !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    white-space: nowrap !important;
+    display: inline-block !important;
+    text-decoration: none !important;
+    text-align: center !important;
+    user-select: none !important;
+    margin: 4px !important;
+    font-family: var(--font-family) !important;
+}
+
+button:hover,
+.btn:hover,
+.button-padding-8px-15px:hover,
+.button-margin-left-10px:hover,
+.compare-versions-button-style:hover,
+.present-select-button:hover,
+.difficulty-btn:hover,
+.save-and-remove-button:hover,
+.delete-item-button:hover,
+.select-monster-button:hover,
+.key-select-button:hover,
+.present-select-button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover {
+    background-color: #e3f2fd !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2) !important;
+}
+
+/* 按鈕active和focus狀態 */
+button:active,
+.btn:active,
+.button-padding-8px-15px:active,
+.button-margin-left-10px:active,
+.compare-versions-button-style:active,
+.present-select-button:active,
+.difficulty-btn:active,
+.save-and-remove-button:active,
+.delete-item-button:active,
+.select-monster-button:active,
+.key-select-button:active,
+.present-select-button:active,
+input[type="button"]:active,
+input[type="submit"]:active {
+    transform: translateY(0) !important;
+}
+
+button:focus,
+.btn:focus,
+.button-padding-8px-15px:focus,
+.button-margin-left-10px:focus,
+.compare-versions-button-style:focus,
+.present-select-button:focus,
+.difficulty-btn:focus,
+.save-and-remove-button:focus,
+.delete-item-button:focus,
+.select-monster-button:focus,
+.key-select-button:focus,
+.present-select-button:focus,
+input[type="button"]:focus,
+input[type="submit"]:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+}
+
+/* 統一所有按鈕的active狀態樣式 - 採用skill quest的active風格 */
+button.active,
+.btn.active,
+.button-padding-8px-15px.active,
+.button-margin-left-10px.active,
+.compare-versions-button-style.active,
+.present-select-button.active,
+.difficulty-btn.active,
+.save-and-remove-button.active,
+.delete-item-button.active,
+.select-monster-button.active,
+.key-select-button.active,
+.present-select-button.active,
+input[type="button"].active,
+input[type="submit"].active {
+    background-color: #007bff !important;
+    color: white !important;
+    border-color: #007bff !important;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3) !important;
+}
+
+.delete-item-button {
+    border-color: #dc3545 !important;
+    color: #dc3545 !important;
+}
+
+.delete-item-button:hover {
+    background-color: #f8d7da !important;
+    border-color: #dc3545 !important;
+    color: #dc3545 !important;
+}
+
+.save-and-remove-button {
+    border-color: #28a745 !important;
+    color: #28a745 !important;
+}
+
+.save-and-remove-button:hover {
+    background-color: #d4edda !important;
+    border-color: #28a745 !important;
+    color: #28a745 !important;
+}
+
+/* 特殊按鈕的active狀態覆蓋 */
+.delete-item-button.active {
+    background-color: #dc3545 !important;
+    color: white !important;
+    border-color: #dc3545 !important;
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3) !important;
+}
+
+.save-and-remove-button.active {
+    background-color: #28a745 !important;
+    color: white !important;
+    border-color: #28a745 !important;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3) !important;
+}
+
+/* 強制統一所有表格樣式 */
+table,
+.data-table,
+.cost-table,
+.market-data-table,
+.breeding-table,
+.parent-table,
+.plan-table,
+.present-details-table,
+.table,
+.table-sm,
+.table-bordered {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    background-color: var(--surface-color) !important;
+    border-radius: var(--border-radius-md) !important;
+    overflow: hidden !important;
+    box-shadow: var(--shadow-sm) !important;
+    margin-bottom: var(--spacing-lg) !important;
+    margin-top: var(--spacing-md) !important;
+}
+
+table th,
+.data-table th,
+.cost-table th,
+.market-data-table th,
+.breeding-table th,
+.parent-table th,
+.plan-table th,
+.present-details-table th,
+.table th,
+.table-sm th,
+.table-bordered th,
+th {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+    padding: var(--spacing-sm) var(--spacing-md) !important;
+    text-align: left !important;
+    font-weight: bold !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+table td,
+.data-table td,
+.cost-table td,
+.market-data-table td,
+.breeding-table td,
+.parent-table td,
+.plan-table td,
+.present-details-table td,
+.table td,
+.table-sm td,
+.table-bordered td,
+td {
+    padding: var(--spacing-sm) var(--spacing-md) !important;
+    border: 1px solid var(--border-color) !important;
+    transition: background-color var(--transition-fast) !important;
+    background-color: var(--surface-color) !important;
+}
+
+table tr:hover td,
+.data-table tr:hover td,
+.cost-table tr:hover td,
+.market-data-table tr:hover td,
+.breeding-table tr:hover td,
+.parent-table tr:hover td,
+.plan-table tr:hover td,
+.present-details-table tr:hover td,
+.table tr:hover td,
+.table-sm tr:hover td,
+.table-bordered tr:hover td {
+    background-color: var(--hover-color) !important;
+}
+
+table tr:nth-child(even) td,
+.data-table tr:nth-child(even) td,
+.cost-table tr:nth-child(even) td,
+.market-data-table tr:nth-child(even) td,
+.breeding-table tr:nth-child(even) td,
+.parent-table tr:nth-child(even) td,
+.plan-table tr:nth-child(even) td,
+.present-details-table tr:nth-child(even) td,
+.table tr:nth-child(even) td,
+.table-sm tr:nth-child(even) td,
+.table-bordered tr:nth-child(even) td {
+    background-color: var(--hover-color) !important;
+}
+
+/* 特殊表格樣式覆蓋 */
+.plan-table.best-plan {
+    border: 2px solid #22c55e !important;
+}
+
+.present-details-table .total-row {
+    background-color: var(--hover-color) !important;
+    border-top: 2px solid var(--primary-color) !important;
+    font-weight: bold !important;
+}
+
+.parent-table .pet-name {
+    font-weight: bold !important;
+    color: var(--text-color) !important;
+    background-color: var(--hover-color) !important;
+}
+
+.parent-table .insurance-cost {
+    color: var(--text-secondary) !important;
+    font-size: var(--font-size-sm) !important;
+}
+
+.parent-table .food-item {
+    color: var(--text-secondary) !important;
+    font-size: var(--font-size-sm) !important;
+}
+
+/* 移除原有樣式的特定覆蓋 */
+.mb-0 {
+    margin-bottom: var(--spacing-lg) !important;
+}
+
+/* 確保暗色主題下的覆蓋 */
+[data-theme="dark"] table th,
+[data-theme="dark"] .data-table th,
+[data-theme="dark"] .cost-table th,
+[data-theme="dark"] .market-data-table th,
+[data-theme="dark"] .breeding-table th,
+[data-theme="dark"] .parent-table th,
+[data-theme="dark"] .plan-table th,
+[data-theme="dark"] .present-details-table th,
+[data-theme="dark"] .table th,
+[data-theme="dark"] th {
+    background-color: #404040 !important;
+    color: white !important;
+}
+
+[data-theme="dark"] table td,
+[data-theme="dark"] .data-table td,
+[data-theme="dark"] .cost-table td,
+[data-theme="dark"] .market-data-table td,
+[data-theme="dark"] .breeding-table td,
+[data-theme="dark"] .parent-table td,
+[data-theme="dark"] .plan-table td,
+[data-theme="dark"] .present-details-table td,
+[data-theme="dark"] .table td,
+[data-theme="dark"] td {
+    background-color: var(--surface-color) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] table tr:hover td,
+[data-theme="dark"] .data-table tr:hover td,
+[data-theme="dark"] .cost-table tr:hover td,
+[data-theme="dark"] .market-data-table tr:hover td,
+[data-theme="dark"] .breeding-table tr:hover td,
+[data-theme="dark"] .parent-table tr:hover td,
+[data-theme="dark"] .plan-table tr:hover td,
+[data-theme="dark"] .present-details-table tr:hover td,
+[data-theme="dark"] .table tr:hover td {
+    background-color: #404040 !important;
+}
+
+/* 暗色主題下的按鈕樣式調整 */
+[data-theme="dark"] button,
+[data-theme="dark"] .btn,
+[data-theme="dark"] .button-padding-8px-15px,
+[data-theme="dark"] .button-margin-left-10px,
+[data-theme="dark"] .compare-versions-button-style,
+[data-theme="dark"] .present-select-button,
+[data-theme="dark"] .difficulty-btn,
+[data-theme="dark"] .save-and-remove-button,
+[data-theme="dark"] .delete-item-button,
+[data-theme="dark"] .select-monster-button,
+[data-theme="dark"] .key-select-button,
+[data-theme="dark"] .present-select-button,
+[data-theme="dark"] input[type="button"],
+[data-theme="dark"] input[type="submit"] {
+    background-color: var(--surface-color) !important;
+    border-color: #6c757d !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] button:hover,
+[data-theme="dark"] .btn:hover,
+[data-theme="dark"] .button-padding-8px-15px:hover,
+[data-theme="dark"] .button-margin-left-10px:hover,
+[data-theme="dark"] .compare-versions-button-style:hover,
+[data-theme="dark"] .present-select-button:hover,
+[data-theme="dark"] .difficulty-btn:hover,
+[data-theme="dark"] .save-and-remove-button:hover,
+[data-theme="dark"] .delete-item-button:hover,
+[data-theme="dark"] .select-monster-button:hover,
+[data-theme="dark"] .key-select-button:hover,
+[data-theme="dark"] .present-select-button:hover,
+[data-theme="dark"] input[type="button"]:hover,
+[data-theme="dark"] input[type="submit"]:hover {
+    background-color: var(--hover-color) !important;
+    border-color: #6c757d !important;
+}
+
+[data-theme="dark"] button.active,
+[data-theme="dark"] .btn.active,
+[data-theme="dark"] .button-padding-8px-15px.active,
+[data-theme="dark"] .button-margin-left-10px.active,
+[data-theme="dark"] .compare-versions-button-style.active,
+[data-theme="dark"] .present-select-button.active,
+[data-theme="dark"] .difficulty-btn.active,
+[data-theme="dark"] .save-and-remove-button.active,
+[data-theme="dark"] .delete-item-button.active,
+[data-theme="dark"] .select-monster-button.active,
+[data-theme="dark"] .key-select-button.active,
+[data-theme="dark"] .present-select-button.active,
+[data-theme="dark"] input[type="button"].active,
+[data-theme="dark"] input[type="submit"].active {
+    background-color: #6c757d !important;
+    color: white !important;
+    border-color: #6c757d !important;
+    box-shadow: 0 2px 4px rgba(108, 117, 125, 0.3) !important;
+}
+
+[data-theme="dark"] .delete-item-button {
+    border-color: #dc3545 !important;
+    color: #dc3545 !important;
+}
+
+[data-theme="dark"] .save-and-remove-button {
+    border-color: #28a745 !important;
+    color: #28a745 !important;
+}
+
+/* 修復collapsible功能 */
+.collapsible-content {
+    display: block !important;
+}
+
+.collapsible-content.collapsed {
+    display: none !important;
+}
+
+.collapsible-header {
+    cursor: pointer !important;
+    user-select: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: var(--spacing-sm) !important;
+    background-color: var(--hover-color) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--border-radius-md) !important;
+    margin-bottom: var(--spacing-sm) !important;
+    transition: background-color var(--transition-fast) !important;
+}
+
+.collapsible-header:hover {
+    background-color: var(--border-color) !important;
+}
+
+.collapsible-header::after {
+    content: '▼' !important;
+    font-size: 0.8em !important;
+    transition: transform var(--transition-normal) !important;
+}
+
+.collapsible-header.collapsed::after {
+    content: '▶' !important;
+    transform: rotate(0deg) !important;
+}
+
+/* 暗色主題下的collapsible樣式 */
+[data-theme="dark"] .collapsible-header {
+    background-color: var(--hover-color) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .collapsible-header:hover {
+    background-color: var(--border-color) !important;
+}
+
+/* 超級強制覆蓋 - 針對特定頁面按鈕 */
+.key-select-button,
+.present-select-button {
+    padding: 8px 16px !important;
+    border: 2px solid #007bff !important;
+    border-radius: 4px !important;
+    background-color: white !important;
+    color: #007bff !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    white-space: nowrap !important;
+    display: inline-block !important;
+    text-decoration: none !important;
+    text-align: center !important;
+    user-select: none !important;
+    margin: 4px !important;
+    font-family: var(--font-family) !important;
+}
+
+.key-select-button:hover,
+.present-select-button:hover {
+    background-color: #e3f2fd !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2) !important;
+}
+
+.key-select-button:active,
+.present-select-button:active {
+    transform: translateY(0) !important;
+}
+
+.key-select-button:focus,
+.present-select-button:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+}
+
+.key-select-button.active,
+.present-select-button.active {
+    background-color: #007bff !important;
+    color: white !important;
+    border-color: #007bff !important;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3) !important;
+}
+
+/* 暗色主題下的特定按鈕樣式 */
+[data-theme="dark"] .key-select-button,
+[data-theme="dark"] .present-select-button {
+    background-color: var(--surface-color) !important;
+    border-color: #6c757d !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .key-select-button:hover,
+[data-theme="dark"] .present-select-button:hover {
+    background-color: var(--hover-color) !important;
+    border-color: #6c757d !important;
+}
+
+[data-theme="dark"] .key-select-button.active,
+[data-theme="dark"] .present-select-button.active {
+    background-color: #6c757d !important;
+    color: white !important;
+    border-color: #6c757d !important;
+    box-shadow: 0 2px 4px rgba(108, 117, 125, 0.3) !important;
+}
+
+/* 暗色主題下特殊按鈕的active狀態 */
+[data-theme="dark"] .delete-item-button.active {
+    background-color: #dc3545 !important;
+    color: white !important;
+    border-color: #dc3545 !important;
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3) !important;
+}
+
+[data-theme="dark"] .save-and-remove-button.active {
+    background-color: #28a745 !important;
+    color: white !important;
+    border-color: #28a745 !important;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3) !important;
+}

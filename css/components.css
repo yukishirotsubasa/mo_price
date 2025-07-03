@@ -1,0 +1,724 @@
+/* css/components.css - 組件樣式 (按鈕、表格、表單等) */
+
+/* 統一按鈕組件 - 覆蓋所有按鈕樣式 */
+.btn,
+button,
+.button-padding-8px-15px,
+.button-margin-left-10px,
+.compare-versions-button-style,
+.present-select-button,
+.difficulty-btn,
+.save-and-remove-button,
+.delete-item-button,
+.select-monster-button,
+input[type="button"],
+input[type="submit"] {
+    display: inline-block;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    font-size: var(--font-size-base);
+    font-family: var(--font-family);
+    text-decoration: none;
+    text-align: center;
+    transition: background-color var(--transition-fast), transform var(--transition-fast);
+    user-select: none;
+    margin: 2px;
+}
+
+.btn:hover,
+button:hover,
+.button-padding-8px-15px:hover,
+.button-margin-left-10px:hover,
+.compare-versions-button-style:hover,
+.present-select-button:hover,
+.difficulty-btn:hover,
+.save-and-remove-button:hover,
+.delete-item-button:hover,
+.select-monster-button:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-1px);
+}
+
+.btn:active,
+button:active,
+.button-padding-8px-15px:active,
+.button-margin-left-10px:active,
+.compare-versions-button-style:active,
+.present-select-button:active,
+.difficulty-btn:active,
+.save-and-remove-button:active,
+.delete-item-button:active,
+.select-monster-button:active {
+    transform: translateY(0);
+}
+
+.btn:disabled,
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* 按鈕變體 */
+.btn-secondary {
+    background-color: var(--border-color);
+    color: var(--text-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--hover-color);
+}
+
+.btn-small {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-sm);
+}
+
+.btn-large {
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: var(--font-size-lg);
+}
+
+/* 特殊按鈕樣式 */
+.difficulty-btn.active {
+    background-color: #3b82f6;
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.delete-item-button {
+    background-color: #ef4444;
+}
+
+.delete-item-button:hover {
+    background-color: #dc2626;
+}
+
+.save-and-remove-button {
+    background-color: #22c55e;
+}
+
+.save-and-remove-button:hover {
+    background-color: #16a34a;
+}
+
+/* 側邊欄選單組件 */
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-menu li {
+    margin-bottom: var(--spacing-sm);
+}
+
+.sidebar-menu a {
+    display: block;
+    padding: var(--spacing-sm) var(--spacing-md);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--border-radius-md);
+    transition: background-color var(--transition-normal);
+}
+
+.sidebar-menu a:hover,
+.sidebar-menu a.active {
+    background-color: var(--secondary-color);
+}
+
+/* 巢狀選單樣式 */
+.sidebar-menu .has-submenu > a {
+    position: relative;
+    padding-right: var(--spacing-xl);
+}
+
+.sidebar-menu .has-submenu > a::after {
+    content: '▼';
+    position: absolute;
+    right: var(--spacing-md);
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: var(--font-size-sm);
+    transition: transform var(--transition-normal);
+}
+
+.sidebar-menu .has-submenu > a.active::after {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.sidebar-menu .submenu {
+    list-style: none;
+    padding: 0;
+    margin-left: var(--spacing-md);
+    display: none;
+    background-color: var(--secondary-color);
+    border-radius: var(--border-radius-md);
+    margin-top: var(--spacing-xs);
+}
+
+.sidebar-menu .submenu.active {
+    display: block;
+}
+
+.sidebar-menu .submenu a {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-sm);
+}
+
+/* 統一表格組件 - 覆蓋所有表格樣式 */
+table,
+.data-table,
+.cost-table,
+.market-data-table,
+.breeding-table,
+.parent-table,
+.plan-table,
+.present-details-table,
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--surface-color);
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--spacing-lg);
+    margin-top: var(--spacing-md);
+}
+
+table th,
+.data-table th,
+.cost-table th,
+.market-data-table th,
+.breeding-table th,
+.parent-table th,
+.plan-table th,
+.present-details-table th,
+.table th,
+th {
+    background-color: var(--primary-color);
+    color: white;
+    padding: var(--spacing-sm) var(--spacing-md);
+    text-align: left;
+    font-weight: bold;
+    border: 1px solid var(--border-color);
+}
+
+table td,
+.data-table td,
+.cost-table td,
+.market-data-table td,
+.breeding-table td,
+.parent-table td,
+.plan-table td,
+.present-details-table td,
+.table td,
+td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--border-color);
+    transition: background-color var(--transition-fast);
+    background-color: var(--surface-color);
+}
+
+table tr:hover td,
+.data-table tr:hover td,
+.cost-table tr:hover td,
+.market-data-table tr:hover td,
+.breeding-table tr:hover td,
+.parent-table tr:hover td,
+.plan-table tr:hover td,
+.present-details-table tr:hover td,
+.table tr:hover td {
+    background-color: var(--hover-color);
+}
+
+table tr:nth-child(even) td,
+.data-table tr:nth-child(even) td,
+.cost-table tr:nth-child(even) td,
+.market-data-table tr:nth-child(even) td,
+.breeding-table tr:nth-child(even) td,
+.parent-table tr:nth-child(even) td,
+.plan-table tr:nth-child(even) td,
+.present-details-table tr:nth-child(even) td,
+.table tr:nth-child(even) td {
+    background-color: var(--hover-color);
+}
+
+/* 特殊表格樣式 */
+.plan-table.best-plan {
+    border: 2px solid #22c55e;
+}
+
+.present-details-table .total-row {
+    background-color: var(--hover-color);
+    border-top: 2px solid var(--primary-color);
+    font-weight: bold;
+}
+
+.parent-table .pet-name {
+    font-weight: bold;
+    color: var(--text-color);
+    background-color: var(--hover-color);
+}
+
+.parent-table .insurance-cost {
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.parent-table .food-item {
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+/* 可編輯表格儲存格 */
+td[contenteditable="true"] {
+    cursor: text;
+    position: relative;
+}
+
+td[contenteditable="true"]:focus {
+    background-color: var(--hover-color);
+    outline: 2px solid var(--primary-color);
+    outline-offset: -2px;
+}
+
+/* 表單組件 */
+.form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.form-label {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    background-color: var(--surface-color);
+    color: var(--text-color);
+    font-size: var(--font-size-base);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(51, 51, 51, 0.1);
+    outline: none;
+}
+
+/* 卡片組件 */
+.card {
+    background-color: var(--surface-color);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    transition: box-shadow var(--transition-normal);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.card-header {
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-title {
+    margin: 0;
+    font-size: var(--font-size-lg);
+    color: var(--text-color);
+}
+
+.card-content {
+    color: var(--text-secondary);
+}
+
+/* 摺疊組件 */
+.collapsible {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    margin-bottom: var(--spacing-sm);
+    overflow: hidden;
+}
+
+.collapsible-header {
+    background-color: var(--hover-color);
+    padding: var(--spacing-md);
+    cursor: pointer;
+    user-select: none;
+    transition: background-color var(--transition-fast);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.collapsible-header:hover {
+    background-color: var(--border-color);
+}
+
+.collapsible-header::after {
+    content: '▼';
+    transition: transform var(--transition-normal);
+}
+
+.collapsible-header.active::after {
+    transform: rotate(180deg);
+}
+
+.collapsible-content {
+    padding: var(--spacing-md);
+    display: none;
+    background-color: var(--surface-color);
+}
+
+.collapsible-content.active {
+    display: block;
+}
+
+/* 載入指示器 */
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--spacing-xl);
+    color: var(--text-secondary);
+}
+
+.loading::after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-color);
+    border-top: 2px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: var(--spacing-sm);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 錯誤訊息 */
+.error-message {
+    background-color: #fee;
+    color: #c33;
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    border: 1px solid #fcc;
+    margin-bottom: var(--spacing-md);
+}
+
+/* 成功訊息 */
+.success-message {
+    background-color: #efe;
+    color: #3c3;
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    border: 1px solid #cfc;
+    margin-bottom: var(--spacing-md);
+}
+
+/* 警告訊息 */
+.warning-message {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    border: 1px solid #ffeaa7;
+    margin-bottom: var(--spacing-md);
+}
+
+/* 工具提示 */
+.tooltip {
+    position: relative;
+    cursor: help;
+}
+
+.tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--primary-color);
+    color: white;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
+    font-size: var(--font-size-sm);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-fast);
+    z-index: 1000;
+}
+
+.tooltip:hover::after {
+    opacity: 1;
+}
+
+/* 版本比較結果樣式 */
+.comparison-section {
+    margin-bottom: var(--spacing-lg);
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    background-color: var(--surface-color);
+}
+
+.comparison-section h3 {
+    margin-top: 0;
+    margin-bottom: var(--spacing-sm);
+    font-size: var(--font-size-lg);
+    color: var(--text-color);
+}
+
+.comparison-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.comparison-list li {
+    background-color: var(--hover-color);
+    margin-bottom: var(--spacing-xs);
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
+}
+
+.added {
+    color: #22c55e;
+    background-color: #dcfce7;
+}
+
+.removed {
+    color: #ef4444;
+    background-color: #fee2e2;
+}
+
+.modified {
+    color: #3b82f6;
+    background-color: #dbeafe;
+}
+
+.modified-details {
+    margin-top: var(--spacing-xs);
+    padding-left: var(--spacing-lg);
+    font-size: var(--font-size-sm);
+}
+
+.modified-details span {
+    display: block;
+}
+
+.modified-details .old-value {
+    text-decoration: line-through;
+    color: var(--text-secondary);
+}
+
+/* Modal 樣式 */
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: var(--surface-color);
+    margin: auto;
+    padding: var(--spacing-lg);
+    border: 1px solid var(--border-color);
+    width: 80%;
+    max-width: 500px;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+    color: var(--text-color);
+}
+
+.modal-buttons {
+    margin-top: var(--spacing-lg);
+}
+
+.modal-buttons button {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    margin: 0 var(--spacing-sm);
+    cursor: pointer;
+    border: none;
+    border-radius: var(--border-radius-md);
+    font-size: var(--font-size-base);
+    transition: background-color var(--transition-fast);
+}
+
+#apply-new-button {
+    background-color: #22c55e;
+    color: white;
+}
+
+#apply-new-button:hover {
+    background-color: #16a34a;
+}
+
+#keep-old-button {
+    background-color: #ef4444;
+    color: white;
+}
+
+#keep-old-button:hover {
+    background-color: #dc2626;
+}
+
+/* Present 頁面樣式 */
+.present-button-container {
+    margin-bottom: var(--spacing-lg);
+}
+
+.present-select-button {
+    margin-right: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+}
+
+.present-select-button:hover {
+    background-color: #2563eb;
+}
+
+/* 繁殖成本計算器樣式 */
+.parent-info {
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius-md);
+    background-color: var(--hover-color);
+    margin: var(--spacing-xs) 0;
+}
+
+.parent-info .pet-name {
+    font-weight: bold;
+    margin-bottom: var(--spacing-xs);
+    color: var(--text-color);
+}
+
+.parent-info .insurance-cost {
+    margin-bottom: var(--spacing-xs);
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.parent-info .food-consumption {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+}
+
+.parent-info .food-item {
+    background-color: #dbeafe;
+    padding: 2px 6px;
+    border-radius: var(--border-radius-sm);
+    font-size: var(--font-size-sm);
+    border: 1px solid #93c5fd;
+    color: #1e40af;
+}
+
+/* 計劃手風琴樣式 */
+.plan-accordion {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    margin: var(--spacing-xs) 0;
+    overflow: hidden;
+}
+
+.plan-header,
+.accordion-header {
+    background-color: var(--hover-color);
+    padding: var(--spacing-sm);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+    transition: background-color var(--transition-fast);
+}
+
+.plan-header:hover,
+.accordion-header:hover {
+    background-color: var(--border-color);
+}
+
+.plan-content,
+.accordion-content {
+    padding: var(--spacing-sm);
+    border-top: 1px solid var(--border-color);
+    background-color: var(--surface-color);
+}
+
+.plan-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+}
+
+.plan-table th,
+.plan-table td {
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    text-align: left;
+}
+
+.plan-table th {
+    background-color: var(--hover-color);
+    font-weight: bold;
+}
+
+.plan-table.best-plan {
+    border: 2px solid #22c55e;
+}
+
+.plan-table.other-plan {
+    margin-bottom: var(--spacing-sm);
+    border: 1px solid var(--border-color);
+}
+
+.accordion-arrow {
+    font-size: var(--font-size-sm);
+    transition: transform var(--transition-normal);
+}
+
+.no-plan {
+    color: var(--text-secondary);
+    font-style: italic;
+    padding: var(--spacing-sm);
+    text-align: center;
+}
