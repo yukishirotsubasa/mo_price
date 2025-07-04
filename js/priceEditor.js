@@ -1,6 +1,5 @@
 import { createItemNameMap } from './utils.js';
 import { getItemBase, getNpcBase } from './dataLoader.js';
-import { renderMarketDataTable } from './main.js';
 import i18n from './i18n.js';
 
 let editorAbortController;
@@ -325,7 +324,10 @@ export async function initPriceEditor() {
     refreshButton.addEventListener('click', () => {
         // 從 localStorage 重新載入最新的 price_data
         loadPriceData();
-        // 呼叫 main.js 中的 renderMarketDataTable 來刷新下方的預覽表格
-        renderMarketDataTable(priceData);
+        // 呼叫 MarketPriceManager 中的 renderMarketDataTable 來刷新下方的預覽表格
+        if (window.marketPriceManager) {
+            window.marketPriceManager.currentMarketPricesData = priceData;
+            window.marketPriceManager.renderMarketDataTable(priceData);
+        }
     }, { signal: editorAbortController.signal });
 }

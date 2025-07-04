@@ -39,9 +39,18 @@ import { CostTableRenderer } from './renderers/CostTableRenderer.js';
 import { EventManager } from './core/EventManager.js';
 import errorHandler from './core/ErrorHandler.js';
 
+// 導入翻譯管理器
+import { TranslationManager } from './managers/TranslationManager.js';
+
+// 導入市場價格管理器
+import { MarketPriceManager } from './managers/MarketPriceManager.js';
+
 let allData = {}; // 用於儲存所有載入的數據，以便在語言切換時重新渲染
 let currentMarketPricesData = []; // 用於儲存當前市場價格數據的記憶體變數，提升至全域
 window.ui = {};
+
+// 市場價格管理器
+let marketPriceManager;
 
 // 初始化控制器
 let tabController;
@@ -139,6 +148,8 @@ async function renderPage(pageName) {
         if (Object.keys(allData).length === 0) {
             console.log("allData 未載入，正在載入數據...");
             allData = await loadData();
+            // 數據載入後，更新全域變數
+            window.allData = allData;
             // 數據載入後，更新所有 UI 文本
             if (uiController) {
                 uiController.updateTabTitles();
@@ -244,7 +255,7 @@ async function renderPage(pageName) {
                 args = [containerId, forge, generateTableHTML, createItemNameMap, itemBase];
                 break;
             case 'tab10': // 市場價格整合
-                initMarketPriceIntegrationUI();
+                marketPriceManager.initMarketPriceIntegrationUI();
                 initPriceEditor(); // 初始化價格編輯器
                 return;
             case 'tab11': // 版本比較
@@ -367,315 +378,22 @@ async function initVersionComparisonUI() {
     }
 }
 
-/**
- * 初始化市場價格整合（Google Sheet/CSV）UI 事件與流程。
- * 可重複呼叫於 renderPage('tab10') 載入 HTML 後。
- */
-function initMarketPriceIntegrationUI() {
-    // 需等 google.charts 載入
-    if (window.google && google.charts) {
-        google.charts.load('current', { packages: ['corechart', 'table'] });
-        google.charts.setOnLoadCallback(initializeMarketPriceIntegrationLogic);
-    } else {
-        console.error('Google Charts library not loaded.');
-    }
-}
 
-/**
- * 渲染市場價格數據到表格。
- * @param {Array<Array<any>>} data - 處理後的市場價格數據，每行包含 [item id, item name, market buy price, market sell price]。
- */
-export const renderMarketDataTable = (data) => {
-    if (!costTableRenderer) {
-        console.error("CostTableRenderer 未初始化。");
-        return;
-    }
 
-    const itemBase = allData.itemBase;
-    const itemNameMap = createItemNameMap(itemBase, i18n.translate);
-    
-    costTableRenderer.renderMarketDataTable(
-        'sheet-data-display', 
-        data, 
-        itemNameMap, 
-        itemBase, 
-        handleCellEditWrapper
-    );
-};
 
-/**
- * 處理儲存格編輯的包裝函數，用於事件監聽器。
- * @param {Event} event - 觸發事件的事件物件。
- */
-const handleCellEditWrapper = (event) => {
-    handleCellEdit(event.target, currentMarketPricesData);
-};
-
-/**
- * 處理儲存格編輯的鍵盤事件包裝函數。
- * @param {Event} event - 觸發事件的事件物件。
- */
-const handleCellEditKeydownWrapper = (event) => {
-    if (event.key === 'Enter') {
-        event.preventDefault(); // 防止換行
-        event.target.blur(); // 觸發 blur 事件來儲存數據
-    }
-};
-
-/**
- * 處理儲存格編輯。
- * @param {HTMLElement} cellElement - 被編輯的儲存格元素。
- * @param {Array<Array<any>>} dataToUpdate - 要更新的數據陣列。
- */
-const handleCellEdit = (cellElement, dataToUpdate) => {
-    const rowIndex = parseInt(cellElement.closest('tr').dataset.rowIndex);
-    const colIndex = parseInt(cellElement.dataset.colIndex);
-    let newValue = cellElement.textContent.trim();
-
-    const parsedValue = parseFloat(newValue);
-    if (isNaN(parsedValue)) {
-        alert(i18n.translate('please_enter_valid_number'));
-        cellElement.textContent = dataToUpdate[rowIndex][colIndex];
-        return;
-    }
-    newValue = parsedValue;
-
-    dataToUpdate[rowIndex][colIndex] = newValue;
-
-    const dataToStore = dataToUpdate.map(row => [row[0], row[1], row[2], row[3]]);
-    try {
-        localStorage.setItem('price_data', JSON.stringify(dataToStore));
-        console.log(i18n.translate('market_data_updated_and_saved'));
-    } catch (e) {
-        console.error(i18n.translate('failed_to_save_updated_data'), e);
-    }
-};
-
-/**
- * 初始化市場價格整合功能的所有邏輯，包括按鈕事件和數據載入。
- * 這個函數應該在 Google Charts 載入完成後被調用。
- */
-async function initializeMarketPriceIntegrationLogic() {
-    const googleSheetUrlInput = document.getElementById('google-sheet-url');
-    const loadSheetButton = document.getElementById('load-sheet-button');
-    const sheetStatusDiv = document.getElementById('sheet-status');
-    const sheetDataDisplayDiv = document.getElementById('sheet-data-display');
-    const exportCsvButton = document.getElementById('export-csv-button');
-    const importCsvButton = document.getElementById('import-csv-button');
-    const csvFileInput = document.getElementById('csv-file-input');
-
-    if (!googleSheetUrlInput || !loadSheetButton || !sheetStatusDiv || !sheetDataDisplayDiv || !exportCsvButton || !importCsvButton || !csvFileInput) {
-        console.error("市場價格整合相關 UI 元素未找到。");
-        return;
-    }
-
-    // 移除舊的事件監聽器以避免重複綁定
-    loadSheetButton.removeEventListener('click', loadAndDisplaySheetDataWrapper);
-    exportCsvButton.removeEventListener('click', exportCsvData);
-    importCsvButton.removeEventListener('click', triggerCsvFileInput);
-    csvFileInput.removeEventListener('change', handleCsvFileChange);
-
-    // 綁定新的事件監聽器
-    loadSheetButton.addEventListener('click', loadAndDisplaySheetDataWrapper);
-    exportCsvButton.addEventListener('click', exportCsvData);
-    importCsvButton.addEventListener('click', triggerCsvFileInput);
-    csvFileInput.addEventListener('change', handleCsvFileChange);
-
-    // 在 Google Charts Library 載入完成後，嘗試從 localStorage 載入數據
-    loadMarketDataFromLocalStorage();
-
-    // 載入上次成功讀取的 Google Sheet URL
-    const lastUrl = localStorage.getItem('lastSuccessfulGoogleSheetUrl');
-    if (lastUrl) {
-        googleSheetUrlInput.value = lastUrl;
-    }
-}
-
-/**
- * loadAndDisplaySheetData 的包裝函數，用於事件監聽器。
- */
-const loadAndDisplaySheetDataWrapper = () => loadAndDisplaySheetData();
-
-/**
- * 匯出 CSV 數據。
- */
-const exportCsvData = () => {
-    const sheetStatusDiv = document.getElementById('sheet-status');
-    let dataToExport = currentMarketPricesData;
-    if (dataToExport.length === 0) { // 只有標頭或沒有數據
-        sheetStatusDiv.textContent = i18n.translate('no_data_to_export');
-        return;
-    }
-
-    const exportableData = [
-        ['item_id', 'market_buy', 'market_sell', 'custom_price'] // 匯出標頭
-    ];
-    dataToExport.forEach(row => {
-        exportableData.push([
-            row[0], // item_id
-            row[1], // market_buy
-            row[2], // market_sell
-            row[3]  // custom_price
-        ]);
-    });
-
-    const csvString = exportableData.map(row => row.map(cell => {
-        const stringValue = String(cell);
-        if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
-            return `"${stringValue.replace(/"/g, '""')}"`;
-        }
-        return stringValue;
-    }).join(',')).join('\n');
-
-    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'market_prices.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    sheetStatusDiv.textContent = i18n.translate('data_exported_successfully');
-};
-
-/**
- * 觸發 CSV 檔案輸入。
- */
-const triggerCsvFileInput = () => {
-    document.getElementById('csv-file-input').click();
-};
-
-/**
- * 處理 CSV 檔案變更事件。
- * @param {Event} event - 檔案輸入事件。
- */
-const handleCsvFileChange = async (event) => {
-    const file = event.target.files[0];
-    const sheetStatusDiv = document.getElementById('sheet-status');
-    if (!file) {
-        sheetStatusDiv.textContent = i18n.translate('please_select_csv_file');
-        return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-        try {
-            const csvContent = e.target.result;
-            const rawImportedData = csvContent.split(/\r?\n/).map(row => row.split(',').map(cell => cell.trim()));
-            const newData = processRawData(rawImportedData);
-
-            // 從 localStorage 讀取舊數據
-            const oldDataRaw = localStorage.getItem('price_data');
-            const oldData = oldDataRaw ? processRawDataFromLocalStorage(JSON.parse(oldDataRaw)) : [];
-
-            // 處理數據衝突
-            const finalData = await handleDataConflict(newData, oldData);
-
-            if (finalData.length > 0) {
-                currentMarketPricesData = finalData;
-                saveMarketDataToLocalStorage(currentMarketPricesData);
-                renderMarketDataTable(currentMarketPricesData);
-                sheetStatusDiv.textContent = i18n.translate('csv_data_imported_successfully');
-                console.log(i18n.translate('csv_data_imported_and_updated'), currentMarketPricesData);
-            } else {
-                sheetStatusDiv.textContent = i18n.translate('no_valid_data_in_csv');
-            }
-        } catch (error) {
-            sheetStatusDiv.textContent = i18n.translate('import_failed', error.message);
-            console.error(i18n.translate('failed_to_parse_or_import_csv'), error);
-        } finally {
-            event.target.value = '';
-        }
-    };
-    reader.onerror = () => {
-        sheetStatusDiv.textContent = i18n.translate('failed_to_read_file');
-    };
-    reader.readAsText(file);
-};
-
-/**
- * 從 localStorage 載入市場價格數據並顯示。
- */
-async function loadMarketDataFromLocalStorage() {
-    const sheetStatusDiv = document.getElementById('sheet-status');
-    const sheetDataDisplayDiv = document.getElementById('sheet-data-display');
-    const CACHE_KEY = 'price_data';
-
-    if (!sheetStatusDiv || !sheetDataDisplayDiv) {
-        console.error("市場價格整合相關 UI 元素未找到。");
-        return;
-    }
-
-    sheetStatusDiv.textContent = i18n.translate('loading_cached_data');
-    sheetDataDisplayDiv.innerHTML = '';
-
-    try {
-        const cachedData = localStorage.getItem(CACHE_KEY);
-        if (cachedData) {
-            const rawCachedData = JSON.parse(cachedData);
-            const processedCachedData = processRawDataFromLocalStorage(rawCachedData);
-
-            if (processedCachedData.length > 0) {
-                currentMarketPricesData = processedCachedData;
-                renderMarketDataTable(currentMarketPricesData);
-                sheetStatusDiv.textContent = i18n.translate('cached_data_loaded_successfully');
-            } else {
-                sheetStatusDiv.textContent = i18n.translate('no_valid_data_in_cache');
-            }
-        } else {
-            sheetStatusDiv.textContent = i18n.translate('no_cached_data_found');
-        }
-    } catch (error) {
-        sheetStatusDiv.textContent = i18n.translate('failed_to_load_cached_data', error.message);
-        console.error("從 localStorage 載入市場價格數據失敗:", error);
-    }
-}
-
-/**
- * 載入並顯示 Google Sheet 數據。
- * @param {boolean} forceReload - 是否強制重新載入數據。
- */
-async function loadAndDisplaySheetData() {
-    const googleSheetUrlInput = document.getElementById('google-sheet-url');
-    const sheetStatusDiv = document.getElementById('sheet-status');
-    const sheetDataDisplayDiv = document.getElementById('sheet-data-display');
-
-    if (!googleSheetUrlInput || !sheetStatusDiv || !sheetDataDisplayDiv) {
-        console.error("Google Sheet 相關 UI 元素未找到。");
-        return;
-    }
-
-    const urlOrId = googleSheetUrlInput.value.trim();
-    if (!urlOrId) {
-        sheetStatusDiv.textContent = i18n.translate('enter_google_sheet_url_or_id_message');
-        return;
-    }
-
-    sheetStatusDiv.textContent = i18n.translate('loading_data');
-    sheetDataDisplayDiv.innerHTML = '';
-
-    try {
-        // loadGoogleSheetData 現在會處理衝突並返回最終數據
-        const finalData = await loadGoogleSheetData(urlOrId, '');
-
-        sheetStatusDiv.textContent = i18n.translate('data_loaded_successfully');
-        currentMarketPricesData = finalData;
-        
-        renderMarketDataTable(currentMarketPricesData);
-
-        // 成功載入後，將當前 URL 儲存到 localStorage
-        localStorage.setItem('lastSuccessfulGoogleSheetUrl', urlOrId);
-
-    } catch (error) {
-        sheetStatusDiv.textContent = i18n.translate('load_failed', error.message);
-        sheetDataDisplayDiv.innerHTML = '';
-        console.error("載入或處理 Google Sheet 數據失敗:", error);
-    }
-}
 
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // 初始化翻譯
+    TranslationManager.initializeTranslations();
+    
+    // 延遲載入數據，避免與release_2025_0417.js的window.onload衝突
+    setTimeout(async () => {
+        allData = await loadData();
+        // 數據載入完成後更新全域變數
+        window.allData = allData;
+    }, 100);
+    
     // 初始化控制器
     uiController = new UIController();
     tabController = new TabController();
@@ -684,6 +402,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 初始化渲染器
     tableRenderer = new TableRenderer();
     costTableRenderer = new CostTableRenderer();
+    
+    // 將渲染器設為全域變數供MarketPriceManager使用
+    window.costTableRenderer = costTableRenderer;
+    
+    // 初始化市場價格管理器
+    marketPriceManager = new MarketPriceManager();
+    
+    // 將marketPriceManager設為全域變數供priceEditor使用
+    window.marketPriceManager = marketPriceManager;
 
     // 初始化事件管理器
     eventManager = new EventManager();
@@ -758,142 +485,6 @@ function renderComparisonResults(results, containerElement) {
             html += `<li>${i18n.translate('id')}: ${item.b_i}, ${i18n.translate('name')}: ${item.name || 'N/A'}</li>`;
         });
         html += `</ul></div>`;
-    }
-    
-    // 在 i18n 模組中添加新的翻譯鍵值（如果不存在）
-    // 由於 i18n.js 是從遠端載入翻譯，這裡僅為新的 UI 文本提供一個預設值
-    // 實際的翻譯應該在 lang_xx.json 檔案中維護
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['enchanting_cost_data_will_be_displayed_here']) {
-        i18n.translations[i18n.currentLang]['enchanting_cost_data_will_be_displayed_here'] = '附魔成本數據將顯示在這裡。';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Enchanting']) {
-        i18n.translations[i18n.currentLang]['Enchanting'] = '附魔';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['explanation']) {
-        i18n.translations[i18n.currentLang]['explanation'] = '說明';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['failed_to_load_explanation_page']) {
-        i18n.translations[i18n.currentLang]['failed_to_load_explanation_page'] = '載入說明頁面失敗: {0}';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Open Item']) {
-        i18n.translations[i18n.currentLang]['Open Item'] = '開啟物品';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['No data available for this item.']) {
-        i18n.translations[i18n.currentLang]['No data available for this item.'] = '此物品無可用數據。';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Key']) {
-        i18n.translations[i18n.currentLang]['Key'] = '鑰匙';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Level']) {
-        i18n.translations[i18n.currentLang]['Level'] = '等級';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Name']) {
-        i18n.translations[i18n.currentLang]['Name'] = '名稱';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Base Chance']) {
-        i18n.translations[i18n.currentLang]['Base Chance'] = '基礎機率';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Real Chance']) {
-        i18n.translations[i18n.currentLang]['Real Chance'] = '實際機率';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Price']) {
-        i18n.translations[i18n.currentLang]['Price'] = '價格';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['base chance']) {
-        i18n.translations[i18n.currentLang]['base chance'] = '基礎機率';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['real chance']) {
-        i18n.translations[i18n.currentLang]['real chance'] = '實際機率';
-    }
-    
-    // 添加 breeding 相關的翻譯鍵值
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['parent1']) {
-        i18n.translations[i18n.currentLang]['parent1'] = '父寵物1';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['parent2']) {
-        i18n.translations[i18n.currentLang]['parent2'] = '父寵物2';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['plan']) {
-        i18n.translations[i18n.currentLang]['plan'] = '計劃';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['one bar']) {
-        i18n.translations[i18n.currentLang]['one bar'] = '一格';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['full']) {
-        i18n.translations[i18n.currentLang]['full'] = '滿格';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['comp']) {
-        i18n.translations[i18n.currentLang]['comp'] = '完成';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['exp']) {
-        i18n.translations[i18n.currentLang]['exp'] = '經驗值';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['adjustment']) {
-        i18n.translations[i18n.currentLang]['adjustment'] = '修正機率';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['total value']) {
-        i18n.translations[i18n.currentLang]['total value'] = '總價值';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Breeding']) {
-        i18n.translations[i18n.currentLang]['Breeding'] = '繁殖';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Breeding Cost Calculator']) {
-        i18n.translations[i18n.currentLang]['Breeding Cost Calculator'] = '繁殖成本計算器';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['other plans']) {
-        i18n.translations[i18n.currentLang]['other plans'] = '其他計劃';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['no available plans']) {
-        i18n.translations[i18n.currentLang]['no available plans'] = '無可用計劃';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['pet data not loaded or unavailable']) {
-        i18n.translations[i18n.currentLang]['pet data not loaded or unavailable'] = '寵物數據未載入或不可用';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['item data not loaded']) {
-        i18n.translations[i18n.currentLang]['item data not loaded'] = '物品數據未載入';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['no available breeding combinations']) {
-        i18n.translations[i18n.currentLang]['no available breeding combinations'] = '沒有可用的繁殖組合';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['cost']) {
-        i18n.translations[i18n.currentLang]['cost'] = '成本';
-    }
-
-    // 添加 Recycle 相關的翻譯鍵值
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Recycle']) {
-        i18n.translations[i18n.currentLang]['Recycle'] = '分解';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['Recycle Cost Calculator']) {
-        i18n.translations[i18n.currentLang]['Recycle Cost Calculator'] = '分解成本計算器';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['recycle_data_not_available']) {
-        i18n.translations[i18n.currentLang]['recycle_data_not_available'] = '分解數據未載入或不可用';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['itemName']) {
-        i18n.translations[i18n.currentLang]['itemName'] = '物品名稱';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['worth']) {
-        i18n.translations[i18n.currentLang]['worth'] = '價值';
-    }
-
-    // 添加 MonsterBook 相關的翻譯鍵值
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['MonsterBook']) {
-        i18n.translations[i18n.currentLang]['MonsterBook'] = '怪物圖鑑';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['monster_book_data_not_loaded']) {
-        i18n.translations[i18n.currentLang]['monster_book_data_not_loaded'] = '怪物圖鑑數據未載入或不可用';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['unknown_npc']) {
-        i18n.translations[i18n.currentLang]['unknown_npc'] = '未知NPC';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['kills']) {
-        i18n.translations[i18n.currentLang]['kills'] = '擊殺數';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['count']) {
-        i18n.translations[i18n.currentLang]['count'] = '數量';
-    }
-    if (i18n.translations[i18n.currentLang] && !i18n.translations[i18n.currentLang]['drop']) {
-        i18n.translations[i18n.currentLang]['drop'] = '掉落';
     }
 
     // 修改的條目
