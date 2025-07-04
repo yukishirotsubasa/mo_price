@@ -57,6 +57,9 @@ export class ThemeManager {
         document.dispatchEvent(new CustomEvent('themeChanged', {
             detail: { theme }
         }));
+        
+        // 更新說明頁面的主題繼承
+        this.updateExplanationPageTheme(theme);
     }
 
     /**
@@ -157,6 +160,20 @@ export class ThemeManager {
      */
     isLightTheme() {
         return this.currentTheme === 'light';
+    }
+
+    /**
+     * 更新說明頁面的主題繼承
+     * @param {string} theme - 主題名稱
+     */
+    updateExplanationPageTheme(theme) {
+        const explanationContainer = document.getElementById('explanation-page-content');
+        if (explanationContainer) {
+            const explanationElements = explanationContainer.querySelectorAll('*');
+            explanationElements.forEach(element => {
+                element.setAttribute('data-theme-inherited', theme);
+            });
+        }
     }
 }
 

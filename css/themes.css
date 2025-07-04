@@ -42,6 +42,71 @@
     border-right: 1px solid var(--border-color);
 }
 
+/* 修復暗色主題下H2標題顯示問題 */
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6 {
+    color: var(--text-color) !important;
+}
+
+/* 修復暗色主題下標籤文字顯示問題 */
+[data-theme="dark"] label {
+    color: var(--text-color) !important;
+}
+
+/* 修復暗色主題下說明頁面內容顯示問題 */
+[data-theme="dark"] .explanation-content,
+[data-theme="dark"] .explanation-content p,
+[data-theme="dark"] .explanation-content li,
+[data-theme="dark"] .explanation-content ol,
+[data-theme="dark"] .explanation-content ul,
+[data-theme="dark"] .explanation-content h1,
+[data-theme="dark"] .explanation-content h2,
+[data-theme="dark"] .explanation-content h3,
+[data-theme="dark"] .explanation-content h4,
+[data-theme="dark"] .explanation-content h5,
+[data-theme="dark"] .explanation-content h6 {
+    color: var(--text-color) !important;
+}
+
+/* 支持主題繼承的說明頁面內容 */
+[data-theme-inherited="dark"],
+[data-theme-inherited="dark"] .explanation-content,
+[data-theme-inherited="dark"] p,
+[data-theme-inherited="dark"] li,
+[data-theme-inherited="dark"] ol,
+[data-theme-inherited="dark"] ul,
+[data-theme-inherited="dark"] h1,
+[data-theme-inherited="dark"] h2,
+[data-theme-inherited="dark"] h3,
+[data-theme-inherited="dark"] h4,
+[data-theme-inherited="dark"] h5,
+[data-theme-inherited="dark"] h6,
+[data-theme-inherited="dark"] strong,
+[data-theme-inherited="dark"] a {
+    color: #ffffff !important;
+}
+
+/* 確保說明頁面容器在黑暗模式下有正確的背景和文字顏色 */
+[data-theme="dark"] #explanation-page-content,
+[data-theme="dark"] .tab-content {
+    background-color: var(--background-color);
+    color: var(--text-color) !important;
+}
+
+/* 確保所有tab-content在黑暗模式下的文字都可見 */
+[data-theme="dark"] .tab-content * {
+    color: inherit;
+}
+
+/* 修復暗色主題下monster worth控制項顯示問題 */
+[data-theme="dark"] .monster-worth-controls label {
+    color: var(--text-color) !important;
+}
+
 [data-theme="dark"] .sidebar-menu a:hover,
 [data-theme="dark"] .sidebar-menu a.active {
     background-color: #404040;

@@ -240,7 +240,24 @@ export class PageRenderer {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const htmlContent = await response.text();
-            container.innerHTML = htmlContent;
+            
+            // 提取body內容，避免重複的HTML結構
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, 'text/html');
+            const bodyContent = doc.body.innerHTML;
+            
+            container.innerHTML = bodyContent;
+            
+            // 確保載入的內容繼承主頁面的主題
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme) {
+                // 為載入的內容添加主題屬性
+                const explanationElements = container.querySelectorAll('*');
+                explanationElements.forEach(element => {
+                    element.setAttribute('data-theme-inherited', currentTheme);
+                });
+            }
+            
             console.log(`說明頁面 ${explanationPagePath} 載入成功。`);
         } catch (error) {
             container.innerHTML = `<p style="color: red;">${i18n.translate('failed_to_load_explanation_page', error.message)}</p>`;
