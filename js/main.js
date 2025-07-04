@@ -1,30 +1,8 @@
 // js/main.js - 應用程式主入口點
 import themeManager from './themeManager.js';
 
-import { generateCarpentryCostTableData } from './carpentryCost.js';
-import { generateEnchantCostTableData } from './enchantCost.js';
-import { loadData, getItemBase, getForgeFormulas, getCarpentryFormulas, getNpcBase, getPets, getSkillQuest, getObjectBase, getEnchantingChances, getImageSheet, loadGoogleSheetData, loadJsFileVariable, processRawData, processRawDataFromLocalStorage, saveMarketDataToLocalStorage, handleDataConflict } from './dataLoader.js';
-import { createItemNameMap, generateTableHTML, compareData, formatNumberWithThousandsSeparator, getItemSellPrice } from './utils.js';
-import { generateItemTable } from './tableGenerators/itemTable.js';
-import { generateCarpentryTable } from './tableGenerators/carpentryTable.js';
-import { generateForgeTable } from './tableGenerators/forgeTable.js';
-import { generateNpcTable } from './tableGenerators/npcTable.js';
-import { generatePetsTable } from './tableGenerators/petsTable.js';
-import { generateSkillQuestTable } from './tableGenerators/skillQuestTable.js';
-import { generateObjectBaseTable } from './tableGenerators/objectBaseTable.js';
-import { generateEnchantingChancesTable } from './tableGenerators/enchantingChancesTable.js';
-import { generateImageSheetTable } from './tableGenerators/imageSheetTable.js';
-import { generateMonsterWorthTable } from './tableGenerators/monsterWorth.js';
-import { generateMonsterBookTable } from './tableGenerators/monsterBookTable.js';
-import openItemTable from './tableGenerators/openItemTable.js';
-import { generateKeyWorthTable } from './tableGenerators/keyWorth.js';
-import { generateRareKeyWorthTable } from './tableGenerators/rareKeyWorth.js';
-import { generatePresentTable } from './tableGenerators/presentTable.js';
-import { generateBreedingCostTable } from './tableGenerators/breedingCost.js';
-import { generateForgingCostTableData } from './forgingCost.js';
-import { generateRecycleCostTableData } from './recycleCost.js';
+import { loadData } from './dataLoader.js';
 import i18n from './i18n.js';
-import { initPriceEditor } from './priceEditor.js';
 
 // 導入新的控制器
 import { TabController } from './controllers/TabController.js';
