@@ -1,4 +1,5 @@
 // js/dataLoader.js - 負責載入外部 JS 檔案
+import errorHandler from './core/ErrorHandler.js';
 
 let _itemBase = null;
 let _forgeFormulas = null;
@@ -45,6 +46,7 @@ export function loadData() {
             });
         } catch (error) {
             console.error("數據載入失敗:", error);
+            errorHandler.logDataError('loadData', error, { jsFilePath });
             reject(error);
         }
     });
@@ -125,8 +127,10 @@ export async function loadGoogleSheetData(urlOrId, sheetName = '') {
 
         query.send(response => {
             if (response.isError()) {
+                const error = new Error('Google Charts Query Error: ' + response.getMessage());
                 console.error('Google Charts Query Error: ' + response.getMessage());
-                return reject(new Error('Google Charts Query Error: ' + response.getMessage()));
+                errorHandler.logApiError(`Google Sheets: ${spreadsheetId}`, error, { sheetName: actualSheetName });
+                return reject(error);
             }
 
             const dataTable = response.getDataTable();
@@ -255,6 +259,7 @@ export async function handleDataConflict(newData, oldData) {
 
         } catch (error) {
             console.error("解決衝突時發生錯誤:", error);
+            errorHandler.logUIError('conflictResolution', error, { conflictCount: conflictData.length });
             // 發生錯誤時，預設保留舊資料並合併新增資料
             const mergedData = [...keptData, ...unchangedData, ...addedData];
             saveMarketDataToLocalStorage(mergedData);
@@ -381,7 +386,9 @@ export function loadJsFileVariable(filePath, variableName) {
             }, 50); // 50 毫秒延遲
         };
         script.onerror = () => {
-            reject(new Error(`載入 JS 檔案失敗: ${filePath}`));
+            const error = new Error(`載入 JS 檔案失敗: ${filePath}`);
+            errorHandler.logApiError(filePath, error, { variableName });
+            reject(error);
             document.head.removeChild(script); // 清理 DOM
         };
         document.head.appendChild(script);

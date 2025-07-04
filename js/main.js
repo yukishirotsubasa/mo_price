@@ -35,8 +35,9 @@ import { LanguageController } from './controllers/LanguageController.js';
 import { TableRenderer } from './renderers/TableRenderer.js';
 import { CostTableRenderer } from './renderers/CostTableRenderer.js';
 
-// 導入事件管理器
+// 導入事件管理器和錯誤處理器
 import { EventManager } from './core/EventManager.js';
+import errorHandler from './core/ErrorHandler.js';
 
 let allData = {}; // 用於儲存所有載入的數據，以便在語言切換時重新渲染
 let currentMarketPricesData = []; // 用於儲存當前市場價格數據的記憶體變數，提升至全域
@@ -119,6 +120,7 @@ async function renderAllTablesIfDataLoaded() {
 
     } catch (error) {
         console.error("表格生成失敗:", error);
+        errorHandler.logUIError('renderAllTables', error, { dataKeys: Object.keys(allData) });
     }
 }
 
@@ -307,6 +309,7 @@ default:
 
     } catch (error) {
         console.error("渲染頁面失敗:", error);
+        errorHandler.logUIError('renderPage', error, { pageName, dataLoaded: Object.keys(allData).length > 0 });
     }
 }
 
@@ -359,6 +362,7 @@ async function initVersionComparisonUI() {
         } catch (error) {
             comparisonResultsDiv.innerHTML = `<p style="color: red;">${i18n.translate('failed_to_load_or_compare_data', error.message)}</p>`;
             console.error(i18n.translate('version_comparison_failed'), error);
+            errorHandler.logDataError('versionComparison', error, { versionAPath, versionBPath });
         }
     }
 }
