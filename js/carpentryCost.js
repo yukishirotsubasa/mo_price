@@ -52,7 +52,6 @@ export function generateCarpentryCostTableData(CARPENTRY_FORMULAS, generateTable
             itemName,
             level,
             pattern: patternString,
-            materialPrice: formatNumberWithThousandsSeparator(materialPriceTotal),
             cost: formatNumberWithThousandsSeparator(cost),
             sellPrice: formatNumberWithThousandsSeparator(sellPrice)
         };

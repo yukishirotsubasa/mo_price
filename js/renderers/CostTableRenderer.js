@@ -58,7 +58,6 @@ export class CostTableRenderer extends TableRenderer {
             'name',
             'level',
             'pattern',
-            'material price',
             'cost',
             'sell price'
         ];
@@ -67,7 +66,6 @@ export class CostTableRenderer extends TableRenderer {
             row.itemName,
             row.level,
             row.pattern,
-            row.materialPrice,
             row.cost,
             row.sellPrice
         ];
