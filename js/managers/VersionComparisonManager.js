@@ -2,6 +2,7 @@
 import { loadJsFileVariable } from '../dataLoader.js';
 import { compareData } from '../utils.js';
 import i18n from '../i18n.js';
+import { getItemDisplayContent } from '../utils.js';
 import errorHandler from '../core/ErrorHandler.js';
 
 export class VersionComparisonManager {
@@ -72,7 +73,7 @@ export class VersionComparisonManager {
                         <h3>${i18n.translate('added_items', results.added.length)}</h3>
                         <ul class="comparison-list">`;
             results.added.forEach(item => {
-                html += `<li>${i18n.translate('id')}: ${item.b_i}, ${i18n.translate('name')}: ${item.name || 'N/A'}</li>`;
+                html += `<li>${i18n.translate('id')}: ${item.b_i}, ${i18n.translate('name')}: ${getItemDisplayContent(item.b_i, window.allData?.itemBase || [], i18n.translate, 'image', window.allData?.imageSheet || null)}</li>`;
             });
             html += `</ul></div>`;
         }
@@ -83,7 +84,7 @@ export class VersionComparisonManager {
                         <h3>${i18n.translate('removed_items', results.removed.length)}</h3>
                         <ul class="comparison-list">`;
             results.removed.forEach(item => {
-                html += `<li>${i18n.translate('id')}: ${item.b_i}, ${i18n.translate('name')}: ${item.name || 'N/A'}</li>`;
+                html += `<li>${i18n.translate('id')}: ${item.b_i}, ${i18n.translate('name')}: ${getItemDisplayContent(item.b_i, window.allData?.itemBase || [], i18n.translate, 'image', window.allData?.imageSheet || null)}</li>`;
             });
             html += `</ul></div>`;
         }
