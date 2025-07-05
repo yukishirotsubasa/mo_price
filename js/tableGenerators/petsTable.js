@@ -19,11 +19,25 @@ export function generatePetsTable(containerId, pets, generateTableHTML, createIt
     const rowMapper = (pet) => {
         const eats = pet.params && pet.params.eats ? Object.entries(pet.params.eats || {}).map(([itemId, value]) => `${getItemDisplayContent(Number(itemId), itemBase, i18n.translate, 'image', imageSheet)}(${value * pet.params.eat_interval})`).join(', ') : '無';
         const insuranceCost = pet.params && pet.params.insurance_cost ? pet.params.insurance_cost.join(', ') : '無';
-        const likes = pet.params && pet.params.likes ? pet.params.likes.map(like => `${petNameMap.get(like.pet_id) || `未知寵物ID: ${like.pet_id}`} (XP: ${like.xp})`).join(', ') : '無';
+        // likes 欄位：將寵物ID轉換為寵物圖片
+        const likes = pet.params && pet.params.likes ? 
+            pet.params.likes.map(like => {
+                // 直接使用 pets[like.pet_id] 訪問寵物對象
+                const likedPet = pets[like.pet_id];
+                const petDisplay = likedPet && likedPet.params && likedPet.params.item_id ? 
+                    getItemDisplayContent(likedPet.params.item_id, itemBase, i18n.translate, 'image', imageSheet) : 
+                    `Pet ${like.pet_id}`;
+                return `${petDisplay} (XP: ${like.xp})`;
+            }).join(', ') : '無';
 
+        // name 欄位：使用寵物的道具ID來獲取圖片
+        const petImage = pet && pet.params && pet.params.item_id ? 
+            getItemDisplayContent(pet.params.item_id, itemBase, i18n.translate, 'image', imageSheet) : 
+            i18n.translate(pet.name);
+            
         return [
             pet.b_i,
-            i18n.translate(pet.name), // 直接翻譯寵物名稱
+            petImage, // 寵物圖片而非名稱
             pet.params ? pet.params.breeding_level : 'N/A',
             pet.params ? pet.params.happiness - pet.params.eat_interval : 'N/A',
             eats,

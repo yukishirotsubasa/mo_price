@@ -66,9 +66,9 @@ export function generateBreedingCostTable(containerId, pets, itemBase) {
         
         tableHTML += '<tr>';
         tableHTML += `<td>${level}</td>`;
-        tableHTML += `<td>${generateParentInfo(parent1, itemBase, imageSheet)}</td>`;
-        tableHTML += `<td>${generateParentInfo(parent2, itemBase, imageSheet)}</td>`;
-        tableHTML += `<td>${generatePlanInfo(plan, pets, itemBase, index)}</td>`;
+        tableHTML += `<td>${generateParentInfo(parent1, itemBase, imageSheet, pets)}</td>`;
+        tableHTML += `<td>${generateParentInfo(parent2, itemBase, imageSheet, pets)}</td>`;
+        tableHTML += `<td>${generatePlanInfo(plan, pets, itemBase, index, imageSheet)}</td>`;
         tableHTML += `<td>${cost}</td>`;
         tableHTML += `<td>${oneBar}</td>`;
         tableHTML += `<td>${full}</td>`;
@@ -345,15 +345,19 @@ function calculateCheapestFoodCost(parent, itemBase) {
  * @param {Object} parent - 父寵物
  * @param {Array} itemBase - 物品基礎數據
  * @param {Object} imageSheet - 圖片表數據
+ * @param {Array} pets - 寵物數據陣列
  * @returns {string} HTML 字符串
  */
-function generateParentInfo(parent, itemBase, imageSheet) {
+function generateParentInfo(parent, itemBase, imageSheet, pets) {
     let html = '<div class="parent-info-table">';
     html += '<table class="parent-table">';
     
-    // 第1列：寵物名稱
+    // 第1列：寵物圖片（使用道具ID）
     html += '<tr>';
-    html += `<td class="pet-name" colspan="100%">${i18n.translate(parent.name || 'Unknown Pet')}</td>`;
+    const petImage = parent && parent.params && parent.params.item_id ? 
+        getItemDisplayContent(parent.params.item_id, itemBase, i18n.translate, 'image', imageSheet) : 
+        i18n.translate(parent.name || 'Unknown Pet');
+    html += `<td class="pet-name" colspan="100%">${petImage}</td>`;
     html += '</tr>';
     
     // 第2列：保險成本
@@ -387,9 +391,10 @@ function generateParentInfo(parent, itemBase, imageSheet) {
  * @param {Array} originalPets - 原始寵物數據陣列
  * @param {Array} itemBase - 物品基礎數據
  * @param {number} index - 組合索引
+ * @param {Object} imageSheet - 圖片表數據
  * @returns {string} HTML 字符串
  */
-function generatePlanInfo(plans, originalPets, itemBase, index) {
+function generatePlanInfo(plans, originalPets, itemBase, index, imageSheet) {
     if (!plans || plans.length === 0) {
         return `<div class="no-plan">${i18n.translate('no available plans')}</div>`;
     }
@@ -406,8 +411,11 @@ function generatePlanInfo(plans, originalPets, itemBase, index) {
         
         plan.items.forEach(item => {
             const pet = originalPets[item.pet_id];
-            const petName = pet ? i18n.translate(pet.name || 'Unknown Pet') : `Pet ${item.pet_id}`;
-            row += `<td>${petName}(${item.actualChance.toFixed(1)}% | ${formatNumberWithThousandsSeparator(item.itemPrice)})</td>`;
+            // 使用寵物的道具ID來獲取圖片
+            const petImage = pet && pet.params && pet.params.item_id ? 
+                getItemDisplayContent(pet.params.item_id, itemBase, i18n.translate, 'image', imageSheet) : 
+                `Pet ${item.pet_id}`;
+            row += `<td>${petImage}(${item.actualChance.toFixed(1)}% | ${formatNumberWithThousandsSeparator(item.itemPrice)})</td>`;
         });
         
         row += `<td>${formatNumberWithThousandsSeparator(plan.totalValue.toFixed(2))}</td></tr>`;
@@ -424,8 +432,11 @@ function generatePlanInfo(plans, originalPets, itemBase, index) {
     // 最佳计划的数据
     bestPlan.items.forEach(item => {
         const pet = originalPets[item.pet_id];
-        const petName = pet ? i18n.translate(pet.name || 'Unknown Pet') : `Pet ${item.pet_id}`;
-        html += `<td>${petName}(${item.actualChance.toFixed(1)}% | ${formatNumberWithThousandsSeparator(item.itemPrice)})</td>`;
+        // 使用寵物的道具ID來獲取圖片
+        const petImage = pet && pet.params && pet.params.item_id ? 
+            getItemDisplayContent(pet.params.item_id, itemBase, i18n.translate, 'image', imageSheet) : 
+            `Pet ${item.pet_id}`;
+        html += `<td>${petImage}(${item.actualChance.toFixed(1)}% | ${formatNumberWithThousandsSeparator(item.itemPrice)})</td>`;
     });
     
     html += `<td>${formatNumberWithThousandsSeparator(bestPlan.totalValue.toFixed(2))}</td>
