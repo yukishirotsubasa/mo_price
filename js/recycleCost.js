@@ -22,13 +22,12 @@ export function generateRecycleCostTableData(FORGE_FORMULAS, generateTableHTML, 
         594,595,596,598,599,600,602,603,604,611,612,613,650,719,20,609,440,539,540,541,542,543,765,766,767,768,769,770,
         771,772,773,774,775,776
     ];
-    //exception_list.includes(Number(id)) || 
 
     return Object.keys(FORGE_FORMULAS).flatMap(id => {
         const formula = FORGE_FORMULAS[id];
         
         // 1. only_smelt為true的不可分解，可直接去除
-        if (formula.only_smelt || itemBase[formula.item_id].params.no_smelt) {
+        if (exception_list.includes(Number(id)) || formula.only_smelt || itemBase[formula.item_id].params.no_smelt) {
             return [];
         }
 
