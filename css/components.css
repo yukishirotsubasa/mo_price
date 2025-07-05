@@ -33,6 +33,25 @@
     border-color: #adb5bd;
 }
 
+/* Item Container and Search Text Styles */
+.item-container {
+    display: inline-block;
+    position: relative;
+    vertical-align: middle;
+}
+
+.item-search-text {
+    position: absolute;
+    left: 1px;
+    top: 1px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 /* 統一按鈕組件 - 覆蓋所有按鈕樣式 */
 .btn,
 button,

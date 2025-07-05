@@ -63,24 +63,28 @@ export function generateItemImage(itemId, itemBase, imageSheet, translateFunctio
     const backgroundX = -(x * tileWidth);
     const backgroundY = -(y * tileHeight);
     
+    const resItemName = item.name
     const itemName = translateFunction(item.name);
     
-    return `<div class="item-image" 
-                 title="${itemName}"
-                 data-item-id="${itemId}"
-                 style="
-                     background-image: url('${sheetInfo.url.toLowerCase()}');
-                     background-position: ${backgroundX}px ${backgroundY}px;
-                     width: ${tileWidth}px;
-                     height: ${tileHeight}px;
-                     display: inline-block;
-                     background-repeat: no-repeat;
-                     border: 1px solid #ddd;
-                     margin: 1px;
-                     cursor: pointer;
-                     vertical-align: middle;
-                 ">
-            </div>`;
+    return `<span class="item-container">
+        <div class="item-image" 
+             title="${itemName}"
+             data-item-id="${itemId}"
+             style="
+                 background-image: url('${sheetInfo.url.toLowerCase()}');
+                 background-position: ${backgroundX}px ${backgroundY}px;
+                 width: ${tileWidth}px;
+                 height: ${tileHeight}px;
+                 display: inline-block;
+                 background-repeat: no-repeat;
+                 border: 1px solid #ddd;
+                 margin: 1px;
+                 cursor: pointer;
+                 vertical-align: middle;
+             ">
+        </div>
+        <span class="item-search-text">${itemName} ${resItemName}</span>
+    </span>`;
 }
 
 /**
