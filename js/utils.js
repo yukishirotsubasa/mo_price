@@ -69,7 +69,7 @@ export function generateItemImage(itemId, itemBase, imageSheet, translateFunctio
                  title="${itemName}"
                  data-item-id="${itemId}"
                  style="
-                     background-image: url('${sheetInfo.url}');
+                     background-image: url('${sheetInfo.url.toLowerCase()}');
                      background-position: ${backgroundX}px ${backgroundY}px;
                      width: ${tileWidth}px;
                      height: ${tileHeight}px;
