@@ -506,3 +506,71 @@ table tr:nth-child(even) td,
     border-color: #28a745 !important;
     box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3) !important;
 }
+
+/* 修復黑暗模式下市場價格編輯器的物品名稱顯示問題 */
+[data-theme="dark"] .item-name {
+    color: var(--text-color) !important;
+    background-color: transparent !important;
+}
+
+[data-theme="dark"] .edit-item-row {
+    background-color: var(--surface-color) !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--border-color) !important;
+    padding: var(--spacing-sm) !important;
+    margin-bottom: var(--spacing-sm) !important;
+    border-radius: var(--border-radius-md) !important;
+}
+
+[data-theme="dark"] .edit-item-row .item-id {
+    color: var(--text-secondary) !important;
+    background-color: transparent !important;
+}
+
+[data-theme="dark"] .monster-search-result-item {
+    background-color: var(--surface-color) !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--border-color) !important;
+    padding: var(--spacing-sm) !important;
+    margin-bottom: var(--spacing-sm) !important;
+    border-radius: var(--border-radius-md) !important;
+}
+
+[data-theme="dark"] .monster-search-result-item:hover {
+    background-color: var(--hover-color) !important;
+}
+
+/* 確保價格輸入框在黑暗模式下可見 */
+[data-theme="dark"] .price-input {
+    background-color: var(--surface-color) !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+[data-theme="dark"] .price-input:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 修復黑暗模式下editor區塊外框顯示問題 */
+[data-theme="dark"] #item-edit-area {
+    background-color: var(--surface-color) !important;
+    border: 1px dashed var(--border-color) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] #price-editor-container {
+    background-color: var(--surface-color) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] #price-editor-container input[type="text"] {
+    background-color: var(--surface-color) !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+[data-theme="dark"] #price-editor-container input[type="text"]:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1) !important;
+}
