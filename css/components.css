@@ -1,5 +1,38 @@
 /* css/components.css - 組件樣式 (按鈕、表格、表單等) */
 
+/* Item Image Display Styles */
+.item-image {
+    display: inline-block;
+    background-repeat: no-repeat;
+    border: 1px solid #ddd;
+    margin: 1px;
+    cursor: pointer;
+    vertical-align: middle;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.item-image:hover {
+    border-color: #007bff;
+    box-shadow: 0 0 3px rgba(0,123,255,0.5);
+}
+
+.item-fallback {
+    display: inline-block;
+    padding: 2px 4px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 2px;
+    font-size: 11px;
+    color: #6c757d;
+    vertical-align: middle;
+    cursor: help;
+}
+
+.item-fallback:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
 /* 統一按鈕組件 - 覆蓋所有按鈕樣式 */
 .btn,
 button,

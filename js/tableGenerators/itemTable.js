@@ -1,5 +1,6 @@
 // js/tableGenerators/itemTable.js - 包含 generateItemTable 函數
 import i18n from '../i18n.js'; // 導入 i18n 模組
+import { getItemDisplayContent } from '../utils.js'; // 導入新的顯示函數
 
 export async function generateItemTable(containerId, itemBase, generateTableHTML, createItemNameMap) {
     const tableContainer = document.getElementById(containerId);
@@ -56,12 +57,16 @@ export async function generateItemTable(containerId, itemBase, generateTableHTML
     });
 
     const data = [...itemBase].sort((a, b) => b.b_i - a.b_i); // 依 ID (b_i) 降序排序
+    
+    // 獲取 imageSheet 數據
+    const imageSheet = window.allData?.imageSheet || null;
+    
     const rowMapper = (item) => {
         return displayFields.map(field => {
             let value;
             if (field.keyPath === 'name') {
-                // 對於 'name' 欄位，使用 createItemNameMap 獲取翻譯後的物品名稱
-                value = createItemNameMap(itemBase, i18n.translate).get(item.b_i) || item.name;
+                // 對於 'name' 欄位，使用新的圖片顯示功能
+                value = getItemDisplayContent(item.b_i, itemBase, i18n.translate, 'image', imageSheet);
             } else {
                 value = getNestedValue(item, field.keyPath);
             }

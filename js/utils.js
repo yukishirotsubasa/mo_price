@@ -24,6 +24,99 @@ export function createItemNameMap(itemBase, translateFunction) {
 }
 
 /**
+ * 生成物品圖片 HTML
+ * @param {number} itemId - 物品 ID
+ * @param {Array} itemBase - 物品基礎數據
+ * @param {Object} imageSheet - 圖片表數據
+ * @param {Function} translateFunction - 翻譯函數
+ * @returns {string} - 圖片 HTML 或 fallback 文字
+ */
+export function generateItemImage(itemId, itemBase, imageSheet, translateFunction) {
+    // 查找物品數據
+    const item = Array.isArray(itemBase) 
+        ? itemBase.find(item => item.b_i === itemId)
+        : itemBase[itemId];
+    
+    if (!item) {
+        return `<span class="item-fallback" title="${translateFunction('unknown_item')}">[${itemId}]</span>`;
+    }
+    
+    // 檢查是否有圖片數據
+    if (!item.img) {
+        const itemName = translateFunction(item.name);
+        return `<span class="item-fallback" title="${itemName}">${itemName}</span>`;
+    }
+    
+    const { sheet, x, y } = item.img;
+    
+    // 檢查圖片表是否存在
+    if (!imageSheet || !imageSheet[sheet]) {
+        const itemName = translateFunction(item.name);
+        return `<span class="item-fallback" title="${itemName}">${itemName}</span>`;
+    }
+    
+    const sheetInfo = imageSheet[sheet];
+    const tileWidth = sheetInfo.tile_width || 32;
+    const tileHeight = sheetInfo.tile_height || 32;
+    
+    // 計算背景位置
+    const backgroundX = -(x * tileWidth);
+    const backgroundY = -(y * tileHeight);
+    
+    const itemName = translateFunction(item.name);
+    
+    return `<div class="item-image" 
+                 title="${itemName}"
+                 data-item-id="${itemId}"
+                 style="
+                     background-image: url('${sheetInfo.url}');
+                     background-position: ${backgroundX}px ${backgroundY}px;
+                     width: ${tileWidth}px;
+                     height: ${tileHeight}px;
+                     display: inline-block;
+                     background-repeat: no-repeat;
+                     border: 1px solid #ddd;
+                     margin: 1px;
+                     cursor: pointer;
+                     vertical-align: middle;
+                 ">
+            </div>`;
+}
+
+/**
+ * 統一的物品顯示內容獲取函數
+ * @param {number} itemId - 物品 ID
+ * @param {Array} itemBase - 物品基礎數據
+ * @param {Function} translateFunction - 翻譯函數
+ * @param {string} displayType - 顯示類型 ('name' 或 'image')
+ * @param {Object} imageSheet - 圖片表數據 (當 displayType 為 'image' 時需要)
+ * @returns {string} - 顯示內容
+ */
+export function getItemDisplayContent(itemId, itemBase, translateFunction, displayType = 'name', imageSheet = null) {
+    if (displayType === 'name') {
+        // 使用現有的 createItemNameMap 邏輯
+        const item = Array.isArray(itemBase) 
+            ? itemBase.find(item => item.b_i === itemId)
+            : itemBase[itemId];
+        
+        if (!item) {
+            return translateFunction('unknown_item');
+        }
+        
+        return translateFunction(item.name);
+    } else if (displayType === 'image') {
+        if (!imageSheet) {
+            console.warn('imageSheet is required for image display type');
+            return getItemDisplayContent(itemId, itemBase, translateFunction, 'name');
+        }
+        return generateItemImage(itemId, itemBase, imageSheet, translateFunction);
+    }
+    
+    console.warn(`Unknown display type: ${displayType}`);
+    return getItemDisplayContent(itemId, itemBase, translateFunction, 'name');
+}
+
+/**
  * 生成通用的 HTML 表格。
  * @param {Array<string>} headerKeys - 表格的標題鍵陣列 (用於 i18n 翻譯)。
  * @param {Array<Object>} data - 表格的資料陣列。
