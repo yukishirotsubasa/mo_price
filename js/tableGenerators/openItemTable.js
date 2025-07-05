@@ -1,8 +1,11 @@
+import { getItemDisplayContent } from '../utils.js'; // 導入新的顯示函數
+
 export default (() => {
     const itemIdsToFilter = [1396, 3853, 3854, 3849, 2030, 2031, 2032, 3333, 4129, 4130, 4131];
     let currentItemBase = {};
     let currentI18n = null;
     let currentUtils = null;
+    let currentImageSheet = null;
 
     const createButtonArea = (filteredItemBase) => {
         const buttonContainer = document.createElement('div');
@@ -14,7 +17,7 @@ export default (() => {
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'btn btn-outline-primary';
-            button.textContent = currentI18n.translate(item.name);
+            button.innerHTML = getItemDisplayContent(item.b_i, currentItemBase, currentI18n.translate, 'image', currentImageSheet);
             button.dataset.itemId = item.id;
             button.addEventListener('click', () => {
                 // Remove active class from all buttons
@@ -70,8 +73,7 @@ export default (() => {
                     // Name
                     const nameTd = document.createElement('td');
                     const item = currentItemBase[returnItem.id];
-                    const itemName = item ? item.name : returnItem.id;
-                    nameTd.textContent = currentI18n.translate(itemName);
+                    nameTd.innerHTML = getItemDisplayContent(returnItem.id, currentItemBase, currentI18n.translate, 'image', currentImageSheet);
                     tr.appendChild(nameTd);
 
                     // Base Chance
@@ -130,6 +132,7 @@ export default (() => {
         currentItemBase = itemBase;
         currentI18n = i18n;
         currentUtils = utils;
+        currentImageSheet = window.allData?.imageSheet || null;
 
         const openItemPageContent = document.getElementById('open-item-page-content');
         if (!openItemPageContent) {

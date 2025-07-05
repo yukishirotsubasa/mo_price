@@ -1,4 +1,5 @@
 import i18n from '../i18n.js'; // 導入 i18n 模組
+import { getItemDisplayContent } from '../utils.js'; // 導入新的顯示函數
 
 export function generateMonsterBookTable(containerId, monsterBook, npcBase, itemBase, generateTableHTML, createItemNameMap) {
     const container = document.getElementById(containerId);
@@ -18,7 +19,8 @@ export function generateMonsterBookTable(containerId, monsterBook, npcBase, item
         return;
     }
 
-    const itemNameMap = createItemNameMap(itemBase, i18n.translate);
+    // 獲取 imageSheet 數據
+    const imageSheet = window.allData?.imageSheet || null;
 
     // 使用 i18n.translate 翻譯表頭
     const headerKeys = ['name', 'kills', 'Item', 'count', 'drop'];
@@ -40,7 +42,7 @@ export function generateMonsterBookTable(containerId, monsterBook, npcBase, item
 
         // 找到對應的物品
         const item = itemBase.find(i => i.b_i === sacrifice.item_id);
-        const itemName = item ? itemNameMap.get(sacrifice.item_id) || i18n.translate('unknown_item') : i18n.translate('unknown_item');
+        const itemName = item ? getItemDisplayContent(sacrifice.item_id, itemBase, i18n.translate, 'image', imageSheet) : i18n.translate('unknown_item');
 
         // 查找所有 mon_book_only 為 true 的掉落物品
         const monBookDrops = [];
@@ -49,7 +51,7 @@ export function generateMonsterBookTable(containerId, monsterBook, npcBase, item
                 if (drop.mon_book_only === true) {
                     const dropItem = itemBase.find(i => i.b_i === drop.id);
                     if (dropItem) {
-                        const dropItemName = itemNameMap.get(drop.id) || i18n.translate('unknown_item');
+                        const dropItemName = getItemDisplayContent(drop.id, itemBase, i18n.translate, 'image', imageSheet);
                         monBookDrops.push(dropItemName);
                     }
                 }

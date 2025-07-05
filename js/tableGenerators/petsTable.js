@@ -1,4 +1,5 @@
 import i18n from '../i18n.js'; // 導入 i18n 模組
+import { getItemDisplayContent } from '../utils.js'; // 導入新的顯示函數
 
 export function generatePetsTable(containerId, pets, generateTableHTML, createItemNameMap, itemBase, allPets) {
     const container = document.getElementById(containerId);
@@ -11,11 +12,12 @@ export function generatePetsTable(containerId, pets, generateTableHTML, createIt
     // 使用 i18n.translate 翻譯表頭
     const headers = ['id', 'name', 'breeding_level', 'total_eat', 'eats', 'insurance_cost', 'item_id', 'level', 'likes', 'xp_required'];
 
-    const itemNameMap = createItemNameMap(itemBase, i18n.translate);
+    // 獲取 imageSheet 數據
+    const imageSheet = window.allData?.imageSheet || null;
     const petNameMap = new Map(allPets.filter(p => p.b_i !== undefined && p.name !== undefined).map(p => [p.b_i, i18n.translate(p.name)]));
 
     const rowMapper = (pet) => {
-        const eats = pet.params && pet.params.eats ? Object.entries(pet.params.eats || {}).map(([itemId, value]) => `${itemNameMap.get(Number(itemId)) || `未知物品ID: ${itemId}`}(${value * pet.params.eat_interval})`).join(', ') : '無';
+        const eats = pet.params && pet.params.eats ? Object.entries(pet.params.eats || {}).map(([itemId, value]) => `${getItemDisplayContent(Number(itemId), itemBase, i18n.translate, 'image', imageSheet)}(${value * pet.params.eat_interval})`).join(', ') : '無';
         const insuranceCost = pet.params && pet.params.insurance_cost ? pet.params.insurance_cost.join(', ') : '無';
         const likes = pet.params && pet.params.likes ? pet.params.likes.map(like => `${petNameMap.get(like.pet_id) || `未知寵物ID: ${like.pet_id}`} (XP: ${like.xp})`).join(', ') : '無';
 

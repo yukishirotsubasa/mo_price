@@ -1,5 +1,5 @@
 import i18n from '../i18n.js';
-import { getItemSellPrice, getMaterialPrice, createItemNameMap, formatNumberWithThousandsSeparator } from '../utils.js';
+import { getItemSellPrice, getMaterialPrice, createItemNameMap, formatNumberWithThousandsSeparator, getItemDisplayContent } from '../utils.js';
 
 /**
  * 生成繁殖成本表格
@@ -34,8 +34,8 @@ export function generateBreedingCostTable(containerId, pets, itemBase) {
         }
     });
 
-    // 創建物品名稱映射
-    const itemNameMap = createItemNameMap(itemBase, i18n.translate);
+    // 獲取 imageSheet 數據
+    const imageSheet = window.allData?.imageSheet || null;
     
     // 生成所有可能的繁殖組合
     const breedingCombinations = generateBreedingCombinations(petsById, itemBase, pets);
@@ -66,8 +66,8 @@ export function generateBreedingCostTable(containerId, pets, itemBase) {
         
         tableHTML += '<tr>';
         tableHTML += `<td>${level}</td>`;
-        tableHTML += `<td>${generateParentInfo(parent1, itemNameMap)}</td>`;
-        tableHTML += `<td>${generateParentInfo(parent2, itemNameMap)}</td>`;
+        tableHTML += `<td>${generateParentInfo(parent1, itemBase, imageSheet)}</td>`;
+        tableHTML += `<td>${generateParentInfo(parent2, itemBase, imageSheet)}</td>`;
         tableHTML += `<td>${generatePlanInfo(plan, pets, itemBase, index)}</td>`;
         tableHTML += `<td>${cost}</td>`;
         tableHTML += `<td>${oneBar}</td>`;
@@ -343,10 +343,11 @@ function calculateCheapestFoodCost(parent, itemBase) {
 /**
  * 生成父寵物信息的 HTML
  * @param {Object} parent - 父寵物
- * @param {Map} itemNameMap - 物品名稱映射
+ * @param {Array} itemBase - 物品基礎數據
+ * @param {Object} imageSheet - 圖片表數據
  * @returns {string} HTML 字符串
  */
-function generateParentInfo(parent, itemNameMap) {
+function generateParentInfo(parent, itemBase, imageSheet) {
     let html = '<div class="parent-info-table">';
     html += '<table class="parent-table">';
     
@@ -368,7 +369,7 @@ function generateParentInfo(parent, itemNameMap) {
     if (Object.keys(eats).length > 0) {
         html += '<tr>';
         Object.entries(eats).forEach(([itemId, value]) => {
-            const itemName = itemNameMap.get(Number(itemId)) || `Unknown Item ${itemId}`;
+            const itemName = getItemDisplayContent(Number(itemId), itemBase, i18n.translate, 'image', imageSheet);
             const totalConsumption = (value * eatInterval).toFixed(2);
             html += `<td class="food-item">${itemName}(${totalConsumption})</td>`;
         });
