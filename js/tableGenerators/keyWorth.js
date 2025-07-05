@@ -1,5 +1,5 @@
 // keyWorth.js
-import { getItemSellPrice } from '../utils.js';
+import { getItemSellPrice, getItemDisplayContent } from '../utils.js';
 import i18n from '../i18n.js';
 
 export function generateKeyWorthTable(objectBase, itemBase) {
@@ -86,7 +86,8 @@ function displayKeyDetails(selectedObject, itemBase, tableContainer, valueTableC
             cumulative *= (1 - baseChance);
 
             row.insertCell().textContent = level;
-            row.insertCell().textContent = i18n.translate(itemBase[itemId]?.name || `Item ID: ${itemId}`);
+            const nameCell = row.insertCell();
+            nameCell.innerHTML = getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', window.allData?.imageSheet || null);
             row.insertCell().textContent = `${(baseChance * 100).toFixed(2)}%`;
             row.insertCell().textContent = `${(realChance * 100).toFixed(2)}%`;
             row.insertCell().textContent = getItemSellPrice(itemId, itemBase);

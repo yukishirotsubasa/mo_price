@@ -1,5 +1,5 @@
 // js/tableGenerators/presentTable.js - Present 功能
-import { getItemSellPrice } from '../utils.js';
+import { getItemSellPrice, getItemDisplayContent } from '../utils.js';
 import i18n from '../i18n.js';
 
 export function generatePresentTable(items, itemBase) {
@@ -33,11 +33,11 @@ export function generatePresentTable(items, itemBase) {
     targetIds.forEach(targetId => {
         const button = document.createElement('button');
         
-        // 使用 item_base[target_id].name 作為按鈕文字，並使用 i18n 翻譯
+        // 使用 item 圖片作為按鈕內容
         const item = itemBase.find(item => item.b_i === targetId);
-        const buttonText = item ? i18n.translate(item.name) : `Item ${targetId}`;
+        const buttonContent = item ? getItemDisplayContent(targetId, itemBase, i18n.translate, 'image', window.allData?.imageSheet || null) : `Item ${targetId}`;
         
-        button.textContent = buttonText;
+        button.innerHTML = buttonContent;
         button.className = 'present-select-button';
         button.addEventListener('click', () => {
             // Remove active class from all buttons
@@ -100,9 +100,9 @@ function displayPresentDetails(selectedItemId, items, itemBase, tableContainer) 
     filteredItems.forEach(item => {
         const row = tbody.insertRow();
         
-        // Name: 使用 i18n 翻譯
+        // Name: 使用圖片顯示
         const nameCell = row.insertCell();
-        nameCell.textContent = i18n.translate(item.name);
+        nameCell.innerHTML = getItemDisplayContent(item.b_i, itemBase, i18n.translate, 'image', window.allData?.imageSheet || null);
         
         // Wiki Price: item_base[].params.price
         const wikiPriceCell = row.insertCell();
