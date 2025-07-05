@@ -2,6 +2,7 @@
 
 import { TableRenderer } from './TableRenderer.js';
 import i18n from '../i18n.js';
+import { getItemDisplayContent } from '../utils.js';
 
 /**
  * CostTableRenderer 類別 - 專門用於渲染成本計算相關的表格
@@ -116,11 +117,10 @@ export class CostTableRenderer extends TableRenderer {
      * 渲染市場價格表格（可編輯）
      * @param {string} containerId - 容器元素的ID
      * @param {Array} marketData - 市場價格數據
-     * @param {Map} itemNameMap - 物品名稱映射
      * @param {Array} itemBase - 物品基礎數據
      * @param {Function} editHandler - 編輯處理函數
      */
-    renderMarketDataTable(containerId, marketData, itemNameMap, itemBase, editHandler) {
+    renderMarketDataTable(containerId, marketData, itemBase, editHandler) {
         const headers = [
             'item id',
             'name',
@@ -137,7 +137,9 @@ export class CostTableRenderer extends TableRenderer {
             const customPrice = row[3];
 
             const itemInfo = itemBase.find(item => item.b_i === itemId);
-            const itemName = itemInfo ? itemNameMap.get(itemId) : i18n.translate('unknown_item');
+            // 預覽表格使用圖片顯示
+            const imageSheet = window.allData?.imageSheet || null;
+            const itemName = itemInfo ? getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', imageSheet) : i18n.translate('unknown_item');
             const wikiPrice = itemInfo && itemInfo.params && itemInfo.params.price ? itemInfo.params.price : 'N/A';
 
             return `

@@ -1,4 +1,4 @@
-import { createItemNameMap } from './utils.js';
+import { createItemNameMap, getItemDisplayContent } from './utils.js';
 import { getItemBase, getNpcBase } from './dataLoader.js';
 import i18n from './i18n.js';
 
@@ -38,12 +38,15 @@ export async function initPriceEditor() {
             console.error('Failed to load item_base data.');
             return;
         }
-        // 建立 itemNameMap
+        // 建立 itemNameMap（搜尋功能仍需要）
         itemNameMap = createItemNameMap(itemBase, i18n.translate);
+        
+        // 檢查 itemNameMap 是否創建成功
         if (!itemNameMap) {
             console.error('Failed to create itemNameMap.');
             return;
         }
+        
         // 載入 npcBase 資料
         npcBase = await getNpcBase();
         if (!npcBase) {
@@ -115,7 +118,7 @@ export async function initPriceEditor() {
 
         itemRow.innerHTML = `
             <span class="item-id">${item.b_i}</span>
-            <span class="item-name">${itemNameMap.get(item.b_i) || item.name}</span>
+            <span class="item-name">${getItemDisplayContent(item.b_i, itemBase, i18n.translate, 'name')}</span>
             <input type="number" class="price-input" data-price-type="1" placeholder="${i18n.translate('market buy')}" value="${marketBuy}">
             <input type="number" class="price-input" data-price-type="2" placeholder="${i18n.translate('market sell')}" value="${marketSell}">
             <input type="number" class="price-input" data-price-type="3" placeholder="${i18n.translate('custom price')}" value="${customPrice}">
@@ -152,7 +155,7 @@ export async function initPriceEditor() {
         // 為 "刪除" 按鈕添加 'click' 事件監聽器
         itemRow.querySelector('.delete-item-button').addEventListener('click', () => {
             const itemId = parseInt(itemRow.dataset.itemId);
-            const itemName = itemNameMap.get(itemId) || `ID: ${itemId}`;
+            const itemName = getItemDisplayContent(itemId, itemBase, i18n.translate, 'name');
             const itemExists = priceData.some(p => p[0] === itemId);
 
             if (itemExists) {
@@ -234,7 +237,7 @@ export async function initPriceEditor() {
             // 掉落物結構可能只有 id，需要轉換成 renderEditItem 期望的 item 結構
             const item = {
                 b_i: drop.id,
-                name: itemNameMap.get(drop.id) || `ID: ${drop.id}` // 嘗試從 itemNameMap 獲取名稱
+                name: getItemDisplayContent(drop.id, itemBase, i18n.translate, 'name'), // 採用其他檔案的模式
             };
             editArea.appendChild(renderEditItem(item));
         });

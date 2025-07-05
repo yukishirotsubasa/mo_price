@@ -1,6 +1,6 @@
 // js/managers/MarketPriceManager.js
 import { loadGoogleSheetData, processRawData, processRawDataFromLocalStorage, saveMarketDataToLocalStorage, handleDataConflict } from '../dataLoader.js';
-import { createItemNameMap } from '../utils.js';
+import { createItemNameMap, getItemDisplayContent } from '../utils.js';
 import i18n from '../i18n.js';
 
 export class MarketPriceManager {
@@ -144,12 +144,10 @@ export class MarketPriceManager {
             return;
         }
 
-        const itemNameMap = createItemNameMap(window.allData.itemBase, i18n.translate);
-        
+        // 採用其他檔案的模式：直接在渲染器中處理名稱獲取
         window.costTableRenderer.renderMarketDataTable(
             'sheet-data-display', 
             data, 
-            itemNameMap, 
             window.allData.itemBase, 
             this.handleCellEditWrapper.bind(this)
         );
