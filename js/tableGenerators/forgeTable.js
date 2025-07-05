@@ -1,17 +1,19 @@
 // js/tableGenerators/forgeTable.js - 包含 generateForgeTable 函數
 import i18n from '../i18n.js'; // 導入 i18n 模組
+import { getItemDisplayContent } from '../utils.js'; // 導入新的顯示函數
 
 export function generateForgeTable(containerId, FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase) {
     const forgeTableContainer = document.getElementById(containerId);
 
-    const itemNameMap = createItemNameMap(itemBase, i18n.translate);
+    // 獲取 imageSheet 數據
+    const imageSheet = window.allData?.imageSheet || null;
 
     // 使用 i18n.translate 翻譯表頭
     const headerKeys = ['serial_id', 'item_name', 'level', 'pattern', 'chance', 'hidden', 'only smelt', 'recycle chance'];
     const data = Object.keys(FORGE_FORMULAS).map(id => {
         const formula = FORGE_FORMULAS[id];
         const itemId = formula.item_id;
-        const itemName = itemNameMap.get(itemId) || formula.item_name; // 如果沒有翻譯，使用原始名稱
+        const itemName = getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', imageSheet); // 使用圖片顯示
 
         let level = '';
         if (formula.level !== undefined) {
@@ -32,7 +34,7 @@ export function generateForgeTable(containerId, FORGE_FORMULAS, generateTableHTM
             });
 
             patternString = Object.keys(patternItems).map(id => {
-                const name = itemNameMap.get(parseInt(id)) || i18n.translate('unknown_item', id);
+                const name = getItemDisplayContent(parseInt(id), itemBase, i18n.translate, 'image', imageSheet);
                 return `${name}*${patternItems[id]}`;
             }).join(', ');
         }

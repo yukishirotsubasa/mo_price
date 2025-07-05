@@ -1,4 +1,5 @@
 import i18n from '../i18n.js'; // 導入 i18n 模組
+import { getItemDisplayContent } from '../utils.js'; // 導入新的顯示函數
 
 export function generateNpcTable(containerId, npcBase, generateTableHTML, createItemNameMap, itemBase) {
     const container = document.getElementById(containerId);
@@ -8,7 +9,8 @@ export function generateNpcTable(containerId, npcBase, generateTableHTML, create
         return;
     }
 
-    const itemNameMap = createItemNameMap(itemBase, i18n.translate);
+    // 獲取 imageSheet 數據
+    const imageSheet = window.allData?.imageSheet || null;
 
     // 使用 i18n.translate 翻譯表頭
     const headerKeys = ['id', 'name', 'health', 'total_defense', 'total_strength', 'total_accuracy', 'drops'];
@@ -16,7 +18,7 @@ export function generateNpcTable(containerId, npcBase, generateTableHTML, create
     const rowMapper = (npc) => {
         const drops = npc.params && npc.params.drops ?
             npc.params.drops.map(drop => {
-                const dropName = itemNameMap.get(drop.id) || i18n.translate('unknown_item', drop.id);
+                const dropName = getItemDisplayContent(drop.id, itemBase, i18n.translate, 'image', imageSheet);
                 return `${dropName} (${(drop.chance * 100).toFixed(6).replace(/\.?0+$/, '')}%)`;
             }).join(', ') :
             i18n.translate('none');

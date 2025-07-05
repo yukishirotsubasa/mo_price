@@ -1,4 +1,5 @@
 import i18n from '../i18n.js'; // 導入 i18n 模組
+import { getItemDisplayContent } from '../utils.js'; // 導入新的顯示函數
 
 export function generateSkillQuestTable(containerId, skillQuest, generateTableHTML, createItemNameMap, itemBase) {
     const container = document.getElementById(containerId);
@@ -12,19 +13,19 @@ export function generateSkillQuestTable(containerId, skillQuest, generateTableHT
         return;
     }
 
-    // Create item name map for lookups
-    const itemNameMap = createItemNameMap(itemBase, i18n.translate);
+    // 獲取 imageSheet 數據
+    const imageSheet = window.allData?.imageSheet || null;
 
     // Create the controls section
     const controlsHTML = createSkillQuestControls(skillQuest);
     
     // Create the table section with default difficulty (0)
-    const tableHTML = createSkillQuestTable(skillQuest, itemNameMap, generateTableHTML, 0);
+    const tableHTML = createSkillQuestTable(skillQuest, itemBase, generateTableHTML, 0);
     
     container.innerHTML = controlsHTML + tableHTML;
     
     // Add event listeners for the controls
-    setupSkillQuestEventListeners(skillQuest, itemNameMap, generateTableHTML);
+    setupSkillQuestEventListeners(skillQuest, itemBase, generateTableHTML);
 }
 
 function createSkillQuestControls(skillQuest) {
@@ -70,7 +71,9 @@ function createSkillQuestControls(skillQuest) {
     return controlsHTML;
 }
 
-function createSkillQuestTable(skillQuest, itemNameMap, generateTableHTML, currentDifficulty = 0) {
+function createSkillQuestTable(skillQuest, itemBase, generateTableHTML, currentDifficulty = 0) {
+    // 獲取 imageSheet 數據
+    const imageSheet = window.allData?.imageSheet || null;
     const headers = ['id', 'skill', 'min_point', 'name', 'amount', 'exp', 'coins', 'mos', 'item', 'point'];
     
     const rowMapper = (quest, index) => {
@@ -88,9 +91,9 @@ function createSkillQuestTable(skillQuest, itemNameMap, generateTableHTML, curre
         const mos = quest.reward && quest.reward[2] ? quest.reward[2] * mosMultiplier : 0;
         
         // Get item names
-        const questItemName = itemNameMap.get(quest.item_id) || `ID: ${quest.item_id}`;
+        const questItemName = getItemDisplayContent(quest.item_id, itemBase, i18n.translate, 'image', imageSheet);
         const rewardItemId = quest.reward && quest.reward[3] ? quest.reward[3] : null;
-        const rewardItemName = rewardItemId ? (itemNameMap.get(rewardItemId) || `ID: ${rewardItemId}`) : i18n.translate('none');
+        const rewardItemName = rewardItemId ? getItemDisplayContent(rewardItemId, itemBase, i18n.translate, 'image', imageSheet) : i18n.translate('none');
         
         return [
             index + 1, // Sequential ID
@@ -113,7 +116,7 @@ function getMultiplier(multiplierArray, difficulty) {
     return multiplierArray[difficulty] || 1;
 }
 
-function setupSkillQuestEventListeners(skillQuest, itemNameMap, generateTableHTML) {
+function setupSkillQuestEventListeners(skillQuest, itemBase, generateTableHTML) {
     // Use setTimeout to ensure DOM elements are ready
     setTimeout(() => {
         const difficultyButtons = document.querySelectorAll('.difficulty-btn');
@@ -141,7 +144,7 @@ function setupSkillQuestEventListeners(skillQuest, itemNameMap, generateTableHTM
             };
             
             // Generate new table with current difficulty and filtered quests
-            const newTableHTML = createSkillQuestTable(filteredSkillQuest, itemNameMap, generateTableHTML, currentDifficulty);
+            const newTableHTML = createSkillQuestTable(filteredSkillQuest, itemBase, generateTableHTML, currentDifficulty);
             
             // Replace the table content
             const tableContainer = document.getElementById('skill-quest-table-content');

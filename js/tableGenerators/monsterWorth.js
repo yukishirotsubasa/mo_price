@@ -1,5 +1,5 @@
 import i18n from '../i18n.js'; // 導入 i18n 模組
-import { getItemSellPrice, formatNumberWithThousandsSeparator } from '../utils.js'; // 導入 getItemSellPrice 和 formatNumberWithThousandsSeparator 函數
+import { getItemSellPrice, formatNumberWithThousandsSeparator, getItemDisplayContent } from '../utils.js'; // 導入相關函數
 
 export function generateMonsterWorthTable(containerId, npcBase, generateTableHTML, createItemNameMap, itemBase) {
     const container = document.getElementById(containerId);
@@ -9,7 +9,8 @@ export function generateMonsterWorthTable(containerId, npcBase, generateTableHTM
         return;
     }
 
-    const itemNameMap = createItemNameMap(itemBase, i18n.translate);
+    // 獲取 imageSheet 數據
+    const imageSheet = window.allData?.imageSheet || null;
 
     // 使用 i18n.translate 翻譯表頭
     const headerKeys = ['id', 'name', 'health', 'defense', 'strength', 'accuracy', 'drops', 'worth'];
@@ -32,7 +33,7 @@ export function generateMonsterWorthTable(containerId, npcBase, generateTableHTM
 
         let cumulativeChanceForDisplay = 1;
         const drops = monster.params.drops.map(drop => {
-            const dropName = itemNameMap.get(drop.id) || i18n.translate('unknown_item', drop.id);
+            const dropName = getItemDisplayContent(drop.id, itemBase, i18n.translate, 'image', imageSheet);
             const actualChance = cumulativeChanceForDisplay * drop.chance;
             cumulativeChanceForDisplay *= (1 - drop.chance);
 

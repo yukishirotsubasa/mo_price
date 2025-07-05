@@ -1,10 +1,12 @@
 // js/tableGenerators/carpentryTable.js - 包含 generateCarpentryTable 函數
 import i18n from '../i18n.js'; // 導入 i18n 模組
+import { getItemDisplayContent } from '../utils.js'; // 導入新的顯示函數
 
 export function generateCarpentryTable(containerId, CARPENTRY_FORMULAS, generateTableHTML, createItemNameMap, itemBase) {
     const carpentryTableContainer = document.getElementById(containerId);
 
-    const itemNameMap = createItemNameMap(itemBase, i18n.translate);
+    // 獲取 imageSheet 數據
+    const imageSheet = window.allData?.imageSheet || null;
 
     let allCarpentryItems = [];
     if (typeof CARPENTRY_FORMULAS !== 'undefined') {
@@ -25,14 +27,14 @@ export function generateCarpentryTable(containerId, CARPENTRY_FORMULAS, generate
     const headerKeys = ['item name', 'materials', 'craftable', 'level'];
     const data = allCarpentryItems;
     const rowMapper = (item) => {
-        const itemName = itemNameMap.get(item.item_id) || item.item_name; // 如果沒有翻譯，使用原始名稱
+        const itemName = getItemDisplayContent(item.item_id, itemBase, i18n.translate, 'image', imageSheet); // 使用圖片顯示
         const craftable = item.craftable ? i18n.translate('yes') : i18n.translate('no');
         const level = item.level !== undefined ? item.level : '';
 
         let consumesString = '';
         if (item.consumes && Array.isArray(item.consumes) && item.consumes.length > 0) {
             consumesString = item.consumes.map(consume => {
-                const consumeName = itemNameMap.get(consume.id) || i18n.translate('unknown_material', consume.id);
+                const consumeName = getItemDisplayContent(consume.id, itemBase, i18n.translate, 'image', imageSheet);
                 return `${consumeName}*${consume.count}`;
             }).join(', ');
         }
