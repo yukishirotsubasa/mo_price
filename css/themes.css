@@ -2,28 +2,45 @@
 
 /* 主題切換按鈕 */
 .theme-toggle {
-    position: fixed;
-    top: var(--spacing-lg);
-    right: var(--spacing-lg);
-    z-index: 1000;
-    background-color: var(--surface-color);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-md);
-    padding: var(--spacing-sm);
+    position: relative;
+    width: auto;
+    background-color: #444;
+    border: 1px solid #666;
+    border-radius: 5px;
+    padding: 8px;
     cursor: pointer;
-    box-shadow: var(--shadow-sm);
-    transition: all var(--transition-fast);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    margin-left: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    min-width: 36px;
+    height: 36px;
 }
 
 .theme-toggle:hover {
-    box-shadow: var(--shadow-md);
+    background-color: #575757;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     transform: translateY(-1px);
 }
 
 .theme-toggle-icon {
-    width: 20px;
-    height: 20px;
+    font-size: 16px;
     display: block;
+    line-height: 1;
+}
+
+/* 暗色主題下的主題切換按鈕 */
+[data-theme="dark"] .theme-toggle {
+    background-color: #2d2d2d;
+    border-color: #404040;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+    background-color: #404040;
 }
 
 /* 亮色主題特定樣式 */

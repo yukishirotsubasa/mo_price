@@ -115,14 +115,20 @@ body {
     margin-bottom: 20px;
     padding-bottom: 20px;
     border-bottom: 1px solid #575757;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 #language-switcher label {
-    display: block;
-    margin-bottom: 5px;
+    margin-bottom: 0;
     color: white;
+    white-space: nowrap;
+    font-size: 0.9em;
 }
 #lang-select {
-    width: 100%;
+    flex: 1;
+    min-width: 120px;
     padding: 8px;
     border-radius: 4px;
     border: 1px solid #ccc;

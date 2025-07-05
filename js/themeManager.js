@@ -93,8 +93,20 @@ export class ThemeManager {
             this.toggleTheme();
         });
         
-        // 添加到頁面
-        document.body.appendChild(toggleButton);
+        // 添加到語言選擇器同一列
+        const languageSwitcher = document.querySelector('#language-switcher');
+        if (languageSwitcher) {
+            // 添加到語言選擇器內部
+            languageSwitcher.appendChild(toggleButton);
+        } else {
+            // 如果找不到語言選擇器，則添加到sidebar頂部（備用方案）
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) {
+                sidebar.insertBefore(toggleButton, sidebar.firstChild);
+            } else {
+                document.body.appendChild(toggleButton);
+            }
+        }
         
         // 初始化圖標
         this.updateThemeToggleIcon();

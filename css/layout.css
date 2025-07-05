@@ -39,17 +39,22 @@ body {
     margin-bottom: var(--spacing-xl);
     padding-bottom: var(--spacing-lg);
     border-bottom: 1px solid var(--secondary-color);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
 }
 
 #language-switcher label {
-    display: block;
-    margin-bottom: var(--spacing-sm);
+    margin-bottom: 0;
     font-size: var(--font-size-sm);
     color: #ccc;
+    white-space: nowrap;
 }
 
 #language-switcher select {
-    width: 100%;
+    flex: 1;
+    min-width: 120px;
     background-color: var(--secondary-color);
     color: white;
     border: 1px solid var(--secondary-color);
