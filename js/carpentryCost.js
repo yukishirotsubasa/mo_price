@@ -1,5 +1,5 @@
 import i18n from './i18n.js';
-import { createItemNameMap, getMaterialPrice, getItemSellPrice, formatNumberWithThousandsSeparator } from './utils.js';
+import { createItemNameMap, getMaterialPrice, getItemSellPrice, formatNumberWithThousandsSeparator, getItemDisplayContent } from './utils.js';
 
 
 
@@ -12,7 +12,8 @@ import { createItemNameMap, getMaterialPrice, getItemSellPrice, formatNumberWith
  * @returns {Array<Object>} 包含木工成本計算結果的物件陣列。
  */
 export function generateCarpentryCostTableData(CARPENTRY_FORMULAS, generateTableHTML, createItemNameMap, itemBase) {
-    const itemNameMap = createItemNameMap(itemBase, i18n.translate);
+    // 獲取 imageSheet 數據
+    const imageSheet = window.allData?.imageSheet || null;
     let allCarpentryFormulas = [];
 
     if (CARPENTRY_FORMULAS.floors && Array.isArray(CARPENTRY_FORMULAS.floors)) {
@@ -27,7 +28,7 @@ export function generateCarpentryCostTableData(CARPENTRY_FORMULAS, generateTable
 
     return allCarpentryFormulas.map(formula => {
         const itemId = formula.item_id;
-        const itemName = itemNameMap.get(itemId) || formula.item_name;
+        const itemName = getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', imageSheet);
         const level = formula.level !== undefined ? formula.level : '';
 
         let materialPriceTotal = 0;
@@ -37,7 +38,7 @@ export function generateCarpentryCostTableData(CARPENTRY_FORMULAS, generateTable
             const consumedMaterials = formula.consumes.map(consume => {
                 const materialId = consume.id;
                 const count = consume.count;
-                const materialName = itemNameMap.get(materialId) || i18n.translate('unknown_material', materialId);
+                const materialName = getItemDisplayContent(materialId, itemBase, i18n.translate, 'image', imageSheet);
                 const price = getMaterialPrice(materialId, itemBase);
                 materialPriceTotal += price * count;
                 return `${materialName}(${price})*${count}`;

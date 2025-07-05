@@ -222,16 +222,18 @@ export function compareData(dataA, dataB, idKey) {
 }
 /**
  * 取得物品出售價格。
- * @param {number} item_id - 物品ID。
+ * @param {number|string} item_id - 物品ID。
  * @param {Array<Object>} itemBase - 物品基礎數據。
  * @returns {number} 物品出售價格。
  */
 export function getItemSellPrice(item_id, itemBase) {
+    // 確保 item_id 是數字格式
+    const numericItemId = typeof item_id === 'string' ? parseInt(item_id) : item_id;
     let price_data = localStorage.getItem('price_data');
     if (price_data) {
         try {
             price_data = JSON.parse(price_data);
-            const row = price_data.find(row => parseInt(row[0]) === item_id); // 確保 item_id 比較時類型一致
+            const row = price_data.find(row => parseInt(row[0]) === numericItemId); // 確保 item_id 比較時類型一致
             if (row) {
                 const customPrice = parseFloat(row[3]);
                 if (!isNaN(customPrice) && customPrice !== 0) {
@@ -249,9 +251,9 @@ export function getItemSellPrice(item_id, itemBase) {
     // 如果 localStorage 中沒有資料或資料無效，則從 itemBase 取得
     let itemInfo;
     if (Array.isArray(itemBase)) {
-        itemInfo = itemBase.find(item => item.b_i === item_id);
+        itemInfo = itemBase.find(item => item.b_i === numericItemId);
     } else {
-        itemInfo = itemBase[item_id];
+        itemInfo = itemBase[numericItemId];
     }
     if (itemInfo && itemInfo.params && itemInfo.params.price) {
         return itemInfo.params.price * 0.4;
@@ -260,16 +262,18 @@ export function getItemSellPrice(item_id, itemBase) {
 }
 /**
  * 取得材料價格。
- * @param {number} item_id - 物品ID。
+ * @param {number|string} item_id - 物品ID。
  * @param {Array<Object>} itemBase - 物品基礎數據。
  * @returns {number} 材料價格。
  */
 export function getMaterialPrice(item_id, itemBase) {
+    // 確保 item_id 是數字格式
+    const numericItemId = typeof item_id === 'string' ? parseInt(item_id) : item_id;
     let price_data = localStorage.getItem('price_data');
     if (price_data) {
         try {
             price_data = JSON.parse(price_data);
-            const row = price_data.find(row => parseInt(row[0]) === item_id); // 確保 item_id 比較時類型一致
+            const row = price_data.find(row => parseInt(row[0]) === numericItemId); // 確保 item_id 比較時類型一致
             if (row) {
                 const customPrice = parseFloat(row[3]);
                 if (!isNaN(customPrice) && customPrice !== 0) {
@@ -287,9 +291,9 @@ export function getMaterialPrice(item_id, itemBase) {
     // 如果 localStorage 中沒有資料或資料無效，則從 itemBase 取得
     let itemInfo;
     if (Array.isArray(itemBase)) {
-        itemInfo = itemBase.find(item => item.b_i === item_id);
+        itemInfo = itemBase.find(item => item.b_i === numericItemId);
     } else {
-        itemInfo = itemBase[item_id];
+        itemInfo = itemBase[numericItemId];
     }
     if (itemInfo && itemInfo.params && itemInfo.params.price) {
         return itemInfo.params.price;

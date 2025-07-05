@@ -1,5 +1,5 @@
 import i18n from './i18n.js'; // 導入 i18n 模組
-import { getMaterialPrice, getItemSellPrice, formatNumberWithThousandsSeparator, formatAsPercentage } from './utils.js'; // 導入所需函式
+import { getMaterialPrice, getItemSellPrice, formatNumberWithThousandsSeparator, formatAsPercentage, getItemDisplayContent } from './utils.js'; // 導入所需函式
 
 function testEnchantPlan(enchantingChances, itemBase) {
     for (const i of [0,1,4,7]) {
@@ -17,6 +17,8 @@ export function generateEnchantCostTableData(containerId, enchantingChances, gen
         return;
     }
 
+    // 獲取 imageSheet 數據
+    const imageSheet = window.allData?.imageSheet || null;
     const headers = ['id', 'name', 'level', 'bonus', 'price', 'plan', 'prod price', 'prod name', 'prod id'];
     const data = [];
     const LUCKY_STONE_ID = 593;
@@ -50,11 +52,11 @@ export function generateEnchantCostTableData(containerId, enchantingChances, gen
         }
 
         const all_plans = plans.map(plan => {
-            const scrollName = i18n.translate(itemBase[plan.combo[0]].name);
+            const scrollName = getItemDisplayContent(plan.combo[0], itemBase, i18n.translate, 'image', imageSheet);
             const luckyStoneCount = plan.combo[1];
             
             const combo = luckyStoneCount > 0
-                ? `${scrollName}+${i18n.translate(itemBase[LUCKY_STONE_ID].name)}*${luckyStoneCount}`
+                ? `${scrollName}+${getItemDisplayContent(LUCKY_STONE_ID, itemBase, i18n.translate, 'image', imageSheet)}*${luckyStoneCount}`
                 : scrollName;
                 
             const chance = Math.min(1, plan.probability + (params.enchant_bonus || 0));
@@ -91,12 +93,12 @@ export function generateEnchantCostTableData(containerId, enchantingChances, gen
 
         data.push({
             'id': key,
-            'name': i18n.translate(item.name),
+            'name': getItemDisplayContent(parseInt(key), itemBase, i18n.translate, 'image', imageSheet),
             'level': level,
             'bonus': params.enchant_bonus || 0, // 確保 bonus 為數字，以便 formatAsPercentage 處理
             'price': price,
             'prod price': getItemSellPrice(params.enchant_id, itemBase),
-            'prod name': i18n.translate(itemBase[params.enchant_id].name),
+            'prod name': getItemDisplayContent(params.enchant_id, itemBase, i18n.translate, 'image', imageSheet),
             'prod id': params.enchant_id,
             'all_plans': filtered_plans
         });

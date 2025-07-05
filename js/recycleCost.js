@@ -7,10 +7,11 @@
  * @returns {Array<Object>} 包含分解成本計算結果的物件陣列。
  */
 import i18n from './i18n.js'; // 導入 i18n 模組
-import { createItemNameMap, getItemSellPrice, getMaterialPrice, formatNumberWithThousandsSeparator, formatAsPercentage } from './utils.js'; // 導入相關函數
+import { createItemNameMap, getItemSellPrice, getMaterialPrice, formatNumberWithThousandsSeparator, formatAsPercentage, getItemDisplayContent } from './utils.js'; // 導入相關函數
 
 export function generateRecycleCostTableData(FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase) {
-    const itemNameMap = createItemNameMap(itemBase, i18n.translate);
+    // 獲取 imageSheet 數據
+    const imageSheet = window.allData?.imageSheet || null;
 
     return Object.keys(FORGE_FORMULAS).flatMap(id => {
         const formula = FORGE_FORMULAS[id];
@@ -21,7 +22,7 @@ export function generateRecycleCostTableData(FORGE_FORMULAS, generateTableHTML, 
         }
 
         const itemId = formula.item_id;
-        const itemName = itemNameMap.get(itemId) || formula.item_name;
+        const itemName = getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', imageSheet);
         let level = formula.level ?? formula.fletching_level ?? formula.wizardry_level ?? '';
 
         // 處理材料與價格
@@ -38,7 +39,7 @@ export function generateRecycleCostTableData(FORGE_FORMULAS, generateTableHTML, 
         let materialWorthTotal = 0;
         const pattern = Object.entries(patternItems).map(([mid, count]) => {
             const item_id = parseInt(mid);
-            const name = itemNameMap.get(item_id) || i18n.translate('unknown_item', item_id);
+            const name = getItemDisplayContent(item_id, itemBase, i18n.translate, 'image', imageSheet);
             
             const sellPrice = getItemSellPrice(item_id, itemBase);
             
