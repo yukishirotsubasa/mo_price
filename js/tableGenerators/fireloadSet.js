@@ -219,12 +219,12 @@ function generateEnchantChainTable(container, startItemId, itemBase, generateTab
                 const selectedPlan = filtered_plans[selectedPlanIndex] || bestPlan;
                 
                 if (hasOtherPlans) {
-                    // 生成可選擇的其他方案
-                    const selectableOtherPlans = filtered_plans.slice(1).map((plan, planIndex) => `
-                        <tr class="plan-option ${planIndex + 1 === selectedPlanIndex ? 'selected' : ''}" 
-                            data-plan-index="${planIndex + 1}"
+                    // 生成所有可選擇的方案（包括當前選中的）
+                    const allSelectableOptions = filtered_plans.map((plan, planIndex) => `
+                        <tr class="plan-option ${planIndex === selectedPlanIndex ? 'selected' : ''}" 
+                            data-plan-index="${planIndex}"
                             data-item-id="${itemId}"
-                            data-plan-idx="${planIndex + 1}">
+                            data-plan-idx="${planIndex}">
                             <td>${plan.combo}</td>
                             <td>${formatAsPercentage(plan.chance)}</td>
                             <td>${formatNumberWithThousandsSeparator(plan.cost)}</td>
@@ -241,13 +241,11 @@ function generateEnchantChainTable(container, startItemId, itemBase, generateTab
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr class="accordion-toggle ${selectedPlanIndex === 0 ? 'selected' : ''}" 
+                                <tr class="accordion-toggle" 
                                     data-bs-toggle="collapse" 
                                     data-bs-target="#${accordionId}" 
                                     aria-expanded="false" 
-                                    aria-controls="${accordionId}"
-                                    data-plan-index="0"
-                                    data-item-id="${itemId}">
+                                    aria-controls="${accordionId}">
                                     <td>${selectedPlan.combo}</td>
                                     <td>${formatAsPercentage(selectedPlan.chance)}</td>
                                     <td>${formatNumberWithThousandsSeparator(selectedPlan.cost)}</td>
@@ -257,7 +255,7 @@ function generateEnchantChainTable(container, startItemId, itemBase, generateTab
                                         <div id="${accordionId}" class="collapse">
                                             <table class="table table-sm table-bordered mb-0">
                                                 <tbody>
-                                                    ${selectableOtherPlans}
+                                                    ${allSelectableOptions}
                                                 </tbody>
                                             </table>
                                         </div>
@@ -367,7 +365,7 @@ function getEnchantChain(startItemId, itemBase) {
  * @param {number} itemId - 道具ID
  * @param {number} planIndex - 選中的plan索引
  */
-window.selectPlanOption = function(itemId, planIndex) {
+function selectPlanOption(itemId, planIndex) {
     // 更新選擇狀態
     window.fireloadSetState.selectedPlans.set(itemId, planIndex);
     
@@ -375,7 +373,10 @@ window.selectPlanOption = function(itemId, planIndex) {
     updatePlanContent(itemId);
     
     console.log(`Selected plan ${planIndex} for item ${itemId}`);
-};
+}
+
+// 將函數暴露到全局作用域
+window.selectPlanOption = selectPlanOption;
 
 /**
  * 更新單行的plan內容顯示
@@ -467,11 +468,12 @@ function updatePlanContent(itemId) {
                 
                 let newPlanContent;
                 if (hasOtherPlans) {
-                    const selectableOtherPlans = filtered_plans.slice(1).map((plan, planIndex) => `
-                        <tr class="plan-option ${planIndex + 1 === selectedPlanIndex ? 'selected' : ''}" 
-                            data-plan-index="${planIndex + 1}"
+                    // 生成所有可選擇的其他方案（包括當前選中的）
+                    const allSelectableOptions = filtered_plans.map((plan, planIndex) => `
+                        <tr class="plan-option ${planIndex === selectedPlanIndex ? 'selected' : ''}" 
+                            data-plan-index="${planIndex}"
                             data-item-id="${itemId}"
-                            data-plan-idx="${planIndex + 1}">
+                            data-plan-idx="${planIndex}">
                             <td>${plan.combo}</td>
                             <td>${formatAsPercentage(plan.chance)}</td>
                             <td>${formatNumberWithThousandsSeparator(plan.cost)}</td>
@@ -488,13 +490,11 @@ function updatePlanContent(itemId) {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr class="accordion-toggle ${selectedPlanIndex === 0 ? 'selected' : ''}" 
+                                <tr class="accordion-toggle" 
                                     data-bs-toggle="collapse" 
                                     data-bs-target="#${accordionId}" 
                                     aria-expanded="false" 
-                                    aria-controls="${accordionId}"
-                                    data-plan-index="0"
-                                    data-item-id="${itemId}">
+                                    aria-controls="${accordionId}">
                                     <td>${selectedPlan.combo}</td>
                                     <td>${formatAsPercentage(selectedPlan.chance)}</td>
                                     <td>${formatNumberWithThousandsSeparator(selectedPlan.cost)}</td>
@@ -504,7 +504,7 @@ function updatePlanContent(itemId) {
                                         <div id="${accordionId}" class="collapse">
                                             <table class="table table-sm table-bordered mb-0">
                                                 <tbody>
-                                                    ${selectableOtherPlans}
+                                                    ${allSelectableOptions}
                                                 </tbody>
                                             </table>
                                         </div>
@@ -562,7 +562,7 @@ function bindAccordionEvents(container) {
     });
     
     // 綁定plan選擇事件
-    const planOptions = container.querySelectorAll('.plan-option:not(.accordion-toggle)');
+    const planOptions = container.querySelectorAll('.plan-option');
     planOptions.forEach(option => {
         option.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -572,23 +572,13 @@ function bindAccordionEvents(container) {
             
             if (!isNaN(itemId) && !isNaN(planIndex)) {
                 selectPlanOption(itemId, planIndex);
+                
+                // 選擇後收起手風琴
+                const accordionContent = option.closest('.collapse');
+                if (accordionContent) {
+                    accordionContent.classList.remove('show');
+                }
             }
         });
-    });
-    
-    // 綁定手風琴標題的plan選擇（第一個選項）
-    const accordionToggles = container.querySelectorAll('.accordion-toggle');
-    accordionToggles.forEach(toggle => {
-        const planIndex = parseInt(toggle.getAttribute('data-plan-index'));
-        if (planIndex === 0) {
-            toggle.addEventListener('dblclick', (e) => {
-                e.stopPropagation();
-                
-                const itemId = parseInt(toggle.getAttribute('data-item-id'));
-                if (!isNaN(itemId)) {
-                    selectPlanOption(itemId, 0);
-                }
-            });
-        }
     });
 }
