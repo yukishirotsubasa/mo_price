@@ -78,6 +78,26 @@
     background-color: var(--bg-hover, #f5f5f5);
 }
 
+/* Plan選擇樣式 */
+#fireload-set-table-container .plan-option {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#fireload-set-table-container .plan-option:hover {
+    background-color: var(--bg-hover, #f5f5f5);
+}
+
+#fireload-set-table-container .plan-option.selected {
+    background-color: #e3f2fd;
+    border-left: 3px solid #2196f3;
+    font-weight: bold;
+}
+
+#fireload-set-table-container .plan-option.selected td {
+    color: #1976d2;
+}
+
 #fireload-set-table-container .collapse {
     display: none;
 }
@@ -184,4 +204,19 @@
 
 [data-theme="dark"] #fireload-set-table-container tbody tr:hover {
     background-color: var(--bg-hover-dark, #2d3748);
+}
+
+/* 深色主題的Plan選擇樣式 */
+[data-theme="dark"] #fireload-set-table-container .plan-option:hover {
+    background-color: var(--bg-hover-dark, #2d3748);
+}
+
+[data-theme="dark"] #fireload-set-table-container .plan-option.selected {
+    background-color: #1e3a8a;
+    border-left: 3px solid #3b82f6;
+    color: var(--text-color-dark, #e2e8f0);
+}
+
+[data-theme="dark"] #fireload-set-table-container .plan-option.selected td {
+    color: #93c5fd;
 }
