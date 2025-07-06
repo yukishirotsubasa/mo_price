@@ -1,12 +1,21 @@
 /* Firelord Set 專用樣式 */
 .firelord-set-buttons {
-    display: flex;
-    gap: 10px;
+    display: block;
     margin-bottom: 20px;
     padding: 15px;
     background-color: var(--bg-secondary, #f8f9fa);
     border-radius: 8px;
     border: 1px solid var(--border-color, #dee2e6);
+}
+
+.firelord-set-button-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.firelord-set-button-row:last-child {
+    margin-bottom: 0;
 }
 
 .firelord-set-target-btn {

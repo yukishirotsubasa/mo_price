@@ -42,9 +42,15 @@ export function generateFirelordSetTableData(containerId, itemBase, generateTabl
         return;
     }
 
-    // 目標道具ID [357, 354]
-    const targetItems = [357, 353, 354, 355, 356, 495 ,496, 503, 504,
-        1043, 1327, 1833, 2301, 2397, 2412, 2427, 2443, 2459, 2475, 2709];
+    // 目標道具ID - 使用二維數組明確表示換行
+    const targetItems = [
+        // 第一行
+        [356, 496, 495, 355, 357, 354, 1327],
+        // 第二行  
+        [1833, 503, 504, 2709, 2674, 1043],
+        // 第三行
+        [2427, 2443, 2459, 2475, 2528, 2301, 2397, 2412]
+    ];
     
     // 獲取 imageSheet 數據
     const imageSheet = window.allData?.imageSheet || null;
@@ -58,8 +64,8 @@ export function generateFirelordSetTableData(containerId, itemBase, generateTabl
     createTargetItemButtons(buttonContainer, targetItems, itemBase, imageSheet, enchantingChances, generateTableHTML);
     
     // 初始化顯示第一個目標道具的表格
-    if (targetItems.length > 0) {
-        generateEnchantChainTable(container, targetItems[0], itemBase, generateTableHTML, imageSheet, enchantingChances);
+    if (targetItems.length > 0 && targetItems[0].length > 0) {
+        generateEnchantChainTable(container, targetItems[0][0], itemBase, generateTableHTML, imageSheet, enchantingChances);
     }
 }
 
@@ -75,34 +81,49 @@ function createTargetItemButtons(buttonContainer, targetItems, itemBase, imageSh
     
     buttonContainer.innerHTML = '';
     
-    targetItems.forEach((itemId, index) => {
-        const item = itemBase[itemId];
-        if (!item) return;
+    let globalIndex = 0;
+    
+    // 直接使用二維數組 targetItems
+    targetItems.forEach((row, rowIndex) => {
+        // 創建每一行的容器
+        const rowContainer = document.createElement('div');
+        rowContainer.className = 'firelord-set-button-row';
+        rowContainer.style.display = 'flex';
+        rowContainer.style.gap = '10px';
+        rowContainer.style.marginBottom = '10px';
         
-        const button = document.createElement('button');
-        button.className = `firelord-set-target-btn ${index === 0 ? 'active' : ''}`;
-        button.setAttribute('data-item-id', itemId);
-        
-        // 使用道具圖片作為按鈕內容
-        const itemDisplay = getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', imageSheet);
-        button.innerHTML = itemDisplay;
-        
-        // 添加點擊事件
-        button.addEventListener('click', () => {
-            // 移除其他按鈕的active狀態
-            buttonContainer.querySelectorAll('.firelord-set-target-btn').forEach(btn => {
-                btn.classList.remove('active');
+        row.forEach((itemId) => {
+            const item = itemBase[itemId];
+            if (!item) return;
+            
+            const button = document.createElement('button');
+            button.className = `firelord-set-target-btn ${globalIndex === 0 ? 'active' : ''}`;
+            button.setAttribute('data-item-id', itemId);
+            
+            // 使用道具圖片作為按鈕內容
+            const itemDisplay = getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', imageSheet);
+            button.innerHTML = itemDisplay;
+            
+            // 添加點擊事件
+            button.addEventListener('click', () => {
+                // 移除其他按鈕的active狀態
+                buttonContainer.querySelectorAll('.firelord-set-target-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // 添加當前按鈕的active狀態
+                button.classList.add('active');
+                
+                // 生成對應的表格
+                const tableContainer = document.getElementById('firelord-set-table-container');
+                generateEnchantChainTable(tableContainer, itemId, itemBase, generateTableHTML, imageSheet, enchantingChances);
             });
             
-            // 添加當前按鈕的active狀態
-            button.classList.add('active');
-            
-            // 生成對應的表格
-            const tableContainer = document.getElementById('firelord-set-table-container');
-            generateEnchantChainTable(tableContainer, itemId, itemBase, generateTableHTML, imageSheet, enchantingChances);
+            rowContainer.appendChild(button);
+            globalIndex++;
         });
         
-        buttonContainer.appendChild(button);
+        buttonContainer.appendChild(rowContainer);
     });
 }
 
