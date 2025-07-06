@@ -148,7 +148,92 @@ function generateEnchantChainTable(container, startItemId, itemBase, generateTab
             }
         }
         
-        const price = getMaterialPrice(itemId, itemBase);
+        // 計算price：第一行使用原始price，後續行使用上一行選中plan的cost
+        let price;
+        if (data.length === 0) {
+            // 第一行：使用原始材料價格
+            price = getMaterialPrice(itemId, itemBase);
+        } else {
+            // 後續行：需要計算上一行選中plan的cost
+            const previousItemId = enchantChain[data.length - 1];
+            const previousItem = itemBase[previousItemId];
+            
+            if (previousItem && previousItem.params) {
+                const previousParams = previousItem.params;
+                
+                // 計算上一行的level和slot
+                let previousLevel = 0;
+                const levelKeys = ['min_accuracy', 'min_archery', 'min_defense', 'min_health', 'min_magic', 'min_strength', 'min_jewelry'];
+                for (const levelKey of levelKeys) {
+                    if (previousParams[levelKey]) {
+                        previousLevel = previousParams[levelKey];
+                        break;
+                    }
+                }
+                
+                let previousSlot = previousParams.slot;
+                if (previousSlot === 3 && previousItem.b_t === 3) {
+                    previousSlot = 7;
+                }
+                
+                // 計算上一行的price（遞歸）
+                let previousPrice;
+                if (data.length === 1) {
+                    previousPrice = getMaterialPrice(previousItemId, itemBase);
+                } else {
+                    // 獲取上上一行的選中plan cost
+                    const prevPrevRowData = data[data.length - 2];
+                    const prevPrevSelectedPlanIndex = window.fireloadSetState.selectedPlans.get(prevPrevRowData.id) || 0;
+                    const prevPrevSelectedPlan = prevPrevRowData.all_plans[prevPrevSelectedPlanIndex];
+                    previousPrice = prevPrevSelectedPlan ? prevPrevSelectedPlan.cost : getMaterialPrice(previousItemId, itemBase);
+                }
+                
+                // 計算上一行的plans
+                const previousPlans = getEnchantingPlans(previousSlot, previousLevel, enchantingChances, itemBase);
+                if (previousPlans && previousPlans.length > 0) {
+                    const LUCKY_STONE_ID = 593;
+                    
+                    const previousAllPlans = previousPlans.map(plan => {
+                        const scrollName = getItemDisplayContent(plan.combo[0], itemBase, i18n.translate, 'image', imageSheet);
+                        const luckyStoneCount = plan.combo[1];
+                        
+                        const combo = luckyStoneCount > 0
+                            ? `${scrollName}+${getItemDisplayContent(LUCKY_STONE_ID, itemBase, i18n.translate, 'image', imageSheet)}*${luckyStoneCount}`
+                            : scrollName;
+                            
+                        const chance = Math.min(1, plan.probability + (previousParams.enchant_bonus || 0));
+                        const cost = chance > 0 ? (plan.cost + previousPrice) / chance : Infinity;
+
+                        return {
+                            ...plan,
+                            combo,
+                            chance,
+                            cost
+                        };
+                    });
+
+                    const previousBestPlansByChance = new Map();
+                    previousAllPlans.forEach(plan => {
+                        if (!previousBestPlansByChance.has(plan.chance) || plan.cost < previousBestPlansByChance.get(plan.chance).cost) {
+                            previousBestPlansByChance.set(plan.chance, plan);
+                        }
+                    });
+
+                    const previousFilteredPlans = Array.from(previousBestPlansByChance.values());
+                    previousFilteredPlans.sort((a, b) => a.cost - b.cost);
+                    
+                    const previousSelectedPlanIndex = window.fireloadSetState.selectedPlans.get(previousItemId) || 0;
+                    const previousSelectedPlan = previousFilteredPlans[previousSelectedPlanIndex] || previousFilteredPlans[0];
+                    
+                    price = previousSelectedPlan ? previousSelectedPlan.cost : getMaterialPrice(itemId, itemBase);
+                } else {
+                    price = getMaterialPrice(itemId, itemBase);
+                }
+            } else {
+                price = getMaterialPrice(itemId, itemBase);
+            }
+        }
+        
         const targetPrice = getItemSellPrice(enchantTargetId, itemBase);
         
         // 完全仿照enchantCost的plan欄位結構
@@ -369,8 +454,8 @@ function selectPlanOption(itemId, planIndex) {
     // 更新選擇狀態
     window.fireloadSetState.selectedPlans.set(itemId, planIndex);
     
-    // 更新該行的plan內容顯示
-    updatePlanContent(itemId);
+    // 由於price依賴關係，重新生成整個表格
+    updateEntireTable();
     
     console.log(`Selected plan ${planIndex} for item ${itemId}`);
 }
@@ -378,170 +463,20 @@ function selectPlanOption(itemId, planIndex) {
 // 將函數暴露到全局作用域
 window.selectPlanOption = selectPlanOption;
 
+
+
 /**
- * 更新單行的plan內容顯示
- * @param {number} itemId - 道具ID
+ * 重新生成整個表格（當依賴關係複雜時使用）
  */
-function updatePlanContent(itemId) {
-    const { itemBase, imageSheet, enchantingChances } = window.fireloadSetState;
-    
-    if (!itemBase || !imageSheet || !enchantingChances) {
-        console.error('Required data not available for plan content update');
-        return;
-    }
-    
-    const item = itemBase[itemId];
-    if (!item) return;
-    
-    const params = item.params;
-    const enchantTargetId = params?.enchant_id;
-    if (!enchantTargetId) return;
-    
-    // 重新計算該行的plans
-    let level = 0;
-    const levelKeys = ['min_accuracy', 'min_archery', 'min_defense', 'min_health', 'min_magic', 'min_strength', 'min_jewelry'];
-    for (const levelKey of levelKeys) {
-        if (params[levelKey]) {
-            level = params[levelKey];
-            break;
-        }
-    }
-    
-    let slot = params.slot;
-    if (slot === 3 && item.b_t === 3) {
-        slot = 7;
-    }
-    
-    const price = getMaterialPrice(itemId, itemBase);
-    const plans = getEnchantingPlans(slot, level, enchantingChances, itemBase);
-    
-    if (!plans || plans.length === 0) return;
-    
-    // 重新生成filtered_plans
-    const LUCKY_STONE_ID = 593;
-    const all_plans = plans.map(plan => {
-        const scrollName = getItemDisplayContent(plan.combo[0], itemBase, i18n.translate, 'image', imageSheet);
-        const luckyStoneCount = plan.combo[1];
-        
-        const combo = luckyStoneCount > 0
-            ? `${scrollName}+${getItemDisplayContent(LUCKY_STONE_ID, itemBase, i18n.translate, 'image', imageSheet)}*${luckyStoneCount}`
-            : scrollName;
-            
-        const chance = Math.min(1, plan.probability + (params.enchant_bonus || 0));
-        const cost = chance > 0 ? (plan.cost + price) / chance : Infinity;
-
-        return {
-            ...plan,
-            combo,
-            chance,
-            cost
-        };
-    });
-
-    const bestPlansByChance = new Map();
-    all_plans.forEach(plan => {
-        if (!bestPlansByChance.has(plan.chance) || plan.cost < bestPlansByChance.get(plan.chance).cost) {
-            bestPlansByChance.set(plan.chance, plan);
-        }
-    });
-
-    const filtered_plans = Array.from(bestPlansByChance.values());
-    filtered_plans.sort((a, b) => a.cost - b.cost);
-    
-    // 獲取當前選中的plan
-    const selectedPlanIndex = window.fireloadSetState.selectedPlans.get(itemId) || 0;
-    const selectedPlan = filtered_plans[selectedPlanIndex] || filtered_plans[0];
-    
-    // 找到對應的表格行並更新plan欄位
+function updateEntireTable() {
     const tableContainer = document.getElementById('fireload-set-table-container');
     if (!tableContainer) return;
     
-    const rows = tableContainer.querySelectorAll('tbody tr');
-    for (const row of rows) {
-        const idCell = row.querySelector('td:first-child');
-        if (idCell && idCell.textContent == itemId) {
-            const planCell = row.querySelector('td:nth-child(6)'); // plan欄位是第6個
-            if (planCell) {
-                // 重新生成plan內容
-                const accordionId = `accordion-${itemId}-${Array.from(rows).indexOf(row)}`;
-                const hasOtherPlans = filtered_plans.length > 1;
-                
-                let newPlanContent;
-                if (hasOtherPlans) {
-                    // 生成所有可選擇的其他方案（包括當前選中的）
-                    const allSelectableOptions = filtered_plans.map((plan, planIndex) => `
-                        <tr class="plan-option ${planIndex === selectedPlanIndex ? 'selected' : ''}" 
-                            data-plan-index="${planIndex}"
-                            data-item-id="${itemId}"
-                            data-plan-idx="${planIndex}">
-                            <td>${plan.combo}</td>
-                            <td>${formatAsPercentage(plan.chance)}</td>
-                            <td>${formatNumberWithThousandsSeparator(plan.cost)}</td>
-                        </tr>
-                    `).join('');
-                    
-                    newPlanContent = `
-                        <table class="table table-sm table-bordered mb-0">
-                            <thead>
-                                <tr>
-                                    <th>${i18n.translate('combo')}</th>
-                                    <th>${i18n.translate('chance')}</th>
-                                    <th>${i18n.translate('cost')}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="accordion-toggle" 
-                                    data-bs-toggle="collapse" 
-                                    data-bs-target="#${accordionId}" 
-                                    aria-expanded="false" 
-                                    aria-controls="${accordionId}">
-                                    <td>${selectedPlan.combo}</td>
-                                    <td>${formatAsPercentage(selectedPlan.chance)}</td>
-                                    <td>${formatNumberWithThousandsSeparator(selectedPlan.cost)}</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="3">
-                                        <div id="${accordionId}" class="collapse">
-                                            <table class="table table-sm table-bordered mb-0">
-                                                <tbody>
-                                                    ${allSelectableOptions}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    `;
-                } else {
-                    newPlanContent = `
-                        <table class="table table-sm table-bordered mb-0">
-                            <thead>
-                                <tr>
-                                    <th>${i18n.translate('combo')}</th>
-                                    <th>${i18n.translate('chance')}</th>
-                                    <th>${i18n.translate('cost')}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="plan-option selected" data-plan-index="0" data-item-id="${itemId}" data-plan-idx="0">
-                                    <td>${selectedPlan.combo}</td>
-                                    <td>${formatAsPercentage(selectedPlan.chance)}</td>
-                                    <td>${formatNumberWithThousandsSeparator(selectedPlan.cost)}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    `;
-                }
-                
-                planCell.innerHTML = newPlanContent;
-                
-                // 重新綁定手風琴事件
-                bindAccordionEvents(planCell);
-            }
-            break;
-        }
-    }
+    const { enchantChain, itemBase, imageSheet, enchantingChances } = window.fireloadSetState;
+    if (!enchantChain || !itemBase || !enchantingChances) return;
+    
+    // 重新生成表格
+    generateEnchantChainTable(tableContainer, enchantChain[0], itemBase, window.generateTableHTML, imageSheet, enchantingChances);
 }
 
 /**
