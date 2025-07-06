@@ -21,6 +21,7 @@ import { generateCarpentryCostTableData } from '../carpentryCost.js';
 import { generateEnchantCostTableData } from '../enchantCost.js';
 import { generateRecycleCostTableData } from '../recycleCost.js';
 import { generateFirelordSetTableData } from '../tableGenerators/firelordSet.js';
+import { generateMosMarketTable } from '../tableGenerators/mosMarketTable.js';
 import { createItemNameMap, generateTableHTML, getItemSellPrice } from '../utils.js';
 import { initPriceEditor } from '../priceEditor.js';
 import i18n from '../i18n.js';
@@ -202,6 +203,11 @@ export class PageRenderer {
                     containerId = 'firelord-set-table-container';
                     generateFunction = generateFirelordSetTableData;
                     args = [containerId, itemBase, generateTableHTML, createItemNameMap];
+                    break;
+                case 'mos-market-page': // MOS Market 頁面
+                    containerId = 'mos-market-table-container';
+                    generateFunction = generateMosMarketTable;
+                    args = [containerId, itemBase, imageSheet];
                     break;
                 default:
                     console.warn(`未知頁面名稱: ${pageName}`);

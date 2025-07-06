@@ -46,6 +46,7 @@ export class UIController {
             breedingTabButton: '.tab-button[data-tab="breeding-page"]',
             recycleTabButton: '.tab-button[data-tab="recycle-page"]',
             firelordSetTabButton: '.tab-button[data-tab="firelord-set-page"]',
+            mosMarketTabButton: '.tab-button[data-tab="mos-market-page"]',
 
             // 內容標題元素
             tab1ContentH2: '#tab1-content h2',
@@ -66,7 +67,8 @@ export class UIController {
             presentContentH2: '#present-page-content h2',
             breedingContentH2: '#breeding-page-content h2',
             recycleContentH2: '#recycle-page-content h2',
-            firelordSetContentH2: '#firelord-set-page-content h2'
+            firelordSetContentH2: '#firelord-set-page-content h2',
+            mosMarketContentH2: '#mos-market-page-content h2'
         };
 
         // 快取所有元素
@@ -126,6 +128,7 @@ export class UIController {
         this.updateTabButton('breedingTabButton', 'Breeding');
         this.updateTabButton('recycleTabButton', 'Recycle');
         this.updateTabButton('firelordSetTabButton', 'Firelord Set');
+        this.updateTabButton('mosMarketTabButton', 'MOS Market');
 
         // 更新Tab內容標題
         this.updateContentTitle('tab1ContentH2', 'Item');
@@ -147,6 +150,7 @@ export class UIController {
         this.updateContentTitle('breedingContentH2', 'Breeding Cost Calculator');
         this.updateContentTitle('recycleContentH2', 'Recycle Cost Calculator');
         this.updateContentTitle('firelordSetContentH2', 'Firelord Set');
+        this.updateContentTitle('mosMarketContentH2', 'MOS Market');
     }
 
     /**
