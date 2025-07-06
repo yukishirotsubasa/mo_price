@@ -20,6 +20,7 @@ import { generateForgingCostTableData } from '../forgingCost.js';
 import { generateCarpentryCostTableData } from '../carpentryCost.js';
 import { generateEnchantCostTableData } from '../enchantCost.js';
 import { generateRecycleCostTableData } from '../recycleCost.js';
+import { generateFireloadSetTableData } from '../tableGenerators/fireloadSet.js';
 import { createItemNameMap, generateTableHTML, getItemSellPrice } from '../utils.js';
 import { initPriceEditor } from '../priceEditor.js';
 import i18n from '../i18n.js';
@@ -197,6 +198,11 @@ export class PageRenderer {
                         console.error("For Recycle Cost Tab, itemBase or FORGE_FORMULAS data is not available.");
                     }
                     return;
+                case 'fireload-set-page': // Fireload Set 頁面
+                    containerId = 'fireload-set-table-container';
+                    generateFunction = generateFireloadSetTableData;
+                    args = [containerId, itemBase, generateTableHTML, createItemNameMap];
+                    break;
                 default:
                     console.warn(`未知頁面名稱: ${pageName}`);
                     return;
