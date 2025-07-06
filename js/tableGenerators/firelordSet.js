@@ -1,22 +1,22 @@
-// js/tableGenerators/fireloadSet.js - Fireload Set 功能
+// js/tableGenerators/firelordSet.js - Firelord Set 功能
 import i18n from '../i18n.js';
 import { getMaterialPrice, getItemSellPrice, formatNumberWithThousandsSeparator, formatAsPercentage, getItemDisplayContent } from '../utils.js';
 import { getEnchantingPlans } from '../enchantCost.js';
 
 /**
- * 生成 Fireload Set 表格數據
+ * 生成 Firelord Set 表格數據
  * @param {string} containerId - 容器ID
  * @param {object} itemBase - 物品基礎數據
  * @param {function} generateTableHTML - 生成表格HTML的函數
  * @param {function} createItemNameMap - 創建物品名稱映射的函數
  */
-export function generateFireloadSetTableData(containerId, itemBase, generateTableHTML, createItemNameMap) {
+export function generateFirelordSetTableData(containerId, itemBase, generateTableHTML, createItemNameMap) {
     // 將generateTableHTML存儲為全局變量，供按鈕事件使用
     window.generateTableHTML = generateTableHTML;
     
     // 初始化選擇狀態管理
-    if (!window.fireloadSetState) {
-        window.fireloadSetState = {
+    if (!window.firelordSetState) {
+        window.firelordSetState = {
             selectedPlans: new Map(), // Map<itemId, selectedPlanIndex>
             useMarketPrice: new Map(), // Map<itemId, boolean> - 是否使用市場價格
             enchantChain: [],
@@ -27,7 +27,7 @@ export function generateFireloadSetTableData(containerId, itemBase, generateTabl
     }
     
     const container = document.getElementById(containerId);
-    const buttonContainer = document.getElementById('fireload-set-button-container');
+    const buttonContainer = document.getElementById('firelord-set-button-container');
     
     if (!itemBase) {
         container.innerHTML = '<p>Item base data not loaded.</p>';
@@ -48,9 +48,9 @@ export function generateFireloadSetTableData(containerId, itemBase, generateTabl
     const imageSheet = window.allData?.imageSheet || null;
     
     // 更新全局狀態
-    window.fireloadSetState.itemBase = itemBase;
-    window.fireloadSetState.imageSheet = imageSheet;
-    window.fireloadSetState.enchantingChances = enchantingChances;
+    window.firelordSetState.itemBase = itemBase;
+    window.firelordSetState.imageSheet = imageSheet;
+    window.firelordSetState.enchantingChances = enchantingChances;
     
     // 創建按鈕區域
     createTargetItemButtons(buttonContainer, targetItems, itemBase, imageSheet, enchantingChances, generateTableHTML);
@@ -78,7 +78,7 @@ function createTargetItemButtons(buttonContainer, targetItems, itemBase, imageSh
         if (!item) return;
         
         const button = document.createElement('button');
-        button.className = `fireload-set-target-btn ${index === 0 ? 'active' : ''}`;
+        button.className = `firelord-set-target-btn ${index === 0 ? 'active' : ''}`;
         button.setAttribute('data-item-id', itemId);
         
         // 使用道具圖片作為按鈕內容
@@ -88,7 +88,7 @@ function createTargetItemButtons(buttonContainer, targetItems, itemBase, imageSh
         // 添加點擊事件
         button.addEventListener('click', () => {
             // 移除其他按鈕的active狀態
-            buttonContainer.querySelectorAll('.fireload-set-target-btn').forEach(btn => {
+            buttonContainer.querySelectorAll('.firelord-set-target-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             
@@ -96,7 +96,7 @@ function createTargetItemButtons(buttonContainer, targetItems, itemBase, imageSh
             button.classList.add('active');
             
             // 生成對應的表格
-            const tableContainer = document.getElementById('fireload-set-table-container');
+            const tableContainer = document.getElementById('firelord-set-table-container');
             generateEnchantChainTable(tableContainer, itemId, itemBase, generateTableHTML, imageSheet, enchantingChances);
         });
         
@@ -124,7 +124,7 @@ function generateEnchantChainTable(container, startItemId, itemBase, generateTab
     }
     
     // 更新全局狀態中的enchant chain
-    window.fireloadSetState.enchantChain = enchantChain;
+    window.firelordSetState.enchantChain = enchantChain;
     
     // 完全仿照enchantCost的表格結構
     const headers = ['market price', 'name', 'level', 'bonus', 'price', 'plan', 'prod price', 'prod name', 'prod id'];
@@ -218,7 +218,7 @@ function generateEnchantChainTable(container, startItemId, itemBase, generateTab
                 const hasOtherPlans = filtered_plans.length > 1;
 
                 // 獲取當前選中的plan索引（預設為0，即最佳方案）
-                const selectedPlanIndex = window.fireloadSetState.selectedPlans.get(itemId) || 0;
+                const selectedPlanIndex = window.firelordSetState.selectedPlans.get(itemId) || 0;
                 const selectedPlan = filtered_plans[selectedPlanIndex] || bestPlan;
                 
                 if (hasOtherPlans) {
@@ -298,7 +298,7 @@ function generateEnchantChainTable(container, startItemId, itemBase, generateTab
             marketPriceContent = formatNumberWithThousandsSeparator(getMaterialPrice(itemId, itemBase));
         } else {
             // 後續行：顯示開關
-            const isChecked = window.fireloadSetState.useMarketPrice.get(itemId) || false;
+            const isChecked = window.firelordSetState.useMarketPrice.get(itemId) || false;
             const marketPrice = getMaterialPrice(itemId, itemBase);
             marketPriceContent = `
                 <div class="market-price-toggle">
@@ -349,8 +349,8 @@ function generateEnchantChainTable(container, startItemId, itemBase, generateTab
 
     // 初始化所有行的選擇狀態（預設選擇最佳方案）
     data.forEach(item => {
-        if (!window.fireloadSetState.selectedPlans.has(item.id)) {
-            window.fireloadSetState.selectedPlans.set(item.id, 0); // 預設選擇索引0（最佳方案）
+        if (!window.firelordSetState.selectedPlans.has(item.id)) {
+            window.firelordSetState.selectedPlans.set(item.id, 0); // 預設選擇索引0（最佳方案）
         }
     });
 
@@ -404,7 +404,7 @@ function calculateItemPrice(itemId, itemIndex, enchantChain, itemBase, enchantin
     }
     
     // 檢查當前道具是否使用市場價格
-    const useMarketPrice = window.fireloadSetState.useMarketPrice.get(itemId);
+    const useMarketPrice = window.firelordSetState.useMarketPrice.get(itemId);
     if (useMarketPrice) {
         return getMaterialPrice(itemId, itemBase);
     }
@@ -472,7 +472,7 @@ function calculateItemPrice(itemId, itemIndex, enchantChain, itemBase, enchantin
     const previousFilteredPlans = Array.from(previousBestPlansByChance.values());
     previousFilteredPlans.sort((a, b) => a.cost - b.cost);
     
-    const previousSelectedPlanIndex = window.fireloadSetState.selectedPlans.get(previousItemId) || 0;
+    const previousSelectedPlanIndex = window.firelordSetState.selectedPlans.get(previousItemId) || 0;
     const previousSelectedPlan = previousFilteredPlans[previousSelectedPlanIndex] || previousFilteredPlans[0];
     
     return previousSelectedPlan ? previousSelectedPlan.cost : getMaterialPrice(itemId, itemBase);
@@ -485,7 +485,7 @@ function calculateItemPrice(itemId, itemIndex, enchantChain, itemBase, enchantin
  */
 function selectPlanOption(itemId, planIndex) {
     // 更新選擇狀態
-    window.fireloadSetState.selectedPlans.set(itemId, planIndex);
+    window.firelordSetState.selectedPlans.set(itemId, planIndex);
     
     // 由於price依賴關係，重新生成整個表格
     updateEntireTable();
@@ -503,7 +503,7 @@ window.selectPlanOption = selectPlanOption;
  */
 function toggleMarketPrice(itemId, useMarketPrice) {
     // 更新狀態
-    window.fireloadSetState.useMarketPrice.set(itemId, useMarketPrice);
+    window.firelordSetState.useMarketPrice.set(itemId, useMarketPrice);
     
     // 重新生成整個表格
     updateEntireTable();
@@ -520,10 +520,10 @@ window.toggleMarketPrice = toggleMarketPrice;
  * 重新生成整個表格（當依賴關係複雜時使用）
  */
 function updateEntireTable() {
-    const tableContainer = document.getElementById('fireload-set-table-container');
+    const tableContainer = document.getElementById('firelord-set-table-container');
     if (!tableContainer) return;
     
-    const { enchantChain, itemBase, imageSheet, enchantingChances } = window.fireloadSetState;
+    const { enchantChain, itemBase, imageSheet, enchantingChances } = window.firelordSetState;
     if (!enchantChain || !itemBase || !enchantingChances) return;
     
     // 重新生成表格

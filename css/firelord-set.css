@@ -1,5 +1,5 @@
-/* Fireload Set 專用樣式 */
-.fireload-set-buttons {
+/* Firelord Set 專用樣式 */
+.firelord-set-buttons {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
@@ -9,7 +9,7 @@
     border: 1px solid var(--border-color, #dee2e6);
 }
 
-.fireload-set-target-btn {
+.firelord-set-target-btn {
     padding: 8px 12px;
     border: 2px solid var(--border-color, #dee2e6);
     background-color: var(--bg-primary, #ffffff);
@@ -22,21 +22,21 @@
     justify-content: center;
 }
 
-.fireload-set-target-btn:hover {
+.firelord-set-target-btn:hover {
     border-color: var(--primary-color, #007bff);
     background-color: var(--bg-hover, #f8f9fa);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.fireload-set-target-btn.active {
+.firelord-set-target-btn.active {
     border-color: var(--primary-color, #007bff);
     background-color: var(--primary-color, #007bff);
     color: white;
     box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
 }
 
-.fireload-set-target-btn img {
+.firelord-set-target-btn img {
     max-width: 32px;
     max-height: 32px;
     object-fit: contain;
@@ -44,14 +44,14 @@
 
 /* 響應式設計 */
 @media (max-width: 768px) {
-    .fireload-set-buttons {
-        flex-wrap: wrap;
+    .firelord-set-buttons {
+        flex-direction: column;
         gap: 8px;
     }
-    
-    .fireload-set-target-btn {
-        min-width: 50px;
-        padding: 6px 10px;
+
+    .firelord-set-target-btn {
+        min-width: auto;
+        padding: 10px;
     }
 }
 
@@ -69,32 +69,32 @@
 }
 
 /* 手風琴樣式 - 仿照enchantCost */
-#fireload-set-table-container .accordion-toggle {
+#firelord-set-table-container .accordion-toggle {
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
 
-#fireload-set-table-container .accordion-toggle:hover {
+#firelord-set-table-container .accordion-toggle:hover {
     background-color: var(--bg-hover, #f5f5f5);
 }
 
 /* Plan選擇樣式 */
-#fireload-set-table-container .plan-option {
+#firelord-set-table-container .plan-option {
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
-#fireload-set-table-container .plan-option:hover {
+#firelord-set-table-container .plan-option:hover {
     background-color: var(--bg-hover, #f5f5f5);
 }
 
-#fireload-set-table-container .plan-option.selected {
+#firelord-set-table-container .plan-option.selected {
     background-color: #e3f2fd;
     border-left: 3px solid #2196f3;
     font-weight: bold;
 }
 
-#fireload-set-table-container .plan-option.selected td {
+#firelord-set-table-container .plan-option.selected td {
     color: #1976d2;
 }
 
@@ -123,45 +123,45 @@
     color: var(--text-color, #333);
 }
 
-#fireload-set-table-container .collapse {
+#firelord-set-table-container .collapse {
     display: none;
 }
 
-#fireload-set-table-container .collapse.show {
+#firelord-set-table-container .collapse.show {
     display: block;
 }
 
-#fireload-set-table-container .table-sm th,
-#fireload-set-table-container .table-sm td {
+#firelord-set-table-container .table-sm th,
+#firelord-set-table-container .table-sm td {
     padding: 4px 8px;
     font-size: 0.875em;
 }
 
-#fireload-set-table-container .table-bordered {
+#firelord-set-table-container .table-bordered {
     border: 1px solid var(--border-color, #dee2e6);
 }
 
-#fireload-set-table-container .table-bordered th,
-#fireload-set-table-container .table-bordered td {
+#firelord-set-table-container .table-bordered th,
+#firelord-set-table-container .table-bordered td {
     border: 1px solid var(--border-color, #dee2e6);
 }
 
 /* 確保表格樣式與enchantCost一致 */
-#fireload-set-table-container table {
+#firelord-set-table-container table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
 }
 
-#fireload-set-table-container th,
-#fireload-set-table-container td {
+#firelord-set-table-container th,
+#firelord-set-table-container td {
     padding: 8px 12px;
     border: 1px solid var(--border-color, #dee2e6);
     text-align: left;
     vertical-align: middle;
 }
 
-#fireload-set-table-container th {
+#firelord-set-table-container th {
     background-color: var(--bg-secondary, #f8f9fa);
     font-weight: bold;
     position: sticky;
@@ -169,28 +169,28 @@
     z-index: 10;
 }
 
-#fireload-set-table-container tbody tr:hover {
+#firelord-set-table-container tbody tr:hover {
     background-color: var(--bg-hover, #f5f5f5);
 }
 
 /* 深色主題支持 */
-[data-theme="dark"] .fireload-set-buttons {
+[data-theme="dark"] .firelord-set-buttons {
     background-color: var(--bg-secondary-dark, #2d3748);
     border-color: var(--border-color-dark, #4a5568);
 }
 
-[data-theme="dark"] .fireload-set-target-btn {
+[data-theme="dark"] .firelord-set-target-btn {
     background-color: var(--bg-primary-dark, #1a202c);
     border-color: var(--border-color-dark, #4a5568);
     color: var(--text-color-dark, #e2e8f0);
 }
 
-[data-theme="dark"] .fireload-set-target-btn:hover {
+[data-theme="dark"] .firelord-set-target-btn:hover {
     background-color: var(--bg-hover-dark, #2d3748);
     border-color: var(--primary-color-dark, #63b3ed);
 }
 
-[data-theme="dark"] .fireload-set-target-btn.active {
+[data-theme="dark"] .firelord-set-target-btn.active {
     background-color: var(--primary-color-dark, #63b3ed);
     border-color: var(--primary-color-dark, #63b3ed);
 }
@@ -201,48 +201,48 @@
     color: var(--text-color-dark, #9ca3af);
 }
 
-[data-theme="dark"] #fireload-set-table-container .accordion-toggle:hover {
+[data-theme="dark"] #firelord-set-table-container .accordion-toggle:hover {
     background-color: var(--bg-hover-dark, #2d3748);
 }
 
-[data-theme="dark"] #fireload-set-table-container .table-bordered {
+[data-theme="dark"] #firelord-set-table-container .table-bordered {
     border-color: var(--border-color-dark, #4a5568);
 }
 
-[data-theme="dark"] #fireload-set-table-container .table-bordered th,
-[data-theme="dark"] #fireload-set-table-container .table-bordered td {
+[data-theme="dark"] #firelord-set-table-container .table-bordered th,
+[data-theme="dark"] #firelord-set-table-container .table-bordered td {
     border-color: var(--border-color-dark, #4a5568);
     background-color: var(--bg-primary-dark, #1a202c);
     color: var(--text-color-dark, #e2e8f0);
 }
 
-[data-theme="dark"] #fireload-set-table-container th {
+[data-theme="dark"] #firelord-set-table-container th {
     background-color: var(--bg-secondary-dark, #2d3748);
     color: var(--text-color-dark, #e2e8f0);
     border-color: var(--border-color-dark, #4a5568);
 }
 
-[data-theme="dark"] #fireload-set-table-container td {
+[data-theme="dark"] #firelord-set-table-container td {
     border-color: var(--border-color-dark, #4a5568);
     color: var(--text-color-dark, #e2e8f0);
 }
 
-[data-theme="dark"] #fireload-set-table-container tbody tr:hover {
+[data-theme="dark"] #firelord-set-table-container tbody tr:hover {
     background-color: var(--bg-hover-dark, #2d3748);
 }
 
 /* 深色主題的Plan選擇樣式 */
-[data-theme="dark"] #fireload-set-table-container .plan-option:hover {
+[data-theme="dark"] #firelord-set-table-container .plan-option:hover {
     background-color: var(--bg-hover-dark, #2d3748);
 }
 
-[data-theme="dark"] #fireload-set-table-container .plan-option.selected {
+[data-theme="dark"] #firelord-set-table-container .plan-option.selected {
     background-color: #1e3a8a;
     border-left: 3px solid #3b82f6;
     color: var(--text-color-dark, #e2e8f0);
 }
 
-[data-theme="dark"] #fireload-set-table-container .plan-option.selected td {
+[data-theme="dark"] #firelord-set-table-container .plan-option.selected td {
     color: #93c5fd;
 }
 
