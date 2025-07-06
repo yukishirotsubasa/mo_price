@@ -19,6 +19,7 @@ export function generateFirelordSetTableData(containerId, itemBase, generateTabl
         window.firelordSetState = {
             selectedPlans: new Map(), // Map<itemId, selectedPlanIndex>
             useMarketPrice: new Map(), // Map<itemId, boolean> - 是否使用市場價格
+            selectedForgeFormula: new Map(), // Map<itemId, formulaId> - 選中的鍛造公式
             enchantChain: [],
             itemBase: null,
             imageSheet: null,
@@ -42,7 +43,8 @@ export function generateFirelordSetTableData(containerId, itemBase, generateTabl
     }
 
     // 目標道具ID [357, 354]
-    const targetItems = [357, 354];
+    const targetItems = [357, 353, 354, 355, 356, 495 ,496, 503, 504,
+        1043, 1327, 1833, 2301, 2397, 2412, 2427, 2443, 2459, 2475, 2709];
     
     // 獲取 imageSheet 數據
     const imageSheet = window.allData?.imageSheet || null;
@@ -140,192 +142,40 @@ function generateEnchantChainTable(container, startItemId, itemBase, generateTab
         // 只顯示有enchant_id的項目，最後一個沒有enchant_id的不顯示
         if (!enchantTargetId) return;
         
-        let level = 0;
-        const levelKeys = ['min_accuracy', 'min_archery', 'min_defense', 'min_health', 'min_magic', 'min_strength', 'min_jewelry'];
-        for (const levelKey of levelKeys) {
-            if (params[levelKey]) {
-                level = params[levelKey];
-                break;
-            }
-        }
-        
-        // 計算price：使用新的遞歸函數來正確處理所有依賴關係
-        const price = calculateItemPrice(itemId, index, enchantChain, itemBase, enchantingChances, imageSheet);
-        
-        const targetPrice = getItemSellPrice(enchantTargetId, itemBase);
-        
-        // 完全仿照enchantCost的plan欄位結構
-        let slot = params.slot;
-        if (slot === 3 && item.b_t === 3) {
-            slot = 7;
-        }
-
-        const plans = getEnchantingPlans(slot, level, enchantingChances, itemBase);
-        
-        let planContent;
-        let filtered_plans = []; // 在外層聲明
-        
-        if (!plans || plans.length === 0) {
-            planContent = '<div class="no-plans">No enchanting plans available</div>';
-        } else {
-            const LUCKY_STONE_ID = 593;
+        // 特殊處理：當enchantTargetId為608時，插入鍛造公式選擇行
+        if (enchantTargetId === 608) {
+            // 先添加當前行（附魔到608的行）
+            addEnchantRow(itemId, index, item, params, enchantTargetId, enchantChain, itemBase, enchantingChances, imageSheet, data);
             
-            const all_plans = plans.map(plan => {
-                const scrollName = getItemDisplayContent(plan.combo[0], itemBase, i18n.translate, 'image', imageSheet);
-                const luckyStoneCount = plan.combo[1];
-                
-                const combo = luckyStoneCount > 0
-                    ? `${scrollName}+${getItemDisplayContent(LUCKY_STONE_ID, itemBase, i18n.translate, 'image', imageSheet)}*${luckyStoneCount}`
-                    : scrollName;
+            // 然後添加鍛造公式選擇行
+            addForgeFormulaRow(608, data, itemBase, imageSheet);
+            
+            // 獲取選中的鍛造公式結果，繼續處理後續的enchant chain
+            const selectedFormulaId = window.firelordSetState.selectedForgeFormula.get(608) || 232; // 預設選擇公式232
+            const forgeFormulas = window.allData?.FORGE_FORMULAS;
+            if (forgeFormulas && forgeFormulas[selectedFormulaId]) {
+                const resultItemId = forgeFormulas[selectedFormulaId].item_id;
+                // 繼續處理鍛造結果的enchant chain
+                const resultEnchantChain = getEnchantChain(resultItemId, itemBase);
+                resultEnchantChain.forEach((resultItemId, resultIndex) => {
+                    const resultItem = itemBase[resultItemId];
+                    if (!resultItem) return;
                     
-                const chance = Math.min(1, plan.probability + (params.enchant_bonus || 0));
-                const cost = chance > 0 ? (plan.cost + price) / chance : Infinity;
-
-                return {
-                    ...plan,
-                    combo,
-                    chance,
-                    cost
-                };
-            });
-
-            // 過濾邏輯：當多個附魔方案的 chance（成功率）相同時，只保留其中 cost（期望成本）最低的那一個
-            const bestPlansByChance = new Map();
-            all_plans.forEach(plan => {
-                if (!bestPlansByChance.has(plan.chance) || plan.cost < bestPlansByChance.get(plan.chance).cost) {
-                    bestPlansByChance.set(plan.chance, plan);
-                }
-            });
-
-            filtered_plans = Array.from(bestPlansByChance.values());
-            filtered_plans.sort((a, b) => a.cost - b.cost);
-
-            if (filtered_plans.length === 0) {
-                planContent = '<div class="no-plans">No valid enchanting plans</div>';
-            } else {
-                const accordionId = `accordion-${itemId}-${index}`;
-                const bestPlan = filtered_plans[0];
-
-                const otherPlansBody = filtered_plans.slice(1).map(plan => `
-                    <tr>
-                        <td>${plan.combo}</td>
-                        <td>${formatAsPercentage(plan.chance)}</td>
-                        <td>${formatNumberWithThousandsSeparator(plan.cost)}</td>
-                    </tr>
-                `).join('');
-
-                // 只有當有其他方案時才顯示手風琴
-                const hasOtherPlans = filtered_plans.length > 1;
-
-                // 獲取當前選中的plan索引（預設為0，即最佳方案）
-                const selectedPlanIndex = window.firelordSetState.selectedPlans.get(itemId) || 0;
-                const selectedPlan = filtered_plans[selectedPlanIndex] || bestPlan;
-                
-                if (hasOtherPlans) {
-                    // 生成所有可選擇的方案（包括當前選中的）
-                    const allSelectableOptions = filtered_plans.map((plan, planIndex) => `
-                        <tr class="plan-option ${planIndex === selectedPlanIndex ? 'selected' : ''}" 
-                            data-plan-index="${planIndex}"
-                            data-item-id="${itemId}"
-                            data-plan-idx="${planIndex}">
-                            <td>${plan.combo}</td>
-                            <td>${formatAsPercentage(plan.chance)}</td>
-                            <td>${formatNumberWithThousandsSeparator(plan.cost)}</td>
-                        </tr>
-                    `).join('');
+                    const resultParams = resultItem.params;
+                    const resultEnchantTargetId = resultParams?.enchant_id;
                     
-                    planContent = `
-                        <table class="table table-sm table-bordered mb-0">
-                            <thead>
-                                <tr>
-                                    <th>${i18n.translate('combo')}</th>
-                                    <th>${i18n.translate('chance')}</th>
-                                    <th>${i18n.translate('cost')}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="accordion-toggle" 
-                                    data-bs-toggle="collapse" 
-                                    data-bs-target="#${accordionId}" 
-                                    aria-expanded="false" 
-                                    aria-controls="${accordionId}">
-                                    <td>${selectedPlan.combo}</td>
-                                    <td>${formatAsPercentage(selectedPlan.chance)}</td>
-                                    <td>${formatNumberWithThousandsSeparator(selectedPlan.cost)}</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="3">
-                                        <div id="${accordionId}" class="collapse">
-                                            <table class="table table-sm table-bordered mb-0">
-                                                <tbody>
-                                                    ${allSelectableOptions}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    `;
-                } else {
-                    // 只有一個方案時，仍然可以選擇
-                    planContent = `
-                        <table class="table table-sm table-bordered mb-0">
-                            <thead>
-                                <tr>
-                                    <th>${i18n.translate('combo')}</th>
-                                    <th>${i18n.translate('chance')}</th>
-                                    <th>${i18n.translate('cost')}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="plan-option selected" data-plan-index="0" data-item-id="${itemId}" data-plan-idx="0">
-                                    <td>${selectedPlan.combo}</td>
-                                    <td>${formatAsPercentage(selectedPlan.chance)}</td>
-                                    <td>${formatNumberWithThousandsSeparator(selectedPlan.cost)}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    `;
-                }
+                    if (!resultEnchantTargetId) return;
+                    
+                    // 創建包含鍛造行的enchantChain，讓後續行能正確識別上一行是鍛造行
+                    const extendedEnchantChain = [...enchantChain, 608, resultItemId];
+                    addEnchantRow(resultItemId, data.length, resultItem, resultParams, resultEnchantTargetId, extendedEnchantChain, itemBase, enchantingChances, imageSheet, data);
+                });
             }
+            return; // 跳過正常的處理流程
         }
         
-        // 生成market price欄位內容
-        let marketPriceContent;
-        if (data.length === 0) {
-            // 第一行：固定顯示市場價格，無開關
-            marketPriceContent = formatNumberWithThousandsSeparator(getMaterialPrice(itemId, itemBase));
-        } else {
-            // 後續行：顯示開關
-            const isChecked = window.firelordSetState.useMarketPrice.get(itemId) || false;
-            const marketPrice = getMaterialPrice(itemId, itemBase);
-            marketPriceContent = `
-                <div class="market-price-toggle">
-                    <label class="market-price-label">
-                        <input type="checkbox" 
-                               class="market-price-checkbox" 
-                               data-item-id="${itemId}"
-                               ${isChecked ? 'checked' : ''}>
-                        <span class="market-price-value">${formatNumberWithThousandsSeparator(marketPrice)}</span>
-                    </label>
-                </div>
-            `;
-        }
-
-        data.push({
-            'market price': marketPriceContent,
-            'name': getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', imageSheet),
-            'level': level,
-            'bonus': params.enchant_bonus || 0,
-            'price': price,
-            'plan': planContent,
-            'prod price': targetPrice,
-            'prod name': getItemDisplayContent(enchantTargetId, itemBase, i18n.translate, 'image', imageSheet),
-            'prod id': enchantTargetId,
-            'all_plans': filtered_plans,
-            'id': itemId // 保留id用於內部邏輯
-        });
+        // 使用通用函數處理普通的附魔行
+        addEnchantRow(itemId, index, item, params, enchantTargetId, enchantChain, itemBase, enchantingChances, imageSheet, data);
     });
     
     const rowMapper = (item, index) => {
@@ -409,7 +259,78 @@ function calculateItemPrice(itemId, itemIndex, enchantChain, itemBase, enchantin
         return getMaterialPrice(itemId, itemBase);
     }
     
-    // 使用上一行選中plan的cost
+    // 檢查是否有鍛造行的特殊處理
+    // 通過檢查data數組來判斷上一行是否為鍛造行
+    if (itemIndex > 0) {
+        // 從全局狀態或data中檢查上一行是否為鍛造行
+        const tableContainer = document.getElementById('firelord-set-table-container');
+        if (tableContainer) {
+            const rows = tableContainer.querySelectorAll('tbody tr');
+            if (rows.length > itemIndex - 1) {
+                const previousRow = rows[itemIndex - 1];
+                const planCell = previousRow.querySelector('td:nth-child(6)'); // plan欄位是第6個
+                
+                // 如果上一行包含鍛造公式選擇，則是鍛造行
+                if (planCell && planCell.querySelector('.forge-formula-option')) {
+                    const selectedForgeOption = planCell.querySelector('.forge-formula-option.selected');
+                    if (selectedForgeOption) {
+                        const costCell = selectedForgeOption.querySelector('td:nth-child(3)'); // cost是第3個欄位
+                        if (costCell) {
+                            const costText = costCell.textContent.replace(/,/g, '');
+                            return parseFloat(costText) || getMaterialPrice(itemId, itemBase);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // 備用邏輯：通過enchantChain檢查
+        const previousItemId = enchantChain[itemIndex - 1];
+        if (previousItemId === 608) {
+            // 上一行是鍛造行，獲取選中的鍛造公式cost
+            const selectedFormulaId = window.firelordSetState.selectedForgeFormula.get(608) || 232;
+            const forgeFormulas = window.allData?.FORGE_FORMULAS;
+            
+            if (forgeFormulas && forgeFormulas[selectedFormulaId]) {
+                const formula = forgeFormulas[selectedFormulaId];
+                
+                // 重新計算鍛造cost（考慮當前的price狀態）
+                let patternItems = {};
+                if (Array.isArray(formula.pattern)) {
+                    formula.pattern.flat().forEach(mid => {
+                        if (mid !== -1) {
+                            patternItems[mid] = (patternItems[mid] || 0) + 1;
+                        }
+                    });
+                }
+                
+                let materialPriceTotal = 0;
+                Object.entries(patternItems).forEach(([mid, count]) => {
+                    const item_id = parseInt(mid);
+                    let itemPrice;
+                    
+                    if (item_id === 608) {
+                        // 對於608，檢查是否使用市場價格
+                        const useMarketPrice = window.firelordSetState.useMarketPrice.get(608);
+                        if (useMarketPrice) {
+                            itemPrice = getMaterialPrice(608, itemBase);
+                        } else {
+                            // 使用上上一行的cost（遞歸計算）
+                            itemPrice = calculateItemPrice(608, itemIndex - 1, enchantChain, itemBase, enchantingChances, imageSheet);
+                        }
+                    } else {
+                        itemPrice = getMaterialPrice(item_id, itemBase);
+                    }
+                    
+                    materialPriceTotal += itemPrice * count;
+                });
+                
+                return materialPriceTotal;
+            }
+        }
+    }
+    
+    // 使用上一行選中plan的cost（原有邏輯）
     const previousItemId = enchantChain[itemIndex - 1];
     const previousItem = itemBase[previousItemId];
     
@@ -514,6 +435,32 @@ function toggleMarketPrice(itemId, useMarketPrice) {
 // 將函數暴露到全局作用域
 window.toggleMarketPrice = toggleMarketPrice;
 
+/**
+ * 選擇鍛造公式
+ * @param {number} materialItemId - 材料道具ID
+ * @param {number} formulaId - 鍛造公式ID
+ */
+function selectForgeFormula(materialItemId, formulaId) {
+    // 更新選擇狀態
+    window.firelordSetState.selectedForgeFormula.set(materialItemId, formulaId);
+    
+    // 同時更新selectedPlans，讓鍛造行的plan選擇與公式選擇同步
+    // 找到formulaId在relevantFormulas中的索引
+    const relevantFormulas = [232, 233];
+    const planIndex = relevantFormulas.indexOf(formulaId);
+    if (planIndex !== -1) {
+        window.firelordSetState.selectedPlans.set(materialItemId, planIndex);
+    }
+    
+    // 重新生成整個表格
+    updateEntireTable();
+    
+    console.log(`Selected forge formula ${formulaId} for material ${materialItemId}`);
+}
+
+// 將函數暴露到全局作用域
+window.selectForgeFormula = selectForgeFormula;
+
 
 
 /**
@@ -579,5 +526,398 @@ function bindAccordionEvents(container) {
                 toggleMarketPrice(itemId, useMarketPrice);
             }
         });
+    });
+    
+    // 綁定鍛造公式選擇事件
+    const forgeFormulaOptions = container.querySelectorAll('.forge-formula-option');
+    forgeFormulaOptions.forEach(option => {
+        option.addEventListener('click', (e) => {
+            e.stopPropagation();
+            
+            const formulaId = parseInt(option.getAttribute('data-formula-id'));
+            const materialId = parseInt(option.getAttribute('data-material-id'));
+            
+            if (!isNaN(formulaId) && !isNaN(materialId)) {
+                selectForgeFormula(materialId, formulaId);
+            }
+        });
+    });
+}
+
+/**
+ * 添加普通的附魔行
+ */
+function addEnchantRow(itemId, index, item, params, enchantTargetId, enchantChain, itemBase, enchantingChances, imageSheet, data) {
+    let level = 0;
+    const levelKeys = ['min_accuracy', 'min_archery', 'min_defense', 'min_health', 'min_magic', 'min_strength', 'min_jewelry'];
+    for (const levelKey of levelKeys) {
+        if (params[levelKey]) {
+            level = params[levelKey];
+            break;
+        }
+    }
+    
+    // 計算price：使用新的遞歸函數來正確處理所有依賴關係
+    const price = calculateItemPrice(itemId, index, enchantChain, itemBase, enchantingChances, imageSheet);
+    
+    const targetPrice = getItemSellPrice(enchantTargetId, itemBase);
+    
+    // 完全仿照enchantCost的plan欄位結構
+    let slot = params.slot;
+    if (slot === 3 && item.b_t === 3) {
+        slot = 7;
+    }
+
+    const plans = getEnchantingPlans(slot, level, enchantingChances, itemBase);
+    
+    let planContent;
+    let filtered_plans = []; // 在外層聲明
+    
+    if (!plans || plans.length === 0) {
+        planContent = '<div class="no-plans">No enchanting plans available</div>';
+    } else {
+        const LUCKY_STONE_ID = 593;
+        
+        const all_plans = plans.map(plan => {
+            const scrollName = getItemDisplayContent(plan.combo[0], itemBase, i18n.translate, 'image', imageSheet);
+            const luckyStoneCount = plan.combo[1];
+            
+            const combo = luckyStoneCount > 0
+                ? `${scrollName}+${getItemDisplayContent(LUCKY_STONE_ID, itemBase, i18n.translate, 'image', imageSheet)}*${luckyStoneCount}`
+                : scrollName;
+                
+            const chance = Math.min(1, plan.probability + (params.enchant_bonus || 0));
+            const cost = chance > 0 ? (plan.cost + price) / chance : Infinity;
+
+            return {
+                ...plan,
+                combo,
+                chance,
+                cost
+            };
+        });
+
+        // 過濾邏輯：當多個附魔方案的 chance（成功率）相同時，只保留其中 cost（期望成本）最低的那一個
+        const bestPlansByChance = new Map();
+        all_plans.forEach(plan => {
+            if (!bestPlansByChance.has(plan.chance) || plan.cost < bestPlansByChance.get(plan.chance).cost) {
+                bestPlansByChance.set(plan.chance, plan);
+            }
+        });
+
+        filtered_plans = Array.from(bestPlansByChance.values());
+        filtered_plans.sort((a, b) => a.cost - b.cost);
+
+        if (filtered_plans.length === 0) {
+            planContent = '<div class="no-plans">No valid enchanting plans</div>';
+        } else {
+            const accordionId = `accordion-${itemId}-${index}`;
+            const bestPlan = filtered_plans[0];
+
+            const otherPlansBody = filtered_plans.slice(1).map(plan => `
+                <tr>
+                    <td>${plan.combo}</td>
+                    <td>${formatAsPercentage(plan.chance)}</td>
+                    <td>${formatNumberWithThousandsSeparator(plan.cost)}</td>
+                </tr>
+            `).join('');
+
+            // 只有當有其他方案時才顯示手風琴
+            const hasOtherPlans = filtered_plans.length > 1;
+
+            // 獲取當前選中的plan索引（預設為0，即最佳方案）
+            const selectedPlanIndex = window.firelordSetState.selectedPlans.get(itemId) || 0;
+            const selectedPlan = filtered_plans[selectedPlanIndex] || bestPlan;
+            
+            if (hasOtherPlans) {
+                // 生成所有可選擇的方案（包括當前選中的）
+                const allSelectableOptions = filtered_plans.map((plan, planIndex) => `
+                    <tr class="plan-option ${planIndex === selectedPlanIndex ? 'selected' : ''}" 
+                        data-plan-index="${planIndex}"
+                        data-item-id="${itemId}"
+                        data-plan-idx="${planIndex}">
+                        <td>${plan.combo}</td>
+                        <td>${formatAsPercentage(plan.chance)}</td>
+                        <td>${formatNumberWithThousandsSeparator(plan.cost)}</td>
+                    </tr>
+                `).join('');
+                
+                planContent = `
+                    <table class="table table-sm table-bordered mb-0">
+                        <thead>
+                            <tr>
+                                <th>${i18n.translate('combo')}</th>
+                                <th>${i18n.translate('chance')}</th>
+                                <th>${i18n.translate('cost')}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="accordion-toggle" 
+                                data-bs-toggle="collapse" 
+                                data-bs-target="#${accordionId}" 
+                                aria-expanded="false" 
+                                aria-controls="${accordionId}">
+                                <td>${selectedPlan.combo}</td>
+                                <td>${formatAsPercentage(selectedPlan.chance)}</td>
+                                <td>${formatNumberWithThousandsSeparator(selectedPlan.cost)}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3">
+                                    <div id="${accordionId}" class="collapse">
+                                        <table class="table table-sm table-bordered mb-0">
+                                            <tbody>
+                                                ${allSelectableOptions}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+            } else {
+                // 只有一個方案時，仍然可以選擇
+                planContent = `
+                    <table class="table table-sm table-bordered mb-0">
+                        <thead>
+                            <tr>
+                                <th>${i18n.translate('combo')}</th>
+                                <th>${i18n.translate('chance')}</th>
+                                <th>${i18n.translate('cost')}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="plan-option selected" data-plan-index="0" data-item-id="${itemId}" data-plan-idx="0">
+                                <td>${selectedPlan.combo}</td>
+                                <td>${formatAsPercentage(selectedPlan.chance)}</td>
+                                <td>${formatNumberWithThousandsSeparator(selectedPlan.cost)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+        }
+    }
+    
+    // 生成market price欄位內容
+    let marketPriceContent;
+    if (data.length === 0) {
+        // 第一行：固定顯示市場價格，無開關
+        marketPriceContent = formatNumberWithThousandsSeparator(getMaterialPrice(itemId, itemBase));
+    } else {
+        // 後續行：顯示開關
+        const isChecked = window.firelordSetState.useMarketPrice.get(itemId) || false;
+        const marketPrice = getMaterialPrice(itemId, itemBase);
+        marketPriceContent = `
+            <div class="market-price-toggle">
+                <label class="market-price-label">
+                    <input type="checkbox" 
+                           class="market-price-checkbox" 
+                           data-item-id="${itemId}"
+                           ${isChecked ? 'checked' : ''}>
+                    <span class="market-price-value">${formatNumberWithThousandsSeparator(marketPrice)}</span>
+                </label>
+            </div>
+        `;
+    }
+
+    data.push({
+        'market price': marketPriceContent,
+        'name': getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', imageSheet),
+        'level': level,
+        'bonus': params.enchant_bonus || 0,
+        'price': price,
+        'plan': planContent,
+        'prod price': targetPrice,
+        'prod name': getItemDisplayContent(enchantTargetId, itemBase, i18n.translate, 'image', imageSheet),
+        'prod id': enchantTargetId,
+        'all_plans': filtered_plans,
+        'id': itemId // 保留id用於內部邏輯
+    });
+}
+
+/**
+ * 添加鍛造公式選擇行
+ */
+function addForgeFormulaRow(materialItemId, data, itemBase, imageSheet) {
+    const forgeFormulas = window.allData?.FORGE_FORMULAS;
+    if (!forgeFormulas) return;
+    
+    // 獲取使用608作為材料的鍛造公式（232和233）
+    const relevantFormulas = [232, 233].filter(formulaId => {
+        const formula = forgeFormulas[formulaId];
+        if (!formula || !formula.pattern) return false;
+        
+        // 檢查pattern中是否包含608
+        return formula.pattern.flat().includes(materialItemId);
+    });
+    
+    if (relevantFormulas.length === 0) return;
+    
+    // 獲取當前選中的公式（預設為232）
+    const selectedFormulaId = window.firelordSetState.selectedForgeFormula.get(materialItemId) || 232;
+    const selectedFormula = forgeFormulas[selectedFormulaId];
+    
+    // 獲取item_id=608的資料來顯示左側欄位
+    const materialItem = itemBase[materialItemId];
+    const materialParams = materialItem?.params || {};
+    
+    // 計算level
+    let level = 0;
+    const levelKeys = ['min_accuracy', 'min_archery', 'min_defense', 'min_health', 'min_magic', 'min_strength', 'min_jewelry'];
+    for (const levelKey of levelKeys) {
+        if (materialParams[levelKey]) {
+            level = materialParams[levelKey];
+            break;
+        }
+    }
+    
+    // 計算price：檢查是否使用市場價格，否則使用上一行選中plan的cost
+    let price;
+    const useMarketPrice = window.firelordSetState.useMarketPrice.get(materialItemId);
+    
+    if (useMarketPrice) {
+        // 如果選擇使用市場價格
+        price = getMaterialPrice(materialItemId, itemBase);
+    } else if (data.length > 0) {
+        // 使用上一行選中plan的cost
+        const previousRowData = data[data.length - 1];
+        const previousSelectedPlanIndex = window.firelordSetState.selectedPlans.get(previousRowData.id) || 0;
+        const previousSelectedPlan = previousRowData.all_plans[previousSelectedPlanIndex];
+        price = previousSelectedPlan ? previousSelectedPlan.cost : getMaterialPrice(materialItemId, itemBase);
+    } else {
+        price = getMaterialPrice(materialItemId, itemBase);
+    }
+    
+    // 生成鍛造公式選擇內容（移除chance欄位，因為是100%）
+    const formulaOptions = relevantFormulas.map(formulaId => {
+        const formula = forgeFormulas[formulaId];
+        const resultItemId = formula.item_id;
+        
+        // 計算材料成本（仿照forgingCost的邏輯）
+        let patternItems = {};
+        if (Array.isArray(formula.pattern)) {
+            formula.pattern.flat().forEach(mid => {
+                if (mid !== -1) {
+                    patternItems[mid] = (patternItems[mid] || 0) + 1;
+                }
+            });
+        }
+        
+        let materialPriceTotal = 0;
+        const pattern = Object.entries(patternItems).map(([mid, count]) => {
+            const item_id = parseInt(mid);
+            const name = getItemDisplayContent(item_id, itemBase, i18n.translate, 'image', imageSheet);
+            // 如果是608，使用計算出的price，否則使用市場價格
+            const itemPrice = item_id === materialItemId ? price : getMaterialPrice(item_id, itemBase);
+            materialPriceTotal += itemPrice * count;
+            return `${name}*${count}`;
+        }).join(' + ');
+        
+        return {
+            formulaId,
+            resultItemId,
+            resultName: getItemDisplayContent(resultItemId, itemBase, i18n.translate, 'image', imageSheet),
+            pattern,
+            cost: formatNumberWithThousandsSeparator(materialPriceTotal.toFixed(2)),
+            isSelected: formulaId === selectedFormulaId
+        };
+    });
+    
+    // 生成plan欄位內容（鍛造公式選擇，移除chance欄位）
+    const planContent = `
+        <table class="table table-sm table-bordered mb-0">
+            <thead>
+                <tr>
+                    <th>Formula</th>
+                    <th>Materials</th>
+                    <th>Cost</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${formulaOptions.map(option => `
+                    <tr class="forge-formula-option ${option.isSelected ? 'selected' : ''}" 
+                        data-formula-id="${option.formulaId}"
+                        data-material-id="${materialItemId}">
+                        <td>${option.formulaId}</td>
+                        <td>${option.pattern}</td>
+                        <td>${option.cost}</td>
+                        <td>${option.resultName}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+    
+    // 獲取選中公式的結果物品資料
+    const selectedResultItemId = selectedFormula.item_id;
+    const selectedResultPrice = getItemSellPrice(selectedResultItemId, itemBase);
+    const selectedResultName = getItemDisplayContent(selectedResultItemId, itemBase, i18n.translate, 'image', imageSheet);
+    
+    // 生成market price欄位內容
+    const isChecked = window.firelordSetState.useMarketPrice.get(materialItemId) || false;
+    const marketPrice = getMaterialPrice(materialItemId, itemBase);
+    const marketPriceContent = `
+        <div class="market-price-toggle">
+            <label class="market-price-label">
+                <input type="checkbox" 
+                       class="market-price-checkbox" 
+                       data-item-id="${materialItemId}"
+                       ${isChecked ? 'checked' : ''}>
+                <span class="market-price-value">${formatNumberWithThousandsSeparator(marketPrice)}</span>
+            </label>
+        </div>
+    `;
+    
+    // 重新計算所有鍛造公式的cost（基於當前price）
+    const recalculatedFormulaOptions = relevantFormulas.map(formulaId => {
+        const formula = forgeFormulas[formulaId];
+        
+        // 計算材料成本（使用當前的price）
+        let patternItems = {};
+        if (Array.isArray(formula.pattern)) {
+            formula.pattern.flat().forEach(mid => {
+                if (mid !== -1) {
+                    patternItems[mid] = (patternItems[mid] || 0) + 1;
+                }
+            });
+        }
+        
+        let materialPriceTotal = 0;
+        Object.entries(patternItems).forEach(([mid, count]) => {
+            const item_id = parseInt(mid);
+            // 如果是608，使用計算出的price，否則使用市場價格
+            const itemPrice = item_id === materialItemId ? price : getMaterialPrice(item_id, itemBase);
+            materialPriceTotal += itemPrice * count;
+        });
+        
+        return {
+            formulaId,
+            cost: materialPriceTotal,
+            isSelected: formulaId === selectedFormulaId
+        };
+    });
+    
+    // 創建類似附魔plan的結構，讓後續行能夠使用
+    const forgeAllPlans = recalculatedFormulaOptions.map((option, index) => ({
+        combo: `Formula ${option.formulaId}`,
+        chance: 1.0, // 鍛造是100%成功
+        cost: option.cost
+    }));
+    
+    data.push({
+        'market price': marketPriceContent,
+        'name': getItemDisplayContent(materialItemId, itemBase, i18n.translate, 'image', imageSheet),
+        'level': level,
+        'bonus': materialParams.enchant_bonus || 0,
+        'price': price,
+        'plan': planContent,
+        'prod price': selectedResultPrice,
+        'prod name': selectedResultName,
+        'prod id': selectedResultItemId,
+        'all_plans': forgeAllPlans,
+        'id': materialItemId, // 使用materialItemId作為ID
+        'isForgeRow': true
     });
 }

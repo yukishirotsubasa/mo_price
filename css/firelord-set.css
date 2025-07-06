@@ -254,3 +254,38 @@
 [data-theme="dark"] .market-price-checkbox {
     accent-color: #3b82f6;
 }
+
+/* 鍛造公式選擇樣式 */
+.forge-formula-option {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.forge-formula-option:hover {
+    background-color: var(--bg-hover, #f5f5f5);
+}
+
+.forge-formula-option.selected {
+    background-color: #e8f5e8;
+    border-left: 3px solid #28a745;
+    font-weight: bold;
+}
+
+.forge-formula-option.selected td {
+    color: #155724;
+}
+
+/* 深色主題的鍛造公式選擇樣式 */
+[data-theme="dark"] .forge-formula-option:hover {
+    background-color: var(--bg-hover-dark, #2d3748);
+}
+
+[data-theme="dark"] .forge-formula-option.selected {
+    background-color: #1e4620;
+    border-left: 3px solid #48bb78;
+    color: var(--text-color-dark, #e2e8f0);
+}
+
+[data-theme="dark"] .forge-formula-option.selected td {
+    color: #9ae6b4;
+}
