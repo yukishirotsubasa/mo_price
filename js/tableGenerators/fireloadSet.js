@@ -18,6 +18,7 @@ export function generateFireloadSetTableData(containerId, itemBase, generateTabl
     if (!window.fireloadSetState) {
         window.fireloadSetState = {
             selectedPlans: new Map(), // Map<itemId, selectedPlanIndex>
+            useMarketPrice: new Map(), // Map<itemId, boolean> - 是否使用市場價格
             enchantChain: [],
             itemBase: null,
             imageSheet: null,
@@ -126,7 +127,7 @@ function generateEnchantChainTable(container, startItemId, itemBase, generateTab
     window.fireloadSetState.enchantChain = enchantChain;
     
     // 完全仿照enchantCost的表格結構
-    const headers = ['id', 'name', 'level', 'bonus', 'price', 'plan', 'prod price', 'prod name', 'prod id'];
+    const headers = ['market price', 'name', 'level', 'bonus', 'price', 'plan', 'prod price', 'prod name', 'prod id'];
     const data = [];
     
     enchantChain.forEach((itemId, index) => {
@@ -148,91 +149,8 @@ function generateEnchantChainTable(container, startItemId, itemBase, generateTab
             }
         }
         
-        // 計算price：第一行使用原始price，後續行使用上一行選中plan的cost
-        let price;
-        if (data.length === 0) {
-            // 第一行：使用原始材料價格
-            price = getMaterialPrice(itemId, itemBase);
-        } else {
-            // 後續行：需要計算上一行選中plan的cost
-            const previousItemId = enchantChain[data.length - 1];
-            const previousItem = itemBase[previousItemId];
-            
-            if (previousItem && previousItem.params) {
-                const previousParams = previousItem.params;
-                
-                // 計算上一行的level和slot
-                let previousLevel = 0;
-                const levelKeys = ['min_accuracy', 'min_archery', 'min_defense', 'min_health', 'min_magic', 'min_strength', 'min_jewelry'];
-                for (const levelKey of levelKeys) {
-                    if (previousParams[levelKey]) {
-                        previousLevel = previousParams[levelKey];
-                        break;
-                    }
-                }
-                
-                let previousSlot = previousParams.slot;
-                if (previousSlot === 3 && previousItem.b_t === 3) {
-                    previousSlot = 7;
-                }
-                
-                // 計算上一行的price（遞歸）
-                let previousPrice;
-                if (data.length === 1) {
-                    previousPrice = getMaterialPrice(previousItemId, itemBase);
-                } else {
-                    // 獲取上上一行的選中plan cost
-                    const prevPrevRowData = data[data.length - 2];
-                    const prevPrevSelectedPlanIndex = window.fireloadSetState.selectedPlans.get(prevPrevRowData.id) || 0;
-                    const prevPrevSelectedPlan = prevPrevRowData.all_plans[prevPrevSelectedPlanIndex];
-                    previousPrice = prevPrevSelectedPlan ? prevPrevSelectedPlan.cost : getMaterialPrice(previousItemId, itemBase);
-                }
-                
-                // 計算上一行的plans
-                const previousPlans = getEnchantingPlans(previousSlot, previousLevel, enchantingChances, itemBase);
-                if (previousPlans && previousPlans.length > 0) {
-                    const LUCKY_STONE_ID = 593;
-                    
-                    const previousAllPlans = previousPlans.map(plan => {
-                        const scrollName = getItemDisplayContent(plan.combo[0], itemBase, i18n.translate, 'image', imageSheet);
-                        const luckyStoneCount = plan.combo[1];
-                        
-                        const combo = luckyStoneCount > 0
-                            ? `${scrollName}+${getItemDisplayContent(LUCKY_STONE_ID, itemBase, i18n.translate, 'image', imageSheet)}*${luckyStoneCount}`
-                            : scrollName;
-                            
-                        const chance = Math.min(1, plan.probability + (previousParams.enchant_bonus || 0));
-                        const cost = chance > 0 ? (plan.cost + previousPrice) / chance : Infinity;
-
-                        return {
-                            ...plan,
-                            combo,
-                            chance,
-                            cost
-                        };
-                    });
-
-                    const previousBestPlansByChance = new Map();
-                    previousAllPlans.forEach(plan => {
-                        if (!previousBestPlansByChance.has(plan.chance) || plan.cost < previousBestPlansByChance.get(plan.chance).cost) {
-                            previousBestPlansByChance.set(plan.chance, plan);
-                        }
-                    });
-
-                    const previousFilteredPlans = Array.from(previousBestPlansByChance.values());
-                    previousFilteredPlans.sort((a, b) => a.cost - b.cost);
-                    
-                    const previousSelectedPlanIndex = window.fireloadSetState.selectedPlans.get(previousItemId) || 0;
-                    const previousSelectedPlan = previousFilteredPlans[previousSelectedPlanIndex] || previousFilteredPlans[0];
-                    
-                    price = previousSelectedPlan ? previousSelectedPlan.cost : getMaterialPrice(itemId, itemBase);
-                } else {
-                    price = getMaterialPrice(itemId, itemBase);
-                }
-            } else {
-                price = getMaterialPrice(itemId, itemBase);
-            }
-        }
+        // 計算price：使用新的遞歸函數來正確處理所有依賴關係
+        const price = calculateItemPrice(itemId, index, enchantChain, itemBase, enchantingChances, imageSheet);
         
         const targetPrice = getItemSellPrice(enchantTargetId, itemBase);
         
@@ -373,8 +291,30 @@ function generateEnchantChainTable(container, startItemId, itemBase, generateTab
             }
         }
         
+        // 生成market price欄位內容
+        let marketPriceContent;
+        if (data.length === 0) {
+            // 第一行：固定顯示市場價格，無開關
+            marketPriceContent = formatNumberWithThousandsSeparator(getMaterialPrice(itemId, itemBase));
+        } else {
+            // 後續行：顯示開關
+            const isChecked = window.fireloadSetState.useMarketPrice.get(itemId) || false;
+            const marketPrice = getMaterialPrice(itemId, itemBase);
+            marketPriceContent = `
+                <div class="market-price-toggle">
+                    <label class="market-price-label">
+                        <input type="checkbox" 
+                               class="market-price-checkbox" 
+                               data-item-id="${itemId}"
+                               ${isChecked ? 'checked' : ''}>
+                        <span class="market-price-value">${formatNumberWithThousandsSeparator(marketPrice)}</span>
+                    </label>
+                </div>
+            `;
+        }
+
         data.push({
-            'id': itemId,
+            'market price': marketPriceContent,
             'name': getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', imageSheet),
             'level': level,
             'bonus': params.enchant_bonus || 0,
@@ -383,14 +323,15 @@ function generateEnchantChainTable(container, startItemId, itemBase, generateTab
             'prod price': targetPrice,
             'prod name': getItemDisplayContent(enchantTargetId, itemBase, i18n.translate, 'image', imageSheet),
             'prod id': enchantTargetId,
-            'all_plans': filtered_plans
+            'all_plans': filtered_plans,
+            'id': itemId // 保留id用於內部邏輯
         });
     });
     
     const rowMapper = (item, index) => {
         return `
             <tr>
-                <td>${item.id}</td>
+                <td>${item['market price']}</td>
                 <td>${item.name}</td>
                 <td>${item.level}</td>
                 <td>${formatAsPercentage(item.bonus)}</td>
@@ -446,6 +387,98 @@ function getEnchantChain(startItemId, itemBase) {
 }
 
 /**
+ * 計算指定道具的price（考慮market price開關和依賴關係）
+ * @param {number} itemId - 道具ID
+ * @param {number} itemIndex - 道具在鏈中的索引
+ * @param {Array} enchantChain - 附魔鏈
+ * @param {object} itemBase - 物品基礎數據
+ * @param {object} enchantingChances - 附魔機率數據
+ * @param {object} imageSheet - 圖片數據
+ * @param {Array} processedData - 已處理的數據（用於遞歸）
+ * @returns {number} 計算出的price
+ */
+function calculateItemPrice(itemId, itemIndex, enchantChain, itemBase, enchantingChances, imageSheet, processedData = []) {
+    if (itemIndex === 0) {
+        // 第一行固定使用市場價格
+        return getMaterialPrice(itemId, itemBase);
+    }
+    
+    // 檢查當前道具是否使用市場價格
+    const useMarketPrice = window.fireloadSetState.useMarketPrice.get(itemId);
+    if (useMarketPrice) {
+        return getMaterialPrice(itemId, itemBase);
+    }
+    
+    // 使用上一行選中plan的cost
+    const previousItemId = enchantChain[itemIndex - 1];
+    const previousItem = itemBase[previousItemId];
+    
+    if (!previousItem || !previousItem.params) {
+        return getMaterialPrice(itemId, itemBase);
+    }
+    
+    // 計算上一行的price（遞歸）
+    const previousPrice = calculateItemPrice(previousItemId, itemIndex - 1, enchantChain, itemBase, enchantingChances, imageSheet, processedData);
+    
+    // 計算上一行的plans和選中的cost
+    const previousParams = previousItem.params;
+    let previousLevel = 0;
+    const levelKeys = ['min_accuracy', 'min_archery', 'min_defense', 'min_health', 'min_magic', 'min_strength', 'min_jewelry'];
+    for (const levelKey of levelKeys) {
+        if (previousParams[levelKey]) {
+            previousLevel = previousParams[levelKey];
+            break;
+        }
+    }
+    
+    let previousSlot = previousParams.slot;
+    if (previousSlot === 3 && previousItem.b_t === 3) {
+        previousSlot = 7;
+    }
+    
+    const previousPlans = getEnchantingPlans(previousSlot, previousLevel, enchantingChances, itemBase);
+    if (!previousPlans || previousPlans.length === 0) {
+        return getMaterialPrice(itemId, itemBase);
+    }
+    
+    // 計算上一行的filtered plans
+    const LUCKY_STONE_ID = 593;
+    const previousAllPlans = previousPlans.map(plan => {
+        const scrollName = getItemDisplayContent(plan.combo[0], itemBase, i18n.translate, 'image', imageSheet);
+        const luckyStoneCount = plan.combo[1];
+        
+        const combo = luckyStoneCount > 0
+            ? `${scrollName}+${getItemDisplayContent(LUCKY_STONE_ID, itemBase, i18n.translate, 'image', imageSheet)}*${luckyStoneCount}`
+            : scrollName;
+            
+        const chance = Math.min(1, plan.probability + (previousParams.enchant_bonus || 0));
+        const cost = chance > 0 ? (plan.cost + previousPrice) / chance : Infinity;
+
+        return {
+            ...plan,
+            combo,
+            chance,
+            cost
+        };
+    });
+
+    const previousBestPlansByChance = new Map();
+    previousAllPlans.forEach(plan => {
+        if (!previousBestPlansByChance.has(plan.chance) || plan.cost < previousBestPlansByChance.get(plan.chance).cost) {
+            previousBestPlansByChance.set(plan.chance, plan);
+        }
+    });
+
+    const previousFilteredPlans = Array.from(previousBestPlansByChance.values());
+    previousFilteredPlans.sort((a, b) => a.cost - b.cost);
+    
+    const previousSelectedPlanIndex = window.fireloadSetState.selectedPlans.get(previousItemId) || 0;
+    const previousSelectedPlan = previousFilteredPlans[previousSelectedPlanIndex] || previousFilteredPlans[0];
+    
+    return previousSelectedPlan ? previousSelectedPlan.cost : getMaterialPrice(itemId, itemBase);
+}
+
+/**
  * 選擇plan選項的處理函數
  * @param {number} itemId - 道具ID
  * @param {number} planIndex - 選中的plan索引
@@ -462,6 +495,24 @@ function selectPlanOption(itemId, planIndex) {
 
 // 將函數暴露到全局作用域
 window.selectPlanOption = selectPlanOption;
+
+/**
+ * 切換市場價格使用狀態
+ * @param {number} itemId - 道具ID
+ * @param {boolean} useMarketPrice - 是否使用市場價格
+ */
+function toggleMarketPrice(itemId, useMarketPrice) {
+    // 更新狀態
+    window.fireloadSetState.useMarketPrice.set(itemId, useMarketPrice);
+    
+    // 重新生成整個表格
+    updateEntireTable();
+    
+    console.log(`Toggled market price for item ${itemId}: ${useMarketPrice}`);
+}
+
+// 將函數暴露到全局作用域
+window.toggleMarketPrice = toggleMarketPrice;
 
 
 
@@ -513,6 +564,19 @@ function bindAccordionEvents(container) {
                 if (accordionContent) {
                     accordionContent.classList.remove('show');
                 }
+            }
+        });
+    });
+    
+    // 綁定market price開關事件
+    const marketPriceCheckboxes = container.querySelectorAll('.market-price-checkbox');
+    marketPriceCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', (e) => {
+            const itemId = parseInt(checkbox.getAttribute('data-item-id'));
+            const useMarketPrice = checkbox.checked;
+            
+            if (!isNaN(itemId)) {
+                toggleMarketPrice(itemId, useMarketPrice);
             }
         });
     });
