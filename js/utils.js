@@ -29,9 +29,11 @@ export function createItemNameMap(itemBase, translateFunction) {
  * @param {Array} itemBase - 物品基礎數據
  * @param {Object} imageSheet - 圖片表數據
  * @param {Function} translateFunction - 翻譯函數
+ * @param {Object} fletchingFormulas - 箭矢組成數據
+ * @param {Object} arrowMaterialImg - 箭矢材料圖片對應數據
  * @returns {string} - 圖片 HTML 或 fallback 文字
  */
-export function generateItemImage(itemId, itemBase, imageSheet, translateFunction) {
+export function generateItemImage(itemId, itemBase, imageSheet, translateFunction, fletchingFormulas, arrowMaterialImg) {
     // 查找物品數據
     const item = Array.isArray(itemBase) 
         ? itemBase.find(item => item.b_i === itemId)
@@ -39,6 +41,22 @@ export function generateItemImage(itemId, itemBase, imageSheet, translateFunctio
     
     if (!item) {
         return `<span class="item-fallback" title="${translateFunction('unknown_item')}">[${itemId}]</span>`;
+    }
+
+    // 🟡 特別處理箭矢（無一般 img，但為 arrow 類型）
+    if ((!item.img || !('sheet' in item.img)) && item.img?.arrow === true && fletchingFormulas && arrowMaterialImg) {
+        const { style, valid } = getArrowImageBackgroundStyleFromFormula(itemId, fletchingFormulas, arrowMaterialImg, imageSheet);
+        if (valid) {
+            const itemName = translateFunction(item.name);
+            return `<span class="item-container">
+                <div class="item-image"
+                     title="${itemName}"
+                     data-item-id="${itemId}"
+                     style="${style}">
+                </div>
+                <span class="item-search-text">${itemName} ${item.name}</span>
+            </span>`;
+        }
     }
     
     // 檢查是否有圖片數據
@@ -94,9 +112,11 @@ export function generateItemImage(itemId, itemBase, imageSheet, translateFunctio
  * @param {Function} translateFunction - 翻譯函數
  * @param {string} displayType - 顯示類型 ('name' 或 'image')
  * @param {Object} imageSheet - 圖片表數據 (當 displayType 為 'image' 時需要)
+ * @param {Object} fletchingFormulas - 箭矢組成數據
+ * @param {Object} arrowMaterialImg - 箭矢材料圖片對應數據
  * @returns {string} - 顯示內容
  */
-export function getItemDisplayContent(itemId, itemBase, translateFunction, displayType = 'name', imageSheet = null) {
+export function getItemDisplayContent(itemId, itemBase, translateFunction, displayType = 'name', imageSheet = null, fletchingFormulas = null, arrowMaterialImg = null) {
     if (displayType === 'name') {
         // 使用現有的 createItemNameMap 邏輯
         const item = Array.isArray(itemBase) 
@@ -113,11 +133,67 @@ export function getItemDisplayContent(itemId, itemBase, translateFunction, displ
             console.warn('imageSheet is required for image display type');
             return getItemDisplayContent(itemId, itemBase, translateFunction, 'name');
         }
-        return generateItemImage(itemId, itemBase, imageSheet, translateFunction);
+        return generateItemImage(itemId, itemBase, imageSheet, translateFunction, fletchingFormulas, arrowMaterialImg);
     }
     
     console.warn(`Unknown display type: ${displayType}`);
     return getItemDisplayContent(itemId, itemBase, translateFunction, 'name');
+}
+
+/**
+ * 根據 FLETCHING_FORMULAS 直接產生箭矢圖片 style（模擬 background-image 疊圖）
+ * @param {number} itemId - 物品 ID
+ * @param {Object} fletchingFormulas - 原始配方資料
+ * @param {Object} arrowMaterialImg - ARROW_MATERIAL_IMG
+ * @param {Object} imageSheet - IMAGE_SHEET
+ * @returns {{ style: string, valid: boolean }}
+ */
+export function getArrowImageBackgroundStyleFromFormula(itemId, fletchingFormulas, arrowMaterialImg, imageSheet) {
+    // 反查 item_id → pattern
+    let pattern = null;
+    for (const key in fletchingFormulas) {
+        const formula = fletchingFormulas[key];
+        if (formula?.item_id === itemId) {
+            pattern = formula.pattern;
+            break;
+        }
+    }
+    if (!pattern || pattern.length !== 3) return { style: '', valid: false };
+
+    // 調整部件順序：箭身、箭頭、箭羽
+    const ordered = [pattern[1], pattern[0], pattern[2]];
+    const backgrounds = [];
+
+    for (const matId of ordered) {
+        const materialInfo = arrowMaterialImg[matId];
+        if (!materialInfo) continue;
+
+        const sheet = imageSheet[materialInfo.sheet];
+        if (!sheet || !sheet.url) continue;
+
+        const tileW = sheet.tile_width || 32;
+        const tileH = sheet.tile_height || 32;
+        const bgX = -(materialInfo.x * tileW);
+        const bgY = -(materialInfo.y * tileH);
+        const url = sheet.url.toLowerCase();
+
+        backgrounds.push(`url('${url}') ${bgX}px ${bgY}px no-repeat`);
+    }
+
+    if (backgrounds.length === 0) return { style: '', valid: false };
+
+    const style = `
+        background: ${backgrounds.join(', ')};
+        width: 32px;
+        height: 32px;
+        display: inline-block;
+        border: 1px solid #ddd;
+        margin: 1px;
+        cursor: pointer;
+        vertical-align: middle;
+    `.trim();
+
+    return { style, valid: true };
 }
 
 /**

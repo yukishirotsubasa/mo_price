@@ -2,7 +2,7 @@
 import { getItemSellPrice, getItemDisplayContent } from '../utils.js';
 import i18n from '../i18n.js';
 
-export function generateKeyWorthTable(objectBase, itemBase) {
+export function generateKeyWorthTable(objectBase, itemBase, fletchingFormulas, arrowMaterialImg) {
     const targetIds = [443, 444, 445, 657, 708, 709, 710];
     const filteredObjectBase = objectBase.filter(obj => targetIds.includes(obj.b_i));
 
@@ -33,13 +33,13 @@ export function generateKeyWorthTable(objectBase, itemBase) {
             });
             // Add active class to the clicked button
             button.classList.add('active');
-            displayKeyDetails(obj, itemBase, tableContainer, valueTableContainer);
+            displayKeyDetails(obj, itemBase, tableContainer, valueTableContainer, fletchingFormulas, arrowMaterialImg);
         });
         buttonContainer.appendChild(button);
     });
 }
 
-function displayKeyDetails(selectedObject, itemBase, tableContainer, valueTableContainer) {
+function displayKeyDetails(selectedObject, itemBase, tableContainer, valueTableContainer, fletchingFormulas, arrowMaterialImg) {
     // Part 2: Generate the main table
     tableContainer.innerHTML = '';
     valueTableContainer.innerHTML = '';
@@ -87,7 +87,7 @@ function displayKeyDetails(selectedObject, itemBase, tableContainer, valueTableC
 
             row.insertCell().textContent = level;
             const nameCell = row.insertCell();
-            nameCell.innerHTML = getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', window.allData?.imageSheet || null);
+            nameCell.innerHTML = getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', window.allData?.imageSheet || null, fletchingFormulas, arrowMaterialImg);
             row.insertCell().textContent = `${(baseChance * 100).toFixed(2)}%`;
             row.insertCell().textContent = `${(realChance * 100).toFixed(2)}%`;
             row.insertCell().textContent = getItemSellPrice(itemId, itemBase);

@@ -2,7 +2,7 @@
 import i18n from '../i18n.js'; // 導入 i18n 模組
 import { getItemDisplayContent } from '../utils.js'; // 導入新的顯示函數
 
-export async function generateItemTable(containerId, itemBase, generateTableHTML, createItemNameMap) {
+export async function generateItemTable(containerId, itemBase, generateTableHTML, createItemNameMap, fletchingFormulas, arrowMaterialImg) {
     const tableContainer = document.getElementById(containerId);
 
     let item_base_config;
@@ -66,7 +66,7 @@ export async function generateItemTable(containerId, itemBase, generateTableHTML
             let value;
             if (field.keyPath === 'name') {
                 // 對於 'name' 欄位，使用新的圖片顯示功能
-                value = getItemDisplayContent(item.b_i, itemBase, i18n.translate, 'image', imageSheet);
+                value = getItemDisplayContent(item.b_i, itemBase, i18n.translate, 'image', imageSheet, fletchingFormulas, arrowMaterialImg);
             } else {
                 value = getNestedValue(item, field.keyPath);
             }

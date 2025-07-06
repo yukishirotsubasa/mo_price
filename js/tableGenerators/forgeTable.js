@@ -2,7 +2,7 @@
 import i18n from '../i18n.js'; // 導入 i18n 模組
 import { getItemDisplayContent } from '../utils.js'; // 導入新的顯示函數
 
-export function generateForgeTable(containerId, FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase) {
+export function generateForgeTable(containerId, FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase, fletchingFormulas, arrowMaterialImg) {
     const forgeTableContainer = document.getElementById(containerId);
 
     // 獲取 imageSheet 數據
@@ -13,7 +13,7 @@ export function generateForgeTable(containerId, FORGE_FORMULAS, generateTableHTM
     const data = Object.keys(FORGE_FORMULAS).map(id => {
         const formula = FORGE_FORMULAS[id];
         const itemId = formula.item_id;
-        const itemName = getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', imageSheet); // 使用圖片顯示
+        const itemName = getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', imageSheet, fletchingFormulas, arrowMaterialImg); // 使用圖片顯示
 
         let level = '';
         if (formula.level !== undefined) {
@@ -34,7 +34,7 @@ export function generateForgeTable(containerId, FORGE_FORMULAS, generateTableHTM
             });
 
             patternString = Object.keys(patternItems).map(id => {
-                const name = getItemDisplayContent(parseInt(id), itemBase, i18n.translate, 'image', imageSheet);
+                const name = getItemDisplayContent(parseInt(id), itemBase, i18n.translate, 'image', imageSheet, fletchingFormulas, arrowMaterialImg);
                 return `${name}*${patternItems[id]}`;
             }).join(', ');
         }

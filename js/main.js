@@ -96,7 +96,7 @@ window.ui.showConflictResolutionModal = showConflictResolutionModal;
  * 渲染所有表格。
  * @param {boolean} forceReload - 是否強制重新載入數據。
  */
-async function renderAllTablesIfDataLoaded() {
+/*async function renderAllTablesIfDataLoaded() {
     try {
         if (Object.keys(allData).length === 0) {
             console.warn("allData 未載入，跳過 renderAllTablesIfDataLoaded。");
@@ -121,18 +121,7 @@ async function renderAllTablesIfDataLoaded() {
         console.error("表格生成失敗:", error);
         errorHandler.logUIError('renderAllTables', error, { dataKeys: Object.keys(allData) });
     }
-}
-
-
-// 這些渲染函數已移動到 CostTableRenderer 中
-
-// 這些函數已移動到 UIController 中
-
-
-
-
-
-
+}*/
 
 document.addEventListener('DOMContentLoaded', async () => {
     // 初始化翻譯

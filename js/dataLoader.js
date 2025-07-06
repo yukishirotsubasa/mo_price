@@ -12,6 +12,8 @@ let _forge = null; // 新增 _forge 變數
 let _imageSheet = null;
 let _items = null; // 新增 _items 變數
 let _monsterBook = null; // 新增 _monsterBook 變數
+let _fletchingFormulas = null;
+let _arrowMaterialImg = null;
 
 export function loadData() {
     return new Promise(async (resolve, reject) => {
@@ -30,6 +32,8 @@ export function loadData() {
             _imageSheet = await loadJsFileVariable(jsFilePath, 'IMAGE_SHEET');
             _items = await loadJsFileVariable(jsFilePath, 'Items');
             _monsterBook = await loadJsFileVariable(jsFilePath, 'MonsterBook');
+            _fletchingFormulas = await loadJsFileVariable(jsFilePath, 'FLETCHING_FORMULAS');
+            _arrowMaterialImg = await loadJsFileVariable(jsFilePath, 'ARROW_MATERIAL_IMG');
             
             // 載入 ItemPacks 變數並設置為全域變數
             try {
@@ -51,7 +55,9 @@ export function loadData() {
                 forge: _forge,
                 imageSheet: _imageSheet,
                 items: _items,
-                monsterBook: _monsterBook
+                monsterBook: _monsterBook,
+                fletchingFormulas: _fletchingFormulas,
+                arrowMaterialImg: _arrowMaterialImg
             });
         } catch (error) {
             console.error("數據載入失敗:", error);

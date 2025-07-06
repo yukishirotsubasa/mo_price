@@ -1,15 +1,7 @@
 import i18n from './i18n.js'; // 導入 i18n 模組
 import { getMaterialPrice, getItemSellPrice, formatNumberWithThousandsSeparator, formatAsPercentage, getItemDisplayContent } from './utils.js'; // 導入所需函式
 
-function testEnchantPlan(enchantingChances, itemBase) {
-    for (const i of [0,1,4,7]) {
-        for (const j of [1,20,50,100,135]) {
-            console.log(getEnchantingPlans(i, j, enchantingChances, itemBase));
-        }
-    }
-}
-
-export function generateEnchantCostTableData(containerId, enchantingChances, generateTableHTML, createItemNameMap, itemBase) {
+export function generateEnchantCostTableData(containerId, enchantingChances, generateTableHTML, createItemNameMap, itemBase, fletchingFormulas, arrowMaterialImg) {
     const container = document.getElementById(containerId);
 
     if (!itemBase || !enchantingChances) {
@@ -52,11 +44,11 @@ export function generateEnchantCostTableData(containerId, enchantingChances, gen
         }
 
         const all_plans = plans.map(plan => {
-            const scrollName = getItemDisplayContent(plan.combo[0], itemBase, i18n.translate, 'image', imageSheet);
+            const scrollName = getItemDisplayContent(plan.combo[0], itemBase, i18n.translate, 'image', imageSheet, fletchingFormulas, arrowMaterialImg);
             const luckyStoneCount = plan.combo[1];
             
             const combo = luckyStoneCount > 0
-                ? `${scrollName}+${getItemDisplayContent(LUCKY_STONE_ID, itemBase, i18n.translate, 'image', imageSheet)}*${luckyStoneCount}`
+                ? `${scrollName}+${getItemDisplayContent(LUCKY_STONE_ID, itemBase, i18n.translate, 'image', imageSheet, fletchingFormulas, arrowMaterialImg)}*${luckyStoneCount}`
                 : scrollName;
                 
             const chance = Math.min(1, plan.probability + (params.enchant_bonus || 0));
@@ -93,12 +85,12 @@ export function generateEnchantCostTableData(containerId, enchantingChances, gen
 
         data.push({
             'id': key,
-            'name': getItemDisplayContent(parseInt(key), itemBase, i18n.translate, 'image', imageSheet),
+            'name': getItemDisplayContent(parseInt(key), itemBase, i18n.translate, 'image', imageSheet, fletchingFormulas, arrowMaterialImg),
             'level': level,
             'bonus': params.enchant_bonus || 0, // 確保 bonus 為數字，以便 formatAsPercentage 處理
             'price': price,
             'prod price': getItemSellPrice(params.enchant_id, itemBase),
-            'prod name': getItemDisplayContent(params.enchant_id, itemBase, i18n.translate, 'image', imageSheet),
+            'prod name': getItemDisplayContent(params.enchant_id, itemBase, i18n.translate, 'image', imageSheet, fletchingFormulas, arrowMaterialImg),
             'prod id': params.enchant_id,
             'all_plans': filtered_plans
         });

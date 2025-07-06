@@ -8,7 +8,7 @@ import { generateItemImage, getItemSellPrice, formatNumberWithThousandsSeparator
  * @param {Array} itemBase - 物品基礎數據
  * @param {Object} imageSheet - 圖片表數據
  */
-export async function generateMosMarketTable(containerId, itemBase, imageSheet) {
+export async function generateMosMarketTable(containerId, itemBase, imageSheet, fletchingFormulas, arrowMaterialImg) {
     const tableContainer = document.getElementById(containerId);
     
     // 檢查 ItemPacks 全域變數是否存在
@@ -39,7 +39,7 @@ export async function generateMosMarketTable(containerId, itemBase, imageSheet) 
         let itemsDisplay = '';
         if (pack.items && Array.isArray(pack.items)) {
             const itemDisplays = pack.items.map(item => {
-                const itemImage = generateItemImage(item.id, itemBase, imageSheet, i18n.translate);
+                const itemImage = generateItemImage(item.id, itemBase, imageSheet, i18n.translate, fletchingFormulas, arrowMaterialImg);
                 return `${itemImage}*${item.count}`;
             });
             itemsDisplay = itemDisplays.join(', ');

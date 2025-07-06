@@ -1,7 +1,7 @@
 import i18n from '../i18n.js'; // 導入 i18n 模組
 import { getItemDisplayContent } from '../utils.js'; // 導入新的顯示函數
 
-export function generateMonsterBookTable(containerId, monsterBook, npcBase, itemBase, generateTableHTML, createItemNameMap) {
+export function generateMonsterBookTable(containerId, monsterBook, npcBase, itemBase, generateTableHTML, createItemNameMap, fletchingFormulas, arrowMaterialImg) {
     const container = document.getElementById(containerId);
 
     if (!monsterBook || !monsterBook.sacrifices) {
@@ -51,7 +51,7 @@ export function generateMonsterBookTable(containerId, monsterBook, npcBase, item
                 if (drop.mon_book_only === true) {
                     const dropItem = itemBase.find(i => i.b_i === drop.id);
                     if (dropItem) {
-                        const dropItemName = getItemDisplayContent(drop.id, itemBase, i18n.translate, 'image', imageSheet);
+                        const dropItemName = getItemDisplayContent(drop.id, itemBase, i18n.translate, 'image', imageSheet, fletchingFormulas, arrowMaterialImg);
                         monBookDrops.push(dropItemName);
                     }
                 }

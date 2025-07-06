@@ -52,7 +52,7 @@ export class PageRenderer {
                 }
             }
 
-            const { itemBase, FORGE_FORMULAS, CARPENTRY_FORMULAS, npcBase, pets, skillQuest, objectBase, forge, imageSheet, enchantingChances, items, monsterBook } = window.allData;
+            const { itemBase, FORGE_FORMULAS, CARPENTRY_FORMULAS, npcBase, pets, skillQuest, objectBase, forge, imageSheet, enchantingChances, items, monsterBook, fletchingFormulas, arrowMaterialImg } = window.allData;
 
             let containerId;
             let generateFunction;
@@ -62,27 +62,27 @@ export class PageRenderer {
                 case 'tab1': // 物品資料
                     containerId = 'item-table-container';
                     generateFunction = generateItemTable;
-                    args = [containerId, itemBase, generateTableHTML, createItemNameMap];
+                    args = [containerId, itemBase, generateTableHTML, createItemNameMap, fletchingFormulas, arrowMaterialImg];
                     break;
                 case 'tab2': // 木工資料
                     containerId = 'carpentry-table-container';
                     generateFunction = generateCarpentryTable;
-                    args = [containerId, CARPENTRY_FORMULAS, generateTableHTML, createItemNameMap, itemBase];
+                    args = [containerId, CARPENTRY_FORMULAS, generateTableHTML, createItemNameMap, itemBase, fletchingFormulas, arrowMaterialImg];
                     break;
                 case 'tab3': // 鍛造資料
                     containerId = 'forge-table-container';
                     generateFunction = generateForgeTable;
-                    args = [containerId, FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase];
+                    args = [containerId, FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase, fletchingFormulas, arrowMaterialImg];
                     break;
                 case 'tab4': // NPC 資料
                     containerId = 'npc-table-container';
                     generateFunction = generateNpcTable;
-                    args = [containerId, npcBase, generateTableHTML, createItemNameMap, itemBase];
+                    args = [containerId, npcBase, generateTableHTML, createItemNameMap, itemBase, fletchingFormulas, arrowMaterialImg];
                     break;
                 case 'tab5': // 寵物資料
                     containerId = 'pets-table-container';
                     generateFunction = generatePetsTable;
-                    args = [containerId, pets, generateTableHTML, createItemNameMap, itemBase, pets];
+                    args = [containerId, pets, generateTableHTML, createItemNameMap, itemBase, pets, fletchingFormulas, arrowMaterialImg];
                     break;
                 case 'tab6': // 技能任務
                     containerId = 'skill-quest-table-container';
@@ -107,17 +107,17 @@ export class PageRenderer {
                 case 'monster-book': // MonsterBook 資料
                     containerId = 'monster-book-table-container';
                     generateFunction = generateMonsterBookTable;
-                    args = [containerId, monsterBook, npcBase, itemBase, generateTableHTML, createItemNameMap];
+                    args = [containerId, monsterBook, npcBase, itemBase, generateTableHTML, createItemNameMap, fletchingFormulas, arrowMaterialImg];
                     break;
                 case 'monster-worth-page': // 怪物價值
                     containerId = 'monster-worth-table-container';
                     generateFunction = generateMonsterWorthTable;
-                    args = [containerId, npcBase, generateTableHTML, createItemNameMap, itemBase];
+                    args = [containerId, npcBase, generateTableHTML, createItemNameMap, itemBase, fletchingFormulas, arrowMaterialImg];
                     break;
                 case 'forging-cost-page': // 鍛造成本
                     containerId = 'forging-table-container';
                     if (itemBase && FORGE_FORMULAS) {
-                        const forgingCostData = generateForgingCostTableData(FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase);
+                        const forgingCostData = generateForgingCostTableData(FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase, fletchingFormulas, arrowMaterialImg);
                         if (window.costTableRenderer) {
                             window.costTableRenderer.renderForgingCostTable(containerId, forgingCostData);
                         }
@@ -131,7 +131,7 @@ export class PageRenderer {
                 case 'carpentry-cost-page': // 木工成本
                     containerId = 'carpentry-cost-table-container';
                     if (itemBase && CARPENTRY_FORMULAS) {
-                        const carpentryCostData = generateCarpentryCostTableData(CARPENTRY_FORMULAS, generateTableHTML, createItemNameMap, itemBase);
+                        const carpentryCostData = generateCarpentryCostTableData(CARPENTRY_FORMULAS, generateTableHTML, createItemNameMap, itemBase, fletchingFormulas, arrowMaterialImg);
                         if (window.costTableRenderer) {
                             window.costTableRenderer.renderCarpentryCostTable(containerId, carpentryCostData);
                         }
@@ -145,7 +145,7 @@ export class PageRenderer {
                 case 'enchanting-cost-page': // 附魔成本
                     containerId = 'enchanting-cost-table-container';
                     generateFunction = generateEnchantCostTableData;
-                    args = [containerId, forge, generateTableHTML, createItemNameMap, itemBase];
+                    args = [containerId, forge, generateTableHTML, createItemNameMap, itemBase, fletchingFormulas, arrowMaterialImg];
                     break;
                 case 'tab10': // 市場價格整合
                     this.marketPriceManager.initMarketPriceIntegrationUI();
@@ -163,32 +163,32 @@ export class PageRenderer {
                     containerId = 'open-item-page-content';
                     generateFunction = openItemTable.initOpenItemPage;
                     const utils = { getItemSellPrice };
-                    args = [itemBase, i18n, utils]; // 傳遞 itemBase, i18n, utils
+                    args = [itemBase, i18n, utils, fletchingFormulas, arrowMaterialImg]; // 傳遞 itemBase, i18n, utils
                     break;
                 case 'key-page': // Key 頁面
                     containerId = 'key-page-content';
                     generateFunction = generateKeyWorthTable;
-                    args = [objectBase, itemBase];
+                    args = [objectBase, itemBase, fletchingFormulas, arrowMaterialImg];
                     break;
                 case 'rare-key-page': // Rare Key 頁面
                     containerId = 'rare-key-page-content';
                     generateFunction = generateRareKeyWorthTable;
-                    args = [objectBase, itemBase];
+                    args = [objectBase, itemBase, fletchingFormulas, arrowMaterialImg];
                     break;
                 case 'present-page': // Present 頁面
                     containerId = 'present-page-content';
                     generateFunction = generatePresentTable;
-                    args = [items, itemBase];
+                    args = [items, itemBase, fletchingFormulas, arrowMaterialImg];
                     break;
                 case 'breeding-page': // Breeding 頁面
                     containerId = 'breeding-cost-table-container';
                     generateFunction = generateBreedingCostTable;
-                    args = [containerId, pets, itemBase];
+                    args = [containerId, pets, itemBase, fletchingFormulas, arrowMaterialImg];
                     break;
                 case 'recycle-page': // Recycle 頁面
                     containerId = 'recycle-cost-table-container';
                     if (itemBase && FORGE_FORMULAS) {
-                        const recycleCostData = generateRecycleCostTableData(FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase);
+                        const recycleCostData = generateRecycleCostTableData(FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase, fletchingFormulas, arrowMaterialImg);
                         if (window.costTableRenderer) {
                             window.costTableRenderer.renderRecycleCostTable(containerId, recycleCostData);
                         }
@@ -207,7 +207,7 @@ export class PageRenderer {
                 case 'mos-market-page': // MOS Market 頁面
                     containerId = 'mos-market-table-container';
                     generateFunction = generateMosMarketTable;
-                    args = [containerId, itemBase, imageSheet];
+                    args = [containerId, itemBase, imageSheet, fletchingFormulas, arrowMaterialImg];
                     break;
                 default:
                     console.warn(`未知頁面名稱: ${pageName}`);

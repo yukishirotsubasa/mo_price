@@ -101,7 +101,7 @@ function createTargetItemButtons(buttonContainer, targetItems, itemBase, imageSh
             button.setAttribute('data-item-id', itemId);
             
             // 使用道具圖片作為按鈕內容
-            const itemDisplay = getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', imageSheet);
+            const itemDisplay = getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', imageSheet, allData?.fletchingFormulas, allData?.arrowMaterialImg);
             button.innerHTML = itemDisplay;
             
             // 添加點擊事件
@@ -386,11 +386,11 @@ function calculateItemPrice(itemId, itemIndex, enchantChain, itemBase, enchantin
     // 計算上一行的filtered plans
     const LUCKY_STONE_ID = 593;
     const previousAllPlans = previousPlans.map(plan => {
-        const scrollName = getItemDisplayContent(plan.combo[0], itemBase, i18n.translate, 'image', imageSheet);
+        const scrollName = getItemDisplayContent(plan.combo[0], itemBase, i18n.translate, 'image', imageSheet, allData?.fletchingFormulas, allData?.arrowMaterialImg);
         const luckyStoneCount = plan.combo[1];
         
         const combo = luckyStoneCount > 0
-            ? `${scrollName}+${getItemDisplayContent(LUCKY_STONE_ID, itemBase, i18n.translate, 'image', imageSheet)}*${luckyStoneCount}`
+            ? `${scrollName}+${getItemDisplayContent(LUCKY_STONE_ID, itemBase, i18n.translate, 'image', imageSheet, allData?.fletchingFormulas, allData?.arrowMaterialImg)}*${luckyStoneCount}`
             : scrollName;
             
         const chance = Math.min(1, plan.probability + (previousParams.enchant_bonus || 0));
@@ -600,11 +600,11 @@ function addEnchantRow(itemId, index, item, params, enchantTargetId, enchantChai
         const LUCKY_STONE_ID = 593;
         
         const all_plans = plans.map(plan => {
-            const scrollName = getItemDisplayContent(plan.combo[0], itemBase, i18n.translate, 'image', imageSheet);
+            const scrollName = getItemDisplayContent(plan.combo[0], itemBase, i18n.translate, 'image', imageSheet, allData?.fletchingFormulas, allData?.arrowMaterialImg);
             const luckyStoneCount = plan.combo[1];
             
             const combo = luckyStoneCount > 0
-                ? `${scrollName}+${getItemDisplayContent(LUCKY_STONE_ID, itemBase, i18n.translate, 'image', imageSheet)}*${luckyStoneCount}`
+                ? `${scrollName}+${getItemDisplayContent(LUCKY_STONE_ID, itemBase, i18n.translate, 'image', imageSheet, allData?.fletchingFormulas, allData?.arrowMaterialImg)}*${luckyStoneCount}`
                 : scrollName;
                 
             const chance = Math.min(1, plan.probability + (params.enchant_bonus || 0));
@@ -744,13 +744,13 @@ function addEnchantRow(itemId, index, item, params, enchantTargetId, enchantChai
 
     data.push({
         'market price': marketPriceContent,
-        'name': getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', imageSheet),
+        'name': getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', imageSheet, allData?.fletchingFormulas, allData?.arrowMaterialImg),
         'level': level,
         'bonus': params.enchant_bonus || 0,
         'price': price,
         'plan': planContent,
         'prod price': targetPrice,
-        'prod name': getItemDisplayContent(enchantTargetId, itemBase, i18n.translate, 'image', imageSheet),
+        'prod name': getItemDisplayContent(enchantTargetId, itemBase, i18n.translate, 'image', imageSheet, allData?.fletchingFormulas, allData?.arrowMaterialImg),
         'prod id': enchantTargetId,
         'all_plans': filtered_plans,
         'id': itemId // 保留id用於內部邏輯
@@ -828,7 +828,7 @@ function addForgeFormulaRow(materialItemId, data, itemBase, imageSheet) {
         let materialPriceTotal = 0;
         const pattern = Object.entries(patternItems).map(([mid, count]) => {
             const item_id = parseInt(mid);
-            const name = getItemDisplayContent(item_id, itemBase, i18n.translate, 'image', imageSheet);
+            const name = getItemDisplayContent(item_id, itemBase, i18n.translate, 'image', imageSheet, allData?.fletchingFormulas, allData?.arrowMaterialImg);
             // 如果是608，使用計算出的price，否則使用市場價格
             const itemPrice = item_id === materialItemId ? price : getMaterialPrice(item_id, itemBase);
             materialPriceTotal += itemPrice * count;
@@ -838,7 +838,7 @@ function addForgeFormulaRow(materialItemId, data, itemBase, imageSheet) {
         return {
             formulaId,
             resultItemId,
-            resultName: getItemDisplayContent(resultItemId, itemBase, i18n.translate, 'image', imageSheet),
+            resultName: getItemDisplayContent(resultItemId, itemBase, i18n.translate, 'image', imageSheet, allData?.fletchingFormulas, allData?.arrowMaterialImg),
             pattern,
             cost: formatNumberWithThousandsSeparator(materialPriceTotal.toFixed(2)),
             isSelected: formulaId === selectedFormulaId
@@ -874,7 +874,7 @@ function addForgeFormulaRow(materialItemId, data, itemBase, imageSheet) {
     // 獲取選中公式的結果物品資料
     const selectedResultItemId = selectedFormula.item_id;
     const selectedResultPrice = getItemSellPrice(selectedResultItemId, itemBase);
-    const selectedResultName = getItemDisplayContent(selectedResultItemId, itemBase, i18n.translate, 'image', imageSheet);
+    const selectedResultName = getItemDisplayContent(selectedResultItemId, itemBase, i18n.translate, 'image', imageSheet, allData?.fletchingFormulas, allData?.arrowMaterialImg);
     
     // 生成market price欄位內容
     const isChecked = window.firelordSetState.useMarketPrice.get(materialItemId) || false;
@@ -929,7 +929,7 @@ function addForgeFormulaRow(materialItemId, data, itemBase, imageSheet) {
     
     data.push({
         'market price': marketPriceContent,
-        'name': getItemDisplayContent(materialItemId, itemBase, i18n.translate, 'image', imageSheet),
+        'name': getItemDisplayContent(materialItemId, itemBase, i18n.translate, 'image', imageSheet, allData?.fletchingFormulas, allData?.arrowMaterialImg),
         'level': level,
         'bonus': materialParams.enchant_bonus || 0,
         'price': price,

@@ -2,7 +2,7 @@
 import { getItemSellPrice, getItemDisplayContent } from '../utils.js';
 import i18n from '../i18n.js';
 
-export function generatePresentTable(items, itemBase) {
+export function generatePresentTable(items, itemBase, fletchingFormulas, arrowMaterialImg) {
     const container = document.getElementById('present-page-content');
     container.innerHTML = ''; // Clear previous content
 
@@ -35,7 +35,7 @@ export function generatePresentTable(items, itemBase) {
         
         // 使用 item 圖片作為按鈕內容
         const item = itemBase.find(item => item.b_i === targetId);
-        const buttonContent = item ? getItemDisplayContent(targetId, itemBase, i18n.translate, 'image', window.allData?.imageSheet || null) : `Item ${targetId}`;
+        const buttonContent = item ? getItemDisplayContent(targetId, itemBase, i18n.translate, 'image', window.allData?.imageSheet || null, fletchingFormulas, arrowMaterialImg) : `Item ${targetId}`;
         
         button.innerHTML = buttonContent;
         button.className = 'present-select-button';
@@ -46,13 +46,13 @@ export function generatePresentTable(items, itemBase) {
             });
             // Add active class to the clicked button
             button.classList.add('active');
-            displayPresentDetails(targetId, items, itemBase, tableContainer);
+            displayPresentDetails(targetId, items, itemBase, tableContainer, fletchingFormulas, arrowMaterialImg);
         });
         buttonContainer.appendChild(button);
     });
 }
 
-function displayPresentDetails(selectedItemId, items, itemBase, tableContainer) {
+function displayPresentDetails(selectedItemId, items, itemBase, tableContainer, fletchingFormulas, arrowMaterialImg) {
     tableContainer.innerHTML = '';
 
     // 透過 Items.presents 獲得價格上限和下限
@@ -102,7 +102,7 @@ function displayPresentDetails(selectedItemId, items, itemBase, tableContainer) 
         
         // Name: 使用圖片顯示
         const nameCell = row.insertCell();
-        nameCell.innerHTML = getItemDisplayContent(item.b_i, itemBase, i18n.translate, 'image', window.allData?.imageSheet || null);
+        nameCell.innerHTML = getItemDisplayContent(item.b_i, itemBase, i18n.translate, 'image', window.allData?.imageSheet || null, fletchingFormulas, arrowMaterialImg);
         
         // Wiki Price: item_base[].params.price
         const wikiPriceCell = row.insertCell();

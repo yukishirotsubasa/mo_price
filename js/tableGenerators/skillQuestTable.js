@@ -91,9 +91,9 @@ function createSkillQuestTable(skillQuest, itemBase, generateTableHTML, currentD
         const mos = quest.reward && quest.reward[2] ? quest.reward[2] * mosMultiplier : 0;
         
         // Get item names
-        const questItemName = getItemDisplayContent(quest.item_id, itemBase, i18n.translate, 'image', imageSheet);
+        const questItemName = getItemDisplayContent(quest.item_id, itemBase, i18n.translate, 'image', imageSheet, allData?.fletchingFormulas, allData?.arrowMaterialImg);
         const rewardItemId = quest.reward && quest.reward[3] ? quest.reward[3] : null;
-        const rewardItemName = rewardItemId ? getItemDisplayContent(rewardItemId, itemBase, i18n.translate, 'image', imageSheet) : i18n.translate('none');
+        const rewardItemName = rewardItemId ? getItemDisplayContent(rewardItemId, itemBase, i18n.translate, 'image', imageSheet, allData?.fletchingFormulas, allData?.arrowMaterialImg) : i18n.translate('none');
         
         return [
             index + 1, // Sequential ID

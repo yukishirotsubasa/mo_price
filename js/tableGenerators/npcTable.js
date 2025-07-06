@@ -1,7 +1,7 @@
 import i18n from '../i18n.js'; // 導入 i18n 模組
 import { getItemDisplayContent } from '../utils.js'; // 導入新的顯示函數
 
-export function generateNpcTable(containerId, npcBase, generateTableHTML, createItemNameMap, itemBase) {
+export function generateNpcTable(containerId, npcBase, generateTableHTML, createItemNameMap, itemBase, fletchingFormulas, arrowMaterialImg) {
     const container = document.getElementById(containerId);
 
     if (!npcBase) {
@@ -18,7 +18,7 @@ export function generateNpcTable(containerId, npcBase, generateTableHTML, create
     const rowMapper = (npc) => {
         const drops = npc.params && npc.params.drops ?
             npc.params.drops.map(drop => {
-                const dropName = getItemDisplayContent(drop.id, itemBase, i18n.translate, 'image', imageSheet);
+                const dropName = getItemDisplayContent(drop.id, itemBase, i18n.translate, 'image', imageSheet, fletchingFormulas, arrowMaterialImg);
                 return `${dropName} (${(drop.chance * 100).toFixed(6).replace(/\.?0+$/, '')}%)`;
             }).join(', ') :
             i18n.translate('none');

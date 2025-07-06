@@ -7,7 +7,7 @@ import { getItemSellPrice, getMaterialPrice, createItemNameMap, formatNumberWith
  * @param {Array} pets - 寵物數據
  * @param {Array} itemBase - 物品基礎數據
  */
-export function generateBreedingCostTable(containerId, pets, itemBase) {
+export function generateBreedingCostTable(containerId, pets, itemBase, fletchingFormulas, arrowMaterialImg) {
     const container = document.getElementById(containerId);
     
     if (!container) {
@@ -66,9 +66,9 @@ export function generateBreedingCostTable(containerId, pets, itemBase) {
         
         tableHTML += '<tr>';
         tableHTML += `<td>${level}</td>`;
-        tableHTML += `<td>${generateParentInfo(parent1, itemBase, imageSheet, pets)}</td>`;
-        tableHTML += `<td>${generateParentInfo(parent2, itemBase, imageSheet, pets)}</td>`;
-        tableHTML += `<td>${generatePlanInfo(plan, pets, itemBase, index, imageSheet)}</td>`;
+        tableHTML += `<td>${generateParentInfo(parent1, itemBase, imageSheet, pets, fletchingFormulas, arrowMaterialImg)}</td>`;
+        tableHTML += `<td>${generateParentInfo(parent2, itemBase, imageSheet, pets, fletchingFormulas, arrowMaterialImg)}</td>`;
+        tableHTML += `<td>${generatePlanInfo(plan, pets, itemBase, index, imageSheet, fletchingFormulas, arrowMaterialImg)}</td>`;
         tableHTML += `<td>${cost}</td>`;
         tableHTML += `<td>${oneBar}</td>`;
         tableHTML += `<td>${full}</td>`;
@@ -348,14 +348,14 @@ function calculateCheapestFoodCost(parent, itemBase) {
  * @param {Array} pets - 寵物數據陣列
  * @returns {string} HTML 字符串
  */
-function generateParentInfo(parent, itemBase, imageSheet, pets) {
+function generateParentInfo(parent, itemBase, imageSheet, pets, fletchingFormulas, arrowMaterialImg) {
     let html = '<div class="parent-info-table">';
     html += '<table class="parent-table">';
     
     // 第1列：寵物圖片（使用道具ID）
     html += '<tr>';
     const petImage = parent && parent.params && parent.params.item_id ? 
-        getItemDisplayContent(parent.params.item_id, itemBase, i18n.translate, 'image', imageSheet) : 
+        getItemDisplayContent(parent.params.item_id, itemBase, i18n.translate, 'image', imageSheet, fletchingFormulas, arrowMaterialImg) : 
         i18n.translate(parent.name || 'Unknown Pet');
     html += `<td class="pet-name" colspan="100%">${petImage}</td>`;
     html += '</tr>';
@@ -373,7 +373,7 @@ function generateParentInfo(parent, itemBase, imageSheet, pets) {
     if (Object.keys(eats).length > 0) {
         html += '<tr>';
         Object.entries(eats).forEach(([itemId, value]) => {
-            const itemName = getItemDisplayContent(Number(itemId), itemBase, i18n.translate, 'image', imageSheet);
+            const itemName = getItemDisplayContent(Number(itemId), itemBase, i18n.translate, 'image', imageSheet, fletchingFormulas, arrowMaterialImg);
             const totalConsumption = (value * eatInterval).toFixed(2);
             html += `<td class="food-item">${itemName}(${totalConsumption})</td>`;
         });
@@ -394,7 +394,7 @@ function generateParentInfo(parent, itemBase, imageSheet, pets) {
  * @param {Object} imageSheet - 圖片表數據
  * @returns {string} HTML 字符串
  */
-function generatePlanInfo(plans, originalPets, itemBase, index, imageSheet) {
+function generatePlanInfo(plans, originalPets, itemBase, index, imageSheet, fletchingFormulas, arrowMaterialImg) {
     if (!plans || plans.length === 0) {
         return `<div class="no-plan">${i18n.translate('no available plans')}</div>`;
     }
@@ -413,7 +413,7 @@ function generatePlanInfo(plans, originalPets, itemBase, index, imageSheet) {
             const pet = originalPets[item.pet_id];
             // 使用寵物的道具ID來獲取圖片
             const petImage = pet && pet.params && pet.params.item_id ? 
-                getItemDisplayContent(pet.params.item_id, itemBase, i18n.translate, 'image', imageSheet) : 
+                getItemDisplayContent(pet.params.item_id, itemBase, i18n.translate, 'image', imageSheet, fletchingFormulas, arrowMaterialImg) : 
                 `Pet ${item.pet_id}`;
             row += `<td>${petImage}(${item.actualChance.toFixed(1)}% | ${formatNumberWithThousandsSeparator(item.itemPrice)})</td>`;
         });
@@ -434,7 +434,7 @@ function generatePlanInfo(plans, originalPets, itemBase, index, imageSheet) {
         const pet = originalPets[item.pet_id];
         // 使用寵物的道具ID來獲取圖片
         const petImage = pet && pet.params && pet.params.item_id ? 
-            getItemDisplayContent(pet.params.item_id, itemBase, i18n.translate, 'image', imageSheet) : 
+            getItemDisplayContent(pet.params.item_id, itemBase, i18n.translate, 'image', imageSheet, fletchingFormulas, arrowMaterialImg) : 
             `Pet ${item.pet_id}`;
         html += `<td>${petImage}(${item.actualChance.toFixed(1)}% | ${formatNumberWithThousandsSeparator(item.itemPrice)})</td>`;
     });

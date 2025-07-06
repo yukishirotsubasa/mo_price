@@ -139,7 +139,7 @@ export class CostTableRenderer extends TableRenderer {
             const itemInfo = itemBase.find(item => item.b_i === itemId);
             // 預覽表格使用圖片顯示
             const imageSheet = window.allData?.imageSheet || null;
-            const itemName = itemInfo ? getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', imageSheet) : i18n.translate('unknown_item');
+            const itemName = itemInfo ? getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', imageSheet, allData?.fletchingFormulas, allData?.arrowMaterialImg) : i18n.translate('unknown_item');
             const wikiPrice = itemInfo && itemInfo.params && itemInfo.params.price ? itemInfo.params.price : 'N/A';
 
             return `

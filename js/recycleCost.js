@@ -9,7 +9,7 @@
 import i18n from './i18n.js'; // 導入 i18n 模組
 import { createItemNameMap, getItemSellPrice, getMaterialPrice, formatNumberWithThousandsSeparator, formatAsPercentage, getItemDisplayContent } from './utils.js'; // 導入相關函數
 
-export function generateRecycleCostTableData(FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase) {
+export function generateRecycleCostTableData(FORGE_FORMULAS, generateTableHTML, createItemNameMap, itemBase, fletchingFormulas, arrowMaterialImg) {
     // 獲取 imageSheet 數據
     const imageSheet = window.allData?.imageSheet || null;
     const exception_list = [186,187,188,189,190,191,192,193,194,195,196,197,55,73,74,58,75,76,89,90,91,94,95,96,124,125,126,
@@ -32,7 +32,7 @@ export function generateRecycleCostTableData(FORGE_FORMULAS, generateTableHTML, 
         }
 
         const itemId = formula.item_id;
-        const itemName = getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', imageSheet);
+        const itemName = getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', imageSheet, fletchingFormulas, arrowMaterialImg);
         let level = formula.level ?? formula.fletching_level ?? formula.wizardry_level ?? '';
 
         // 處理材料與價格
@@ -49,7 +49,7 @@ export function generateRecycleCostTableData(FORGE_FORMULAS, generateTableHTML, 
         let materialWorthTotal = 0;
         const pattern = Object.entries(patternItems).map(([mid, count]) => {
             const item_id = parseInt(mid);
-            const name = getItemDisplayContent(item_id, itemBase, i18n.translate, 'image', imageSheet);
+            const name = getItemDisplayContent(item_id, itemBase, i18n.translate, 'image', imageSheet, fletchingFormulas, arrowMaterialImg);
             
             const sellPrice = getItemSellPrice(item_id, itemBase);
             

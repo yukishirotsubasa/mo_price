@@ -6,6 +6,8 @@ export default (() => {
     let currentI18n = null;
     let currentUtils = null;
     let currentImageSheet = null;
+    let currentFletchingFormulas = null;
+    let currentArrowMaterialImg = null;
 
     const createButtonArea = (filteredItemBase) => {
         const buttonContainer = document.createElement('div');
@@ -17,7 +19,7 @@ export default (() => {
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'btn btn-outline-primary';
-            button.innerHTML = getItemDisplayContent(item.b_i, currentItemBase, currentI18n.translate, 'image', currentImageSheet);
+            button.innerHTML = getItemDisplayContent(item.b_i, currentItemBase, currentI18n.translate, 'image', currentImageSheet, currentFletchingFormulas, currentArrowMaterialImg);
             button.dataset.itemId = item.id;
             button.addEventListener('click', () => {
                 // Remove active class from all buttons
@@ -128,11 +130,13 @@ export default (() => {
         tableContainer.appendChild(table);
     };
 
-    const initOpenItemPage = (itemBase, i18n, utils) => {
+    const initOpenItemPage = (itemBase, i18n, utils, fletchingFormulas, arrowMaterialImg) => {
         currentItemBase = itemBase;
         currentI18n = i18n;
         currentUtils = utils;
         currentImageSheet = window.allData?.imageSheet || null;
+        currentFletchingFormulas = fletchingFormulas || null;
+        currentArrowMaterialImg = arrowMaterialImg || null;
 
         const openItemPageContent = document.getElementById('open-item-page-content');
         if (!openItemPageContent) {
