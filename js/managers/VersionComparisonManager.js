@@ -67,33 +67,34 @@ export class VersionComparisonManager {
 
         let html = '';
 
-        // 新增的條目
+        // 新增的條目 - 改為手風琴樣式
         if (results.added.length > 0) {
-            html += `<div class="comparison-section added">
-                        <h3>${i18n.translate('added_items', results.added.length)}</h3>
-                        <ul class="comparison-list">`;
-            results.added.forEach(item => {
-                html += `<li>${i18n.translate('id')}: ${item.b_i}, ${i18n.translate('name')}: ${getItemDisplayContent(item.b_i, window.allData?.itemBase || [], i18n.translate, 'image', window.allData?.imageSheet || null)}</li>`;
-            });
-            html += `</ul></div>`;
+            html += `<div class="comparison-section added collapsible">
+                        <h3 class="collapsible-header">${i18n.translate('added_items', results.added.length)}</h3>
+                        <div class="collapsible-content">
+                            ${this.renderAddedItemsTable(results.added)}
+                        </div>
+                    </div>`;
         }
 
-        // 刪除的條目
+        // 刪除的條目 - 改為手風琴樣式
         if (results.removed.length > 0) {
-            html += `<div class="comparison-section removed">
-                        <h3>${i18n.translate('removed_items', results.removed.length)}</h3>
-                        <ul class="comparison-list">`;
+            html += `<div class="comparison-section removed collapsible">
+                        <h3 class="collapsible-header">${i18n.translate('removed_items', results.removed.length)}</h3>
+                        <div class="collapsible-content">
+                            <ul class="comparison-list">`;
             results.removed.forEach(item => {
                 html += `<li>${i18n.translate('id')}: ${item.b_i}, ${i18n.translate('name')}: ${getItemDisplayContent(item.b_i, window.allData?.itemBase || [], i18n.translate, 'image', window.allData?.imageSheet || null)}</li>`;
             });
-            html += `</ul></div>`;
+            html += `</ul></div></div>`;
         }
 
-        // 修改的條目
+        // 修改的條目 - 改為手風琴樣式
         if (results.modified.length > 0) {
-            html += `<div class="comparison-section modified">
-                        <h3>${i18n.translate('modified_items', results.modified.length)}</h3>
-                        <ul class="comparison-list">`;
+            html += `<div class="comparison-section modified collapsible">
+                        <h3 class="collapsible-header">${i18n.translate('modified_items', results.modified.length)}</h3>
+                        <div class="collapsible-content">
+                            <ul class="comparison-list">`;
             results.modified.forEach(modItem => {
                 html += `<li>
                             ${i18n.translate('id')}: ${modItem.id}, ${i18n.translate('name')}: ${modItem.itemB.name || modItem.itemA.name || 'N/A'}
@@ -110,7 +111,7 @@ export class VersionComparisonManager {
                 }
                 html += `</div></li>`;
             });
-            html += `</ul></div>`;
+            html += `</ul></div></div>`;
         }
 
         if (results.added.length === 0 && results.removed.length === 0 && results.modified.length === 0) {
@@ -118,5 +119,100 @@ export class VersionComparisonManager {
         }
 
         containerElement.innerHTML = html;
+        
+        // 重新註冊手風琴事件監聽器（因為內容是動態生成的）
+        this.setupCollapsibleEvents(containerElement);
+    }
+
+    // 為動態生成的手風琴元素設置事件
+    setupCollapsibleEvents(container) {
+        const headers = container.querySelectorAll('.collapsible-header');
+        headers.forEach(header => {
+            // 移除可能存在的舊事件監聽器
+            header.removeEventListener('click', this.handleCollapsibleClick);
+            // 添加新的事件監聽器
+            header.addEventListener('click', this.handleCollapsibleClick.bind(this));
+        });
+
+        // 預設讓所有 collapsible-content 區塊為收合狀態
+        const contents = container.querySelectorAll('.collapsible-content');
+        contents.forEach(content => {
+            content.classList.add('collapsed');
+            const header = content.previousElementSibling;
+            if (header && header.classList.contains('collapsible-header')) {
+                header.classList.add('collapsed');
+            }
+        });
+    }
+
+    // 手風琴點擊處理函數
+    handleCollapsibleClick(event) {
+        const header = event.currentTarget;
+        const content = header.nextElementSibling;
+        if (content && content.classList.contains('collapsible-content')) {
+            content.classList.toggle('collapsed');
+            header.classList.toggle('collapsed');
+        }
+    }
+
+    // 渲染新增物品表格
+    renderAddedItemsTable(addedItems) {
+        const itemBase = window.allData?.itemBase || [];
+        const imageSheet = window.allData?.imageSheet || null;
+        const pets = window.allData?.pets || [];
+        const fletchingFormulas = window.allData?.fletchingFormulas || null;
+        const arrowMaterialImg = window.allData?.arrowMaterialImg || null;
+
+        // 按照 id (b_i) 降序排列
+        const sortedItems = [...addedItems].sort((a, b) => b.b_i - a.b_i);
+
+        let tableHTML = `<table class="data-table">
+            <thead>
+                <tr>
+                    <th>${i18n.translate('id')}</th>
+                    <th>${i18n.translate('name')}</th>
+                    <th>${i18n.translate('image')}</th>
+                    <th>Inventory Slots</th>
+                    <th>Params</th>
+                </tr>
+            </thead>
+            <tbody>`;
+
+        sortedItems.forEach(item => {
+            const itemId = item.b_i;
+            const itemName = i18n.translate(item.name || 'unknown_item');
+            const itemImage = getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', imageSheet, fletchingFormulas, arrowMaterialImg);
+            
+            // 處理 Inventory Slots
+            let inventorySlots = '';
+            if (item.params && item.params.pet !== undefined) {
+                // 直接使用 pets[item.params.pet] 來訪問寵物數據
+                const petData = pets[item.params.pet];
+                if (petData && petData.params && petData.params.inventory_slots !== undefined) {
+                    inventorySlots = petData.params.inventory_slots;
+                }
+            }
+
+            // 處理 params - 轉為純文字，太長自動換行
+            let paramsText = '';
+            if (item.params) {
+                paramsText = JSON.stringify(item.params, null, 2)
+                    .replace(/[{}]/g, '')
+                    .replace(/"/g, '')
+                    .replace(/,\s*\n/g, '\n')
+                    .trim();
+            }
+
+            tableHTML += `<tr>
+                <td>${itemId}</td>
+                <td>${itemName}</td>
+                <td>${itemImage}</td>
+                <td>${inventorySlots}</td>
+                <td style="white-space: pre-wrap; word-wrap: break-word; max-width: 300px;">${paramsText}</td>
+            </tr>`;
+        });
+
+        tableHTML += '</tbody></table>';
+        return tableHTML;
     }
 }

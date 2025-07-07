@@ -618,6 +618,48 @@ td[contenteditable="true"]:focus {
     border-radius: var(--border-radius-sm);
 }
 
+.modified-details {
+    margin-top: var(--spacing-xs);
+    padding: var(--spacing-sm);
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    font-size: var(--font-size-sm);
+}
+
+.modified-details span {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+}
+
+.new-value {
+    color: #22c55e;
+    font-weight: 500;
+}
+
+.old-value {
+    color: #ef4444;
+    font-weight: 500;
+}
+
+/* 確保 comparison-section 的 collapsible 樣式 */
+.comparison-section.collapsible {
+    padding: 0;
+}
+
+.comparison-section .collapsible-header {
+    margin: 0;
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+    cursor: pointer;
+    user-select: none;
+}
+
+.comparison-section .collapsible-content {
+    padding: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+}
+
 .added {
     color: #22c55e;
     background-color: #dcfce7;

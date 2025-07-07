@@ -165,6 +165,48 @@
     background-color: #666;
 }
 
+/* 版本比較區塊在黑暗模式下的樣式 */
+[data-theme="dark"] .comparison-section {
+    background-color: #2a2a2a;
+    border-color: #444;
+}
+
+[data-theme="dark"] .comparison-section h3,
+[data-theme="dark"] .comparison-section .collapsible-header {
+    color: #ffffff;
+    background-color: #333;
+}
+
+[data-theme="dark"] .comparison-section .collapsible-header:hover {
+    background-color: #444;
+}
+
+[data-theme="dark"] .comparison-section .collapsible-content {
+    background-color: #2a2a2a;
+    border-color: #444;
+}
+
+[data-theme="dark"] .comparison-list {
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] .comparison-list li {
+    border-bottom: 1px solid #444;
+}
+
+[data-theme="dark"] .modified-details {
+    background-color: #333;
+    border-color: #555;
+}
+
+[data-theme="dark"] .new-value {
+    color: #4ade80;
+}
+
+[data-theme="dark"] .old-value {
+    color: #f87171;
+}
+
 [data-theme="dark"] .card {
     border: 1px solid var(--border-color);
 }
