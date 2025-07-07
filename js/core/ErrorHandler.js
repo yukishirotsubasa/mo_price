@@ -49,6 +49,11 @@ export class ErrorHandler {
     handleGlobalError(errorInfo) {
         if (!this.isEnabled) return;
 
+        // 忽略來自 release.js 文件的所有錯誤
+        if (this.isReleaseJsError(errorInfo)) {
+            return;
+        }
+
         const error = this.createErrorObject({
             ...errorInfo,
             severity: 'high',
@@ -331,6 +336,25 @@ export class ErrorHandler {
      */
     generateErrorId() {
         return 'err_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    /**
+     * 檢查是否為來自 release.js 的錯誤
+     * @param {Object} errorInfo - 錯誤資訊
+     * @returns {boolean} 是否為 release.js 錯誤
+     */
+    isReleaseJsError(errorInfo) {
+        // 檢查檔案名稱是否包含 release
+        if (errorInfo.filename && errorInfo.filename.includes('release_')) {
+            return true;
+        }
+        
+        // 檢查錯誤訊息是否與 UIRules.restore_lock 相關
+        /*if (errorInfo.message && errorInfo.message.includes('UIRules.restore_lock')) {
+            return true;
+        }*/
+        
+        return false;
     }
 
     /**
