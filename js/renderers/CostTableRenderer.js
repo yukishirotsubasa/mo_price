@@ -25,7 +25,7 @@ export class CostTableRenderer extends TableRenderer {
             'level',
             'pattern',
             'material price',
-            'chance',
+            'Chance',
             'cost',
             'sell price'
         ];
@@ -86,7 +86,7 @@ export class CostTableRenderer extends TableRenderer {
             'Image',
             'level',
             'pattern',
-            'chance',
+            'Chance',
             'price',
             'worth'
         ];

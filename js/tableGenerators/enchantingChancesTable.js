@@ -8,7 +8,7 @@ export function generateEnchantingChancesTable(containerId, enchantingChances, g
         return;
     }
 
-    const headers = ['type', 'item ID', 'level', 'chance'];
+    const headers = ['type', 'item ID', 'level', 'Chance'];
 
     const data = [];
     // enchantingChances 現在是 Forge 物件
