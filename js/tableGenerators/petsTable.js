@@ -10,7 +10,7 @@ export function generatePetsTable(containerId, pets, generateTableHTML, createIt
     }
 
     // 使用 i18n.translate 翻譯表頭
-    const headers = ['id', 'name', 'breeding_level', 'total_eat', 'eats', 'insurance_cost', 'item_id', 'level', 'likes', 'xp_required'];
+    const headers = ['id', 'name', 'Inventory Slots', 'breeding_level', 'total_eat', 'eats', 'insurance_cost', 'item_id', 'level', 'likes', 'xp_required'];
 
     // 獲取 imageSheet 數據
     const imageSheet = window.allData?.imageSheet || null;
@@ -38,14 +38,15 @@ export function generatePetsTable(containerId, pets, generateTableHTML, createIt
         return [
             pet.b_i,
             petImage, // 寵物圖片而非名稱
-            pet.params ? pet.params.breeding_level : 'N/A',
-            pet.params ? pet.params.happiness - pet.params.eat_interval : 'N/A',
+            pet.params ? pet.params.inventory_slots : '',
+            pet.params ? pet.params.breeding_level : '',
+            pet.params ? pet.params.happiness - pet.params.eat_interval : '',
             eats,
             insuranceCost,
-            pet.params ? pet.params.item_id : 'N/A',
-            pet.params ? pet.params.level : 'N/A',
+            pet.params ? pet.params.item_id : '',
+            pet.params ? pet.params.level : '',
             likes,
-            pet.params ? pet.params.xp_required : 'N/A'
+            pet.params ? pet.params.xp_required : ''
         ];
     };
 
