@@ -147,8 +147,8 @@ export class UIController {
         this.updateContentTitle('keyContentH2', 'Key');
         this.updateContentTitle('rareKeyContentH2', 'Rare Key');
         this.updateContentTitle('presentContentH2', 'Present');
-        this.updateContentTitle('breedingContentH2', 'Breeding Cost Calculator');
-        this.updateContentTitle('recycleContentH2', 'Recycle Cost Calculator');
+        this.updateContentTitle('breedingContentH2', 'Breeding');
+        this.updateContentTitle('recycleContentH2', 'Recycle');
         this.updateContentTitle('firelordSetContentH2', 'Firelord Set');
         this.updateContentTitle('mosMarketContentH2', 'MOS Market');
     }
@@ -181,6 +181,12 @@ export class UIController {
      * 更新市場價格整合功能中的UI文本
      */
     updateGoogleSheetUIText() {
+        // 更新 data loader 和 editor 標題
+        const dataLoaderHeader = document.getElementById('data-loader-header');
+        const editorHeader = document.getElementById('editor-header');
+        
+        if (dataLoaderHeader) dataLoaderHeader.textContent = i18n.translate('data loader');
+        if (editorHeader) editorHeader.textContent = i18n.translate('editor');
         const googleSheetUrlInput = document.getElementById('google-sheet-url');
         const loadSheetButton = document.getElementById('load-sheet-button');
         const exportCsvButton = document.getElementById('export-csv-button');
@@ -278,18 +284,9 @@ export class UIController {
      */
     updatePageTitles() {
         const pageTitles = {
-            'forging-cost-page-content h2': 'forging cost calculator',
-            'carpentry-cost-page-content h2': 'carpentry cost calculator', 
-            'monster-worth-page-content h2': 'monster_worth_calculator',
-            'enchanting-cost-page-content h2': 'enchanting cost calculator',
-            'open-item-page-content h2': 'open_item',
-            'key-page-content h2': 'key',
-            'rare-key-page-content h2': 'rare_key',
-            'present-page-content h2': 'present',
-            'breeding-page-content h2': 'breeding_cost_calculator',
-            'recycle-page-content h2': 'recycle_cost_calculator',
-            'firelord-set-page-content h2': 'firelord_set',
-            'mos-market-page-content h2': 'mos_market'
+            'forging-cost-page-content h2': 'Forging',
+            'carpentry-cost-page-content h2': 'Carpentry', 
+            'enchanting-cost-page-content h2': 'Enchanting'
         };
 
         Object.entries(pageTitles).forEach(([selector, translationKey]) => {

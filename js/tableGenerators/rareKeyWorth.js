@@ -103,7 +103,7 @@ function displayRareKeyDetails(selectedData, selectedItemId, itemBase, tableCont
     const headerRow = thead.insertRow();
     ['HP', 'Image', 'base chance', 'real chance', 'price'].forEach(text => {
         const th = document.createElement('th');
-        th.textContent = text;
+        th.textContent = i18n.translate(text);
         headerRow.appendChild(th);
     });
 

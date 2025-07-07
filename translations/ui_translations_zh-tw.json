@@ -49,5 +49,6 @@
     "request point": "需求點數",
     "select monster": "選擇怪物",
     "select csv file": "選擇 CSV 檔案",
-    "set" : "組合"
+    "set" : "組合",
+    "version": "版本"
 }
