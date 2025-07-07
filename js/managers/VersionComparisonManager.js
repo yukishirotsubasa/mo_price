@@ -6,6 +6,58 @@ import { getItemDisplayContent } from '../utils.js';
 import errorHandler from '../core/ErrorHandler.js';
 
 export class VersionComparisonManager {
+    constructor() {
+        this.versions = null;
+    }
+
+    // 載入版本配置
+    async loadVersions() {
+        try {
+            const response = await fetch('config/versions.json');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            this.versions = await response.json();
+            return this.versions;
+        } catch (error) {
+            console.error('Failed to load versions:', error);
+            errorHandler.logDataError('loadVersions', error);
+            return null;
+        }
+    }
+
+    // 填充版本選擇器
+    populateVersionSelects() {
+        if (!this.versions) return;
+
+        const versionASelect = document.getElementById('versionA-select');
+        const versionBSelect = document.getElementById('versionB-select');
+
+        if (!versionASelect || !versionBSelect) return;
+
+        // 清空現有選項
+        versionASelect.innerHTML = '';
+        versionBSelect.innerHTML = '';
+
+        // 按版本號降序排列
+        const sortedVersions = Object.entries(this.versions)
+            .sort(([a], [b]) => parseInt(b) - parseInt(a));
+
+        sortedVersions.forEach(([version, date]) => {
+            // 將底線格式的日期轉換為顯示格式 (2025_0417 -> 2025-04-17)
+            const displayDate = date.replace('_', '-').replace(/(\d{4})-(\d{2})(\d{2})/, '$1-$2-$3');
+            const optionText = `${displayDate} - ${version}`;
+            // 直接使用設定檔中的日期格式，無需轉換
+            const optionValue = `releaseJs/release_${date}.js`;
+            
+            const optionA = new Option(optionText, optionValue);
+            const optionB = new Option(optionText, optionValue);
+            
+            versionASelect.add(optionA);
+            versionBSelect.add(optionB);
+        });
+    }
+
     // 將main.js中的initVersionComparisonUI函數移動到這裡
     async initVersionComparisonUI() {
         const versionASelect = document.getElementById('versionA-select');
@@ -14,6 +66,10 @@ export class VersionComparisonManager {
         const comparisonResultsDiv = document.getElementById('version-comparison-results');
 
         if (versionASelect && versionBSelect && compareVersionsButton && comparisonResultsDiv) {
+            // 載入版本配置並填充選擇器
+            await this.loadVersions();
+            this.populateVersionSelects();
+
             // 移除舊的事件監聽器以避免重複綁定
             compareVersionsButton.removeEventListener('click', this.handleCompareVersions);
             // 綁定新的事件監聽器
