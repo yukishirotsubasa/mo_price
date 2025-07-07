@@ -201,8 +201,7 @@ th {
     display: block;
 }
 .modified-details .old-value {
-    text-decoration: line-through;
-    color: #888;
+    color: #ef4444;
 }
 .modified-details .new-value {
     font-weight: bold;
