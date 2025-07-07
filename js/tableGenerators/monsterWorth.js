@@ -13,7 +13,7 @@ export function generateMonsterWorthTable(containerId, npcBase, generateTableHTM
     const imageSheet = window.allData?.imageSheet || null;
 
     // 使用 i18n.translate 翻譯表頭
-    const headerKeys = ['Id', 'Image', 'health', 'defense', 'strength', 'accuracy', 'drops', 'worth'];
+    const headerKeys = ['Id', 'Name', 'health', 'defense', 'strength', 'accuracy', 'drops', 'worth'];
 
     const rowMapper = (monster) => {
         // 篩選沒有 drops 資料的對象

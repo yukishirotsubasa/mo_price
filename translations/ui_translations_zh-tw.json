@@ -48,5 +48,6 @@
     "breeding level": "飼養等級",
     "request point": "需求點數",
     "select monster": "選擇怪物",
-    "select csv file": "選擇 CSV 檔案"
+    "select csv file": "選擇 CSV 檔案",
+    "set" : "組合"
 }

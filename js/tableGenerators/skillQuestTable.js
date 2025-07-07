@@ -54,7 +54,7 @@ function createSkillQuestControls(skillQuest) {
             <div class="control-group">
                 <label for="skill-select">${i18n.translate('Skills')}:</label>
                 <select id="skill-select">
-                    <option value="">${i18n.translate('all_skills')}</option>
+                    <option value="">${i18n.translate('All')}</option>
     `;
     
     // Add skill options
