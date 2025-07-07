@@ -55,7 +55,7 @@ function displayKeyDetails(selectedObject, itemBase, tableContainer, valueTableC
 
     const thead = table.createTHead();
     const headerRow = thead.insertRow();
-    ['Level', 'Name', 'Base Chance', 'Real Chance', 'Price'].forEach(text => {
+    ['HP', 'Image', 'base chance', 'real chance', 'price'].forEach(text => {
         const th = document.createElement('th');
         th.textContent = text;
         headerRow.appendChild(th);

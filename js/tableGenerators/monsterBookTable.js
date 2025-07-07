@@ -23,7 +23,7 @@ export function generateMonsterBookTable(containerId, monsterBook, npcBase, item
     const imageSheet = window.allData?.imageSheet || null;
 
     // 使用 i18n.translate 翻譯表頭
-    const headerKeys = ['name', 'kills', 'Item', 'count', 'drop'];
+    const headerKeys = ['Name', 'Kill counts', 'Item', 'Count', 'drops'];
 
     // 將 MonsterBook.sacrifices 轉換為陣列格式
     const sacrificesArray = [];

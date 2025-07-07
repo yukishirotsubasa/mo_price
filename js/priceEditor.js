@@ -159,7 +159,7 @@ export async function initPriceEditor() {
             const itemExists = priceData.some(p => p[0] === itemId);
 
             if (itemExists) {
-                if (window.confirm(i18n.translate('confirm_delete', itemName))) {
+                if (window.confirm(i18n.translate('confirm delete', itemName))) {
                     priceData = priceData.filter(p => p[0] !== itemId);
                     savePriceData();
                     itemRow.remove();
@@ -193,7 +193,7 @@ export async function initPriceEditor() {
             // 也檢查 price_data，以防該物品是手動新增的
             const itemFromPriceData = priceData.find(p => p[0] === itemId);
             if (itemFromPriceData && !searchResults.has(itemId)) {
-                 searchResults.set(itemId, { b_i: itemId, name: i18n.translate('unknown_item') });
+                 searchResults.set(itemId, { b_i: itemId, name: i18n.translate('unknown item') });
             }
         } else { // 其餘視為名稱關鍵字
             // 從 itemNameMap 搜尋 (涵蓋 item_base)
@@ -211,7 +211,7 @@ export async function initPriceEditor() {
                 editArea.appendChild(renderEditItem(item));
             });
         } else {
-            editArea.innerHTML = `<p>${i18n.translate('no_items_found', 'No items found')}</p>`;
+            editArea.innerHTML = `<p>${i18n.translate('No items found')}</p>`;
         }
     }
 
@@ -223,12 +223,12 @@ export async function initPriceEditor() {
         editArea.innerHTML = ''; // 清空編輯區
 
         const title = document.createElement('h3');
-        title.textContent = `${i18n.translate('editing_monster_drops', '編輯怪物掉落物')}: ${monster.name}`;
+        title.textContent = `${i18n.translate('monster drops', '編輯怪物掉落物')}: ${monster.name}`;
         editArea.appendChild(title);
 
         if (!monster.params || !monster.params.drops || monster.params.drops.length === 0) {
             const noDropsMsg = document.createElement('p');
-            noDropsMsg.textContent = i18n.translate('no_drops_found', '此怪物沒有掉落物。');
+            noDropsMsg.textContent = i18n.translate('no found');
             editArea.appendChild(noDropsMsg);
             return;
         }
@@ -249,7 +249,6 @@ export async function initPriceEditor() {
     function handleMonsterSearch() {
         const searchTerm = searchInput.value.trim().toLowerCase();
         if (!searchTerm) {
-            editArea.innerHTML = `<p>${i18n.translate('enter_monster_name_or_id', '請輸入怪物名稱或ID')}</p>`;
             return;
         }
 
@@ -282,7 +281,7 @@ export async function initPriceEditor() {
         } else if (searchResults.length > 1) {
             // 多個結果：顯示列表讓使用者選擇
             const resultList = document.createElement('div');
-            resultList.innerHTML = `<h4>${i18n.translate('multiple_monsters_found', '找到多個怪物，請選擇:')}</h4>`;
+            resultList.innerHTML = `<h4>${i18n.translate('select monster')}</h4>`;
             searchResults.forEach(monster => {
                 const monsterDiv = document.createElement('div');
                 monsterDiv.classList.add('monster-search-result-item');
@@ -306,7 +305,7 @@ export async function initPriceEditor() {
             });
         } else {
             // 無結果
-            editArea.innerHTML = `<p>${i18n.translate('no_monsters_found', '未找到怪物')}</p>`;
+            editArea.innerHTML = `<p>${i18n.translate('no found')}</p>`;
         }
     }
 

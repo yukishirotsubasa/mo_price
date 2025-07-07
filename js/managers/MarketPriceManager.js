@@ -118,15 +118,15 @@ export class MarketPriceManager {
                 if (processedCachedData.length > 0) {
                     this.currentMarketPricesData = processedCachedData;
                     this.renderMarketDataTable(this.currentMarketPricesData);
-                    sheetStatusDiv.textContent = i18n.translate('cached_data_loaded_successfully');
+                    sheetStatusDiv.textContent = i18n.translate('price data loaded successfully');
                 } else {
-                    sheetStatusDiv.textContent = i18n.translate('no_valid_data_in_cache');
+                    sheetStatusDiv.textContent = i18n.translate('no valid price data');
                 }
             } else {
-                sheetStatusDiv.textContent = i18n.translate('no_cached_data_found');
+                sheetStatusDiv.textContent = i18n.translate('no valid price data');
             }
         } catch (error) {
-            sheetStatusDiv.textContent = i18n.translate('failed_to_load_cached_data', error.message);
+            sheetStatusDiv.textContent = i18n.translate('failed to load price data', error.message);
             console.error("從 localStorage 載入市場價格數據失敗:", error);
         }
     }
@@ -166,7 +166,6 @@ export class MarketPriceManager {
 
         const parsedValue = parseFloat(newValue);
         if (isNaN(parsedValue)) {
-            alert(i18n.translate('please_enter_valid_number'));
             cellElement.textContent = dataToUpdate[rowIndex][colIndex];
             return;
         }
@@ -177,9 +176,8 @@ export class MarketPriceManager {
         const dataToStore = dataToUpdate.map(row => [row[0], row[1], row[2], row[3]]);
         try {
             localStorage.setItem('price_data', JSON.stringify(dataToStore));
-            console.log(i18n.translate('market_data_updated_and_saved'));
         } catch (e) {
-            console.error(i18n.translate('failed_to_save_updated_data'), e);
+            console.error(i18n.translate('failed to save data'), e);
         }
     }
 
@@ -188,7 +186,7 @@ export class MarketPriceManager {
         const sheetStatusDiv = document.getElementById('sheet-status');
         let dataToExport = this.currentMarketPricesData;
         if (dataToExport.length === 0) {
-            sheetStatusDiv.textContent = i18n.translate('no_data_to_export');
+            sheetStatusDiv.textContent = i18n.translate('no data');
             return;
         }
 
@@ -221,7 +219,7 @@ export class MarketPriceManager {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        sheetStatusDiv.textContent = i18n.translate('data_exported_successfully');
+        sheetStatusDiv.textContent = i18n.translate('data exported successfully');
     }
 
     // 觸發 CSV 檔案輸入
@@ -234,7 +232,7 @@ export class MarketPriceManager {
         const file = event.target.files[0];
         const sheetStatusDiv = document.getElementById('sheet-status');
         if (!file) {
-            sheetStatusDiv.textContent = i18n.translate('please_select_csv_file');
+            sheetStatusDiv.textContent = i18n.translate('select csv file');
             return;
         }
 
@@ -256,20 +254,18 @@ export class MarketPriceManager {
                     this.currentMarketPricesData = finalData;
                     saveMarketDataToLocalStorage(this.currentMarketPricesData);
                     this.renderMarketDataTable(this.currentMarketPricesData);
-                    sheetStatusDiv.textContent = i18n.translate('csv_data_imported_successfully');
-                    console.log(i18n.translate('csv_data_imported_and_updated'), this.currentMarketPricesData);
+                    sheetStatusDiv.textContent = i18n.translate('import successfully');
                 } else {
-                    sheetStatusDiv.textContent = i18n.translate('no_valid_data_in_csv');
+                    sheetStatusDiv.textContent = i18n.translate('no valid data in csv');
                 }
             } catch (error) {
-                sheetStatusDiv.textContent = i18n.translate('import_failed', error.message);
-                console.error(i18n.translate('failed_to_parse_or_import_csv'), error);
+                sheetStatusDiv.textContent = i18n.translate('import failed', error.message);
             } finally {
                 event.target.value = '';
             }
         };
         reader.onerror = () => {
-            sheetStatusDiv.textContent = i18n.translate('failed_to_read_file');
+            sheetStatusDiv.textContent = i18n.translate('failed to read file');
         };
         reader.readAsText(file);
     }

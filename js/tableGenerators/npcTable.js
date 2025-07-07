@@ -13,7 +13,7 @@ export function generateNpcTable(containerId, npcBase, generateTableHTML, create
     const imageSheet = window.allData?.imageSheet || null;
 
     // 使用 i18n.translate 翻譯表頭
-    const headerKeys = ['id', 'name', 'health', 'total_defense', 'total_strength', 'total_accuracy', 'drops'];
+    const headerKeys = ['Id', 'Name', 'health', 'defense', 'strength', 'accuracy', 'drops'];
 
     const rowMapper = (npc) => {
         const drops = npc.params && npc.params.drops ?

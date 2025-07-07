@@ -126,7 +126,7 @@ export class VersionComparisonManager {
         // 新增的條目 - 改為手風琴樣式
         if (results.added.length > 0) {
             html += `<div class="comparison-section added collapsible">
-                        <h3 class="collapsible-header">${i18n.translate('added_items', results.added.length)}</h3>
+                        <h3 class="collapsible-header">${i18n.translate('New') + " " + i18n.translate('Item')}</h3>
                         <div class="collapsible-content">
                             ${this.renderAddedItemsTable(results.added)}
                         </div>
@@ -136,11 +136,11 @@ export class VersionComparisonManager {
         // 刪除的條目 - 改為手風琴樣式
         if (results.removed.length > 0) {
             html += `<div class="comparison-section removed collapsible">
-                        <h3 class="collapsible-header">${i18n.translate('removed_items', results.removed.length)}</h3>
+                        <h3 class="collapsible-header">${i18n.translate('Remove') + " " + i18n.translate('Item')}</h3>
                         <div class="collapsible-content">
                             <ul class="comparison-list">`;
             results.removed.forEach(item => {
-                html += `<li>${i18n.translate('id')}: ${item.b_i}, ${i18n.translate('name')}: ${getItemDisplayContent(item.b_i, window.allData?.itemBase || [], i18n.translate, 'image', window.allData?.imageSheet || null)}</li>`;
+                html += `<li>${i18n.translate('Id')}: ${item.b_i}, ${i18n.translate('Image')}: ${getItemDisplayContent(item.b_i, window.allData?.itemBase || [], i18n.translate, 'image', window.allData?.imageSheet || null)}</li>`;
             });
             html += `</ul></div></div>`;
         }
@@ -148,12 +148,12 @@ export class VersionComparisonManager {
         // 修改的條目 - 改為手風琴樣式
         if (results.modified.length > 0) {
             html += `<div class="comparison-section modified collapsible">
-                        <h3 class="collapsible-header">${i18n.translate('modified_items', results.modified.length)}</h3>
+                        <h3 class="collapsible-header">${i18n.translate('modified') + " " + i18n.translate('Item')}</h3>
                         <div class="collapsible-content">
                             <ul class="comparison-list">`;
             results.modified.forEach(modItem => {
                 html += `<li>
-                            ${i18n.translate('id')}: ${modItem.id}, ${i18n.translate('name')}: ${modItem.itemB.name || modItem.itemA.name || 'N/A'}
+                            ${i18n.translate('Id')}: ${modItem.id}, ${i18n.translate('Name')}: ${modItem.itemB.name || modItem.itemA.name || 'N/A'}
                             <div class="modified-details">`;
                 for (const key in modItem.changes) {
                     const change = modItem.changes[key];
@@ -225,10 +225,10 @@ export class VersionComparisonManager {
         let tableHTML = `<table class="data-table">
             <thead>
                 <tr>
-                    <th>${i18n.translate('id')}</th>
-                    <th>${i18n.translate('name')}</th>
-                    <th>${i18n.translate('image')}</th>
-                    <th>Inventory Slots</th>
+                    <th>${i18n.translate('Id')}</th>
+                    <th>${i18n.translate('Name')}</th>
+                    <th>${i18n.translate('Image')}</th>
+                    <th>${i18n.translate('Inventory Slots')}</th>
                     <th>Params</th>
                 </tr>
             </thead>

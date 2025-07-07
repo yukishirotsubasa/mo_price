@@ -38,7 +38,7 @@ function createSkillQuestControls(skillQuest) {
     let controlsHTML = `
         <div class="skill-quest-controls">
             <div class="control-group">
-                <label>${i18n.translate('difficulty')}:</label>
+                <label>${i18n.translate('Difficulty')}:</label>
                 <div class="difficulty-buttons" data-current-difficulty="0">
     `;
     
@@ -52,7 +52,7 @@ function createSkillQuestControls(skillQuest) {
                 </div>
             </div>
             <div class="control-group">
-                <label for="skill-select">${i18n.translate('skill')}:</label>
+                <label for="skill-select">${i18n.translate('Skills')}:</label>
                 <select id="skill-select">
                     <option value="">${i18n.translate('all_skills')}</option>
     `;
@@ -74,7 +74,7 @@ function createSkillQuestControls(skillQuest) {
 function createSkillQuestTable(skillQuest, itemBase, generateTableHTML, currentDifficulty = 0) {
     // 獲取 imageSheet 數據
     const imageSheet = window.allData?.imageSheet || null;
-    const headers = ['id', 'skill', 'min_point', 'name', 'amount', 'exp', 'coins', 'mos', 'item', 'point'];
+    const headers = ['Id', 'Skills', 'request point', 'Requires', 'Count', 'experience', 'coins', 'mos', 'Reward', 'Points'];
     
     const rowMapper = (quest, index) => {
         // Get multipliers based on difficulty

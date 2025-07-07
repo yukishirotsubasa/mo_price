@@ -24,7 +24,7 @@ export function generateCarpentryTable(containerId, CARPENTRY_FORMULAS, generate
     }
 
     // 使用 i18n.translate 翻譯表頭
-    const headerKeys = ['item name', 'materials', 'craftable', 'level'];
+    const headerKeys = ['Item', 'pattern', 'craftable', 'level'];
     const data = allCarpentryItems;
     const rowMapper = (item) => {
         const itemName = getItemDisplayContent(item.item_id, itemBase, i18n.translate, 'image', imageSheet, fletchingFormulas, arrowMaterialImg); // 使用圖片顯示

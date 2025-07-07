@@ -9,7 +9,7 @@ export function generateForgeTable(containerId, FORGE_FORMULAS, generateTableHTM
     const imageSheet = window.allData?.imageSheet || null;
 
     // 使用 i18n.translate 翻譯表頭
-    const headerKeys = ['serial_id', 'item_name', 'level', 'pattern', 'chance', 'hidden', 'only smelt', 'recycle chance'];
+    const headerKeys = ['Id', 'Image', 'level', 'pattern', 'Chance', 'hidden', 'only smelt', 'recycle chance'];
     const data = Object.keys(FORGE_FORMULAS).map(id => {
         const formula = FORGE_FORMULAS[id];
         const itemId = formula.item_id;

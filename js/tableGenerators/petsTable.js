@@ -10,7 +10,7 @@ export function generatePetsTable(containerId, pets, generateTableHTML, createIt
     }
 
     // 使用 i18n.translate 翻譯表頭
-    const headers = ['id', 'name', 'Inventory Slots', 'breeding_level', 'total_eat', 'eats', 'insurance_cost', 'item_id', 'level', 'likes', 'xp_required'];
+    const headers = ['Id', 'Image', 'Inventory Slots', 'breeding level', 'total eat', 'Eats', 'Pet insurance', 'item id', 'level', 'likes', 'Experience'];
 
     // 獲取 imageSheet 數據
     const imageSheet = window.allData?.imageSheet || null;

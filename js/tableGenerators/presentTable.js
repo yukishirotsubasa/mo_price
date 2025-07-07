@@ -87,7 +87,7 @@ function displayPresentDetails(selectedItemId, items, itemBase, tableContainer, 
 
     const thead = table.createTHead();
     const headerRow = thead.insertRow();
-    ['Name', 'Wiki Price', 'Custom Price'].forEach(text => {
+    ['Name', 'Value', 'price'].forEach(text => {
         const th = document.createElement('th');
         th.textContent = i18n.translate(text);
         headerRow.appendChild(th);

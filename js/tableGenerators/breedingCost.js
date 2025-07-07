@@ -51,14 +51,14 @@ export function generateBreedingCostTable(containerId, pets, itemBase, fletching
     // 生成表格 HTML
     let tableHTML = '<table class="breeding-table"><thead><tr>';
     tableHTML += `<th>${i18n.translate('level')}</th>`;
-    tableHTML += `<th style="width: 200px;">${i18n.translate('parent1')}</th>`;
-    tableHTML += `<th style="width: 200px;">${i18n.translate('parent2')}</th>`;
+    tableHTML += `<th style="width: 200px;">${i18n.translate('Parent') + "1"}</th>`;
+    tableHTML += `<th style="width: 200px;">${i18n.translate('Parent') + "2"}</th>`;
     tableHTML += `<th>${i18n.translate('plan')}</th>`;
     tableHTML += `<th>${i18n.translate('cost')}</th>`;
     tableHTML += `<th>${i18n.translate('one bar')}</th>`;
-    tableHTML += `<th>${i18n.translate('full ')}</th>`;
+    tableHTML += `<th>${i18n.translate('Full')}</th>`;
     tableHTML += `<th>${i18n.translate('comp')}</th>`;
-    tableHTML += `<th>${i18n.translate('exp')}</th>`;
+    tableHTML += `<th>${i18n.translate('experience')}</th>`;
     tableHTML += '</tr></thead><tbody>';
 
     breedingCombinations.forEach((combination, index) => {

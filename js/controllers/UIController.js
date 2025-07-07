@@ -98,7 +98,7 @@ export class UIController {
         if (newToggle) newToggle.textContent = i18n.translate('New');
         
         const priceToggle = this.getElement('priceToggle');
-        if (priceToggle) priceToggle.textContent = i18n.translate('Price');
+        if (priceToggle) priceToggle.textContent = i18n.translate('Price Calculator');
         
         const wikiToggle = this.getElement('wikiToggle');
         if (wikiToggle) wikiToggle.textContent = i18n.translate('Wiki');
@@ -187,10 +187,10 @@ export class UIController {
         const importCsvButton = document.getElementById('import-csv-button');
         const csvFileInput = document.getElementById('csv-file-input');
 
-        if (googleSheetUrlInput) googleSheetUrlInput.placeholder = i18n.translate('enter_google_sheet_url_or_id');
-        if (loadSheetButton) loadSheetButton.textContent = i18n.translate('load_data');
-        if (exportCsvButton) exportCsvButton.textContent = i18n.translate('export_as_csv');
-        if (importCsvButton) importCsvButton.textContent = i18n.translate('import_csv');
+        if (googleSheetUrlInput) googleSheetUrlInput.placeholder = i18n.translate('enter google sheet url');
+        if (loadSheetButton) loadSheetButton.textContent = i18n.translate('load data');
+        if (exportCsvButton) exportCsvButton.textContent = i18n.translate('export as csv');
+        if (importCsvButton) importCsvButton.textContent = i18n.translate('import csv');
         if (csvFileInput) csvFileInput.setAttribute('accept', '.csv');
     }
 
@@ -202,9 +202,9 @@ export class UIController {
         const versionBLabel = document.querySelector('label[for="versionB-select"]');
         const compareVersionsButton = document.getElementById('compare-versions-button');
 
-        if (versionALabel) versionALabel.textContent = i18n.translate('version_a');
-        if (versionBLabel) versionBLabel.textContent = i18n.translate('version_b');
-        if (compareVersionsButton) compareVersionsButton.textContent = i18n.translate('compare_versions');
+        if (versionALabel) versionALabel.textContent = i18n.translate('version') + " 1";
+        if (versionBLabel) versionBLabel.textContent = i18n.translate('version') + " 2";
+        if (compareVersionsButton) compareVersionsButton.textContent = i18n.translate('compare');
     }
 
     /**
@@ -212,8 +212,8 @@ export class UIController {
      */
     updateStaticUIText() {
         // 語言選擇器標籤
-        const langSelectLabel = document.querySelector('label[for="lang-select"]');
-        if (langSelectLabel) langSelectLabel.textContent = i18n.translate('select_language');
+        /*const langSelectLabel = document.querySelector('label[for="lang-select"]');
+        if (langSelectLabel) langSelectLabel.textContent = i18n.translate('select_language');*/
 
         // 怪物價值過濾器 - 直接通過ID找到checkbox的父元素
         const hideBossCheckbox = document.getElementById('hideBossToggle');
@@ -226,7 +226,7 @@ export class UIController {
             label.innerHTML = '';
             hideBossCheckbox.checked = checked; // 保持原有的checked狀態
             label.appendChild(hideBossCheckbox);
-            label.appendChild(document.createTextNode(' ' + i18n.translate('hide_boss')));
+            label.appendChild(document.createTextNode(i18n.translate('hide') + ' boss'));
         }
         
         if (hideRareCheckbox && hideRareCheckbox.parentElement && hideRareCheckbox.parentElement.tagName === 'LABEL') {
@@ -235,7 +235,7 @@ export class UIController {
             label.innerHTML = '';
             hideRareCheckbox.checked = checked; // 保持原有的checked狀態
             label.appendChild(hideRareCheckbox);
-            label.appendChild(document.createTextNode(' ' + i18n.translate('hide_rare')));
+            label.appendChild(document.createTextNode(i18n.translate('hide') + ' rare'));
         }
         
         if (hideEliteCheckbox && hideEliteCheckbox.parentElement && hideEliteCheckbox.parentElement.tagName === 'LABEL') {
@@ -244,7 +244,7 @@ export class UIController {
             label.innerHTML = '';
             hideEliteCheckbox.checked = checked; // 保持原有的checked狀態
             label.appendChild(hideEliteCheckbox);
-            label.appendChild(document.createTextNode(' ' + i18n.translate('hide_elite')));
+            label.appendChild(document.createTextNode(i18n.translate('hide') + ' elite'));
         }
 
         // Modal 對話框文字
@@ -253,10 +253,10 @@ export class UIController {
         const applyNewButton = document.getElementById('apply-new-button');
         const keepOldButton = document.getElementById('keep-old-button');
 
-        if (conflictModalTitle) conflictModalTitle.textContent = i18n.translate('data_conflict');
+        if (conflictModalTitle) conflictModalTitle.textContent = i18n.translate('data conflict');
         if (conflictModalText) conflictModalText.textContent = i18n.translate('conflict_detected_message');
-        if (applyNewButton) applyNewButton.textContent = i18n.translate('apply_all_new');
-        if (keepOldButton) keepOldButton.textContent = i18n.translate('keep_all_old');
+        if (applyNewButton) applyNewButton.textContent = i18n.translate('apply all new');
+        if (keepOldButton) keepOldButton.textContent = i18n.translate('keep all old');
 
         // Market Price Integration 編輯器按鈕
         const searchItemButton = document.getElementById('search-item-button');
@@ -264,10 +264,10 @@ export class UIController {
         const refreshTableButton = document.getElementById('refresh-table-button');
         const itemSearchInput = document.getElementById('item-search-input');
 
-        if (searchItemButton) searchItemButton.textContent = i18n.translate('search_item');
-        if (searchMonsterButton) searchMonsterButton.textContent = i18n.translate('search_monster');
-        if (refreshTableButton) refreshTableButton.textContent = i18n.translate('refresh_preview_table');
-        if (itemSearchInput) itemSearchInput.placeholder = i18n.translate('enter_item_id_or_name');
+        if (searchItemButton) searchItemButton.textContent = i18n.translate('Search') + " " + i18n.translate('Item');
+        if (searchMonsterButton) searchMonsterButton.textContent = i18n.translate('Search') + " " + i18n.translate('monster');
+        if (refreshTableButton) refreshTableButton.textContent = i18n.translate('refresh preview table');
+        if (itemSearchInput) itemSearchInput.placeholder = i18n.translate('enter id or name');
 
         // 頁面標題
         this.updatePageTitles();
@@ -278,10 +278,10 @@ export class UIController {
      */
     updatePageTitles() {
         const pageTitles = {
-            'forging-cost-page-content h2': 'forging_cost_calculator',
-            'carpentry-cost-page-content h2': 'carpentry_cost_calculator', 
+            'forging-cost-page-content h2': 'forging cost calculator',
+            'carpentry-cost-page-content h2': 'carpentry cost calculator', 
             'monster-worth-page-content h2': 'monster_worth_calculator',
-            'enchanting-cost-page-content h2': 'enchanting_cost_calculator',
+            'enchanting-cost-page-content h2': 'enchanting cost calculator',
             'open-item-page-content h2': 'open_item',
             'key-page-content h2': 'key',
             'rare-key-page-content h2': 'rare_key',

@@ -55,7 +55,7 @@ export default (() => {
 
         // Table Header
         const headerRow = document.createElement('tr');
-        ['name', 'base chance', 'real chance', 'price'].forEach(headerText => {
+        ['Image', 'base chance', 'real chance', 'price'].forEach(headerText => {
             const th = document.createElement('th');
             th.textContent = currentI18n.translate(headerText);
             headerRow.appendChild(th);

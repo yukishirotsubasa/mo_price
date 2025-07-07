@@ -28,7 +28,7 @@ export async function generateMosMarketTable(containerId, itemBase, imageSheet, 
     }
     
     // 定義表格標題
-    const headerKeys = ['name', 'items', 'mos', 'price', 'worth'];
+    const headerKeys = ['name', 'Item', 'mos', 'price', 'worth'];
     
     // 行映射函數
     const rowMapper = (pack) => {

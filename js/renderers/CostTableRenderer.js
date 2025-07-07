@@ -20,8 +20,8 @@ export class CostTableRenderer extends TableRenderer {
      */
     renderForgingCostTable(containerId, forgingCostData) {
         const headers = [
-            'id',
-            'name', 
+            'Id',
+            'Image', 
             'level',
             'pattern',
             'material price',
@@ -52,7 +52,7 @@ export class CostTableRenderer extends TableRenderer {
      */
     renderCarpentryCostTable(containerId, carpentryCostData) {
         const headers = [
-            'name',
+            'Image',
             'level',
             'pattern',
             'cost',
@@ -82,8 +82,8 @@ export class CostTableRenderer extends TableRenderer {
      */
     renderRecycleCostTable(containerId, recycleCostData) {
         const headers = [
-            'id',
-            'itemName',
+            'Id',
+            'Image',
             'level',
             'pattern',
             'chance',
@@ -114,9 +114,9 @@ export class CostTableRenderer extends TableRenderer {
      */
     renderMarketDataTable(containerId, marketData, itemBase, editHandler) {
         const headers = [
-            'item id',
-            'name',
-            'wiki price',
+            'Id',
+            'Image',
+            'Value',
             'market buy',
             'market sell',
             'custom price'

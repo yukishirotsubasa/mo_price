@@ -150,7 +150,7 @@ function generateEnchantChainTable(container, startItemId, itemBase, generateTab
     window.firelordSetState.enchantChain = enchantChain;
     
     // 完全仿照enchantCost的表格結構
-    const headers = ['market price', 'name', 'level', 'bonus', 'price', 'plan', 'prod price', 'prod name', 'prod id'];
+    const headers = ['market price', 'Image', 'level', 'Bonuses', 'price', 'plan', 'prod price', 'prod', 'prod id'];
     const data = [];
     
     enchantChain.forEach((itemId, index) => {
@@ -667,8 +667,8 @@ function addEnchantRow(itemId, index, item, params, enchantTargetId, enchantChai
                     <table class="table table-sm table-bordered mb-0">
                         <thead>
                             <tr>
-                                <th>${i18n.translate('combo')}</th>
-                                <th>${i18n.translate('chance')}</th>
+                                <th>${i18n.translate('set')}</th>
+                                <th>${i18n.translate('Chance')}</th>
                                 <th>${i18n.translate('cost')}</th>
                             </tr>
                         </thead>
@@ -702,8 +702,8 @@ function addEnchantRow(itemId, index, item, params, enchantTargetId, enchantChai
                     <table class="table table-sm table-bordered mb-0">
                         <thead>
                             <tr>
-                                <th>${i18n.translate('combo')}</th>
-                                <th>${i18n.translate('chance')}</th>
+                                <th>${i18n.translate('set')}</th>
+                                <th>${i18n.translate('Chance')}</th>
                                 <th>${i18n.translate('cost')}</th>
                             </tr>
                         </thead>
@@ -851,7 +851,7 @@ function addForgeFormulaRow(materialItemId, data, itemBase, imageSheet) {
             <thead>
                 <tr>
                     <th>${i18n.translate('Materials')}</th>
-                    <th>${i18n.translate('Cost')}</th>
+                    <th>${i18n.translate('cost')}</th>
                     <th>${i18n.translate('Result')}</th>
                 </tr>
             </thead>

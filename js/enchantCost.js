@@ -11,7 +11,7 @@ export function generateEnchantCostTableData(containerId, enchantingChances, gen
 
     // 獲取 imageSheet 數據
     const imageSheet = window.allData?.imageSheet || null;
-    const headers = ['id', 'name', 'level', 'bonus', 'price', 'plan', 'prod price', 'prod name', 'prod id'];
+    const headers = ['Id', 'Image', 'level', 'Bonuses', 'price', 'plan', 'prod price', 'prod', 'prod id'];
     const data = [];
     const LUCKY_STONE_ID = 593;
 
@@ -116,8 +116,8 @@ export function generateEnchantCostTableData(containerId, enchantingChances, gen
             <table class="table table-sm table-bordered mb-0">
                 <thead>
                     <tr>
-                        <th>${i18n.translate('combo')}</th>
-                        <th>${i18n.translate('chance')}</th>
+                        <th>${i18n.translate('set')}</th>
+                        <th>${i18n.translate('Chance')}</th>
                         <th>${i18n.translate('cost')}</th>
                     </tr>
                 </thead>
