@@ -124,9 +124,6 @@ window.ui.showConflictResolutionModal = showConflictResolutionModal;
 }*/
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // 初始化翻譯
-    TranslationManager.initializeTranslations();
-    
     // 延遲載入數據，避免與release_2025_0417.js的window.onload衝突
     setTimeout(async () => {
         allData = await loadData();

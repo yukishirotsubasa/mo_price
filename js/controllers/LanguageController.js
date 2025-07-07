@@ -1,6 +1,7 @@
 // js/controllers/LanguageController.js - 管理語言切換
 
 import i18n from '../i18n.js';
+import { TranslationManager } from '../managers/TranslationManager.js';
 
 /**
  * LanguageController 類別 - 負責管理語言切換相關的邏輯
@@ -18,6 +19,9 @@ export class LanguageController {
     async initializeLanguageSelector() {
         // 等待i18n初始化完成
         await i18n.init();
+
+        // 在i18n初始化完成後，初始化TranslationManager
+        await TranslationManager.initializeTranslations();
 
         this.langSelect = document.getElementById('lang-select');
         if (!this.langSelect) {
@@ -75,6 +79,9 @@ export class LanguageController {
             // 切換語言
             await i18n.setLanguage(newLang);
             
+            // 重新初始化TranslationManager以確保翻譯正確載入
+            await TranslationManager.initializeTranslations(newLang);
+            
             // 重新填充語言選擇器以更新語言名稱翻譯
             this.populateLanguageSelector();
             
@@ -103,6 +110,7 @@ export class LanguageController {
             this.uiController.updateTabTitles();
             this.uiController.updateGoogleSheetUIText();
             this.uiController.updateVersionComparisonUIText();
+            this.uiController.updateStaticUIText();
         }
     }
 

@@ -850,10 +850,9 @@ function addForgeFormulaRow(materialItemId, data, itemBase, imageSheet) {
         <table class="table table-sm table-bordered mb-0">
             <thead>
                 <tr>
-                    <th>Formula</th>
-                    <th>Materials</th>
-                    <th>Cost</th>
-                    <th>Result</th>
+                    <th>${i18n.translate('Materials')}</th>
+                    <th>${i18n.translate('Cost')}</th>
+                    <th>${i18n.translate('Result')}</th>
                 </tr>
             </thead>
             <tbody>
@@ -861,7 +860,6 @@ function addForgeFormulaRow(materialItemId, data, itemBase, imageSheet) {
                     <tr class="forge-formula-option ${option.isSelected ? 'selected' : ''}" 
                         data-formula-id="${option.formulaId}"
                         data-material-id="${materialItemId}">
-                        <td>${option.formulaId}</td>
                         <td>${option.pattern}</td>
                         <td>${option.cost}</td>
                         <td>${option.resultName}</td>

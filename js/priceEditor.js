@@ -122,8 +122,8 @@ export async function initPriceEditor() {
             <input type="number" class="price-input" data-price-type="1" placeholder="${i18n.translate('market buy')}" value="${marketBuy}">
             <input type="number" class="price-input" data-price-type="2" placeholder="${i18n.translate('market sell')}" value="${marketSell}">
             <input type="number" class="price-input" data-price-type="3" placeholder="${i18n.translate('custom price')}" value="${customPrice}">
-            <button class="save-and-remove-button">${i18n.translate('Complete', 'Complete')}</button>
-            <button class="delete-item-button">${i18n.translate('Delete', 'Delete')}</button>
+            <button class="save-and-remove-button">${i18n.translate('Complete')}</button>
+            <button class="delete-item-button">${i18n.translate('Delete')}</button>
         `;
 
         // 為價格輸入框添加 'input' 事件監聽器
@@ -159,7 +159,7 @@ export async function initPriceEditor() {
             const itemExists = priceData.some(p => p[0] === itemId);
 
             if (itemExists) {
-                if (window.confirm(i18n.translate('confirm_delete', `您確定要刪除 [${itemName}] 的價格資料嗎？`, { itemName }))) {
+                if (window.confirm(i18n.translate('confirm_delete', itemName))) {
                     priceData = priceData.filter(p => p[0] !== itemId);
                     savePriceData();
                     itemRow.remove();

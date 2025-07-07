@@ -208,6 +208,99 @@ export class UIController {
     }
 
     /**
+     * 更新語言選擇器和其他靜態UI文本
+     */
+    updateStaticUIText() {
+        // 語言選擇器標籤
+        const langSelectLabel = document.querySelector('label[for="lang-select"]');
+        if (langSelectLabel) langSelectLabel.textContent = i18n.translate('select_language');
+
+        // 怪物價值過濾器 - 直接通過ID找到checkbox的父元素
+        const hideBossCheckbox = document.getElementById('hideBossToggle');
+        const hideRareCheckbox = document.getElementById('hideRareToggle');
+        const hideEliteCheckbox = document.getElementById('hideEliteToggle');
+        
+        if (hideBossCheckbox && hideBossCheckbox.parentElement && hideBossCheckbox.parentElement.tagName === 'LABEL') {
+            const label = hideBossCheckbox.parentElement;
+            const checked = hideBossCheckbox.checked;
+            label.innerHTML = '';
+            hideBossCheckbox.checked = checked; // 保持原有的checked狀態
+            label.appendChild(hideBossCheckbox);
+            label.appendChild(document.createTextNode(' ' + i18n.translate('hide_boss')));
+        }
+        
+        if (hideRareCheckbox && hideRareCheckbox.parentElement && hideRareCheckbox.parentElement.tagName === 'LABEL') {
+            const label = hideRareCheckbox.parentElement;
+            const checked = hideRareCheckbox.checked;
+            label.innerHTML = '';
+            hideRareCheckbox.checked = checked; // 保持原有的checked狀態
+            label.appendChild(hideRareCheckbox);
+            label.appendChild(document.createTextNode(' ' + i18n.translate('hide_rare')));
+        }
+        
+        if (hideEliteCheckbox && hideEliteCheckbox.parentElement && hideEliteCheckbox.parentElement.tagName === 'LABEL') {
+            const label = hideEliteCheckbox.parentElement;
+            const checked = hideEliteCheckbox.checked;
+            label.innerHTML = '';
+            hideEliteCheckbox.checked = checked; // 保持原有的checked狀態
+            label.appendChild(hideEliteCheckbox);
+            label.appendChild(document.createTextNode(' ' + i18n.translate('hide_elite')));
+        }
+
+        // Modal 對話框文字
+        const conflictModalTitle = document.getElementById('conflict-modal-title');
+        const conflictModalText = document.getElementById('conflict-modal-text');
+        const applyNewButton = document.getElementById('apply-new-button');
+        const keepOldButton = document.getElementById('keep-old-button');
+
+        if (conflictModalTitle) conflictModalTitle.textContent = i18n.translate('data_conflict');
+        if (conflictModalText) conflictModalText.textContent = i18n.translate('conflict_detected_message');
+        if (applyNewButton) applyNewButton.textContent = i18n.translate('apply_all_new');
+        if (keepOldButton) keepOldButton.textContent = i18n.translate('keep_all_old');
+
+        // Market Price Integration 編輯器按鈕
+        const searchItemButton = document.getElementById('search-item-button');
+        const searchMonsterButton = document.getElementById('search-monster-button');
+        const refreshTableButton = document.getElementById('refresh-table-button');
+        const itemSearchInput = document.getElementById('item-search-input');
+
+        if (searchItemButton) searchItemButton.textContent = i18n.translate('search_item');
+        if (searchMonsterButton) searchMonsterButton.textContent = i18n.translate('search_monster');
+        if (refreshTableButton) refreshTableButton.textContent = i18n.translate('refresh_preview_table');
+        if (itemSearchInput) itemSearchInput.placeholder = i18n.translate('enter_item_id_or_name');
+
+        // 頁面標題
+        this.updatePageTitles();
+    }
+
+    /**
+     * 更新各頁面的標題
+     */
+    updatePageTitles() {
+        const pageTitles = {
+            'forging-cost-page-content h2': 'forging_cost_calculator',
+            'carpentry-cost-page-content h2': 'carpentry_cost_calculator', 
+            'monster-worth-page-content h2': 'monster_worth_calculator',
+            'enchanting-cost-page-content h2': 'enchanting_cost_calculator',
+            'open-item-page-content h2': 'open_item',
+            'key-page-content h2': 'key',
+            'rare-key-page-content h2': 'rare_key',
+            'present-page-content h2': 'present',
+            'breeding-page-content h2': 'breeding_cost_calculator',
+            'recycle-page-content h2': 'recycle_cost_calculator',
+            'firelord-set-page-content h2': 'firelord_set',
+            'mos-market-page-content h2': 'mos_market'
+        };
+
+        Object.entries(pageTitles).forEach(([selector, translationKey]) => {
+            const element = document.querySelector(`#${selector}`);
+            if (element) {
+                element.textContent = i18n.translate(translationKey);
+            }
+        });
+    }
+
+    /**
      * 清空所有可清除的表格內容
      */
     clearTableContents() {
