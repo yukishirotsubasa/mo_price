@@ -14,7 +14,7 @@ export class CostTableRenderer extends TableRenderer {
     }
 
     /**
-     * 渲染鍛造成本表格
+     * 渲染鍛造成本表格（使用固定表頭）
      * @param {string} containerId - 容器元素的ID
      * @param {Array<Object>} forgingCostData - 鍛造成本數據
      */
@@ -41,12 +41,8 @@ export class CostTableRenderer extends TableRenderer {
             row.sellPrice
         ];
 
-        const options = {
-            tableClass: this.costTableClass,
-            emptyMessage: i18n.translate('forging_data_not_available')
-        };
-
-        this.renderBasicTable(containerId, forgingCostData, headers, rowMapper, options);
+        // 使用固定表頭渲染
+        this.renderStickyHeaderTable(containerId, forgingCostData, headers, rowMapper);
     }
 
     /**
@@ -80,7 +76,7 @@ export class CostTableRenderer extends TableRenderer {
     }
 
     /**
-     * 渲染分解成本表格
+     * 渲染分解成本表格（使用固定表頭）
      * @param {string} containerId - 容器元素的ID
      * @param {Array<Object>} recycleCostData - 分解成本數據
      */
@@ -105,12 +101,8 @@ export class CostTableRenderer extends TableRenderer {
             row.worth
         ];
 
-        const options = {
-            tableClass: this.costTableClass,
-            emptyMessage: i18n.translate('recycle_data_not_available')
-        };
-
-        this.renderBasicTable(containerId, recycleCostData, headers, rowMapper, options);
+        // 使用固定表頭渲染
+        this.renderStickyHeaderTable(containerId, recycleCostData, headers, rowMapper);
     }
 
     /**
@@ -190,5 +182,62 @@ export class CostTableRenderer extends TableRenderer {
         if (editHandler) {
             this.attachEditHandlers(container, editHandler);
         }
+    }
+
+    /**
+     * 渲染帶有固定表頭的表格
+     * @param {string} containerId - 容器元素的ID
+     * @param {Array} data - 表格數據
+     * @param {Array} headers - 表格標題
+     * @param {Function} rowMapper - 行數據映射函數
+     */
+    renderStickyHeaderTable(containerId, data, headers, rowMapper) {
+        const container = document.getElementById(containerId);
+        if (!container) {
+            console.error(`找不到 ID 為 ${containerId} 的容器元素。`);
+            return;
+        }
+
+        container.innerHTML = ''; // 清空舊內容
+
+        if (!data || data.length === 0) {
+            container.textContent = i18n.translate('no_data_available');
+            return;
+        }
+
+        // 使用固定表頭的HTML結構
+        let tableHTML = `
+            <div class="table-container">
+                <table class="sticky-header-table">
+                    <thead>
+                        <tr>`;
+        
+        headers.forEach(header => {
+            const translatedHeader = i18n.translate(header);
+            tableHTML += `<th>${translatedHeader}</th>`;
+        });
+        
+        tableHTML += `
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+        data.forEach((item) => {
+            const rowData = rowMapper(item);
+            tableHTML += '<tr>';
+            if (Array.isArray(rowData)) {
+                rowData.forEach(cellData => {
+                    tableHTML += `<td>${cellData}</td>`;
+                });
+            }
+            tableHTML += '</tr>';
+        });
+
+        tableHTML += `
+                    </tbody>
+                </table>
+            </div>`;
+
+        container.innerHTML = tableHTML;
     }
 }
