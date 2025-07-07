@@ -169,6 +169,18 @@
     background-color: var(--hover-color) !important;
 }
 
+/* 暗色主題plan選擇樣式 */
+[data-theme="dark"] .plan-option.selected {
+    background-color: #1e4d2b !important;
+    border-left: 4px solid #28a745 !important;
+}
+
+[data-theme="dark"] .plan-option.selected td {
+    background-color: #1e4d2b !important;
+    color: #ffffff !important;
+    font-weight: bold;
+}
+
 [data-theme="dark"] .btn {
     background-color: #404040;
     border: 1px solid #555;

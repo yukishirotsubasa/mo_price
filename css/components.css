@@ -425,6 +425,26 @@ table tr:nth-child(even) td,
     background-color: var(--hover-color);
 }
 
+/* plan選擇樣式（參考firelordSet） */
+.plan-option {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.plan-option:hover {
+    background-color: var(--hover-color) !important;
+}
+
+.plan-option.selected {
+    background-color: #d4edda !important;
+    border-left: 4px solid #28a745 !important;
+}
+
+.plan-option.selected td {
+    background-color: #d4edda !important;
+    font-weight: bold;
+}
+
 .present-details-table .total-row {
     background-color: var(--hover-color);
     border-top: 2px solid var(--primary-color);

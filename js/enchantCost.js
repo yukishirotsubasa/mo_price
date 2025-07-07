@@ -100,8 +100,12 @@ export function generateEnchantCostTableData(containerId, enchantingChances, gen
         const accordionId = `accordion-${item.id}-${index}`;
         const bestPlan = item.all_plans[0]; // 假設第一個方案是最佳方案
 
-        const otherPlansBody = item.all_plans.slice(1).map(plan => `
-            <tr>
+        // 參考firelordSet：生成所有可選擇的方案（包括當前選中的）
+        const allSelectableOptions = item.all_plans.map((plan, planIndex) => `
+            <tr class="plan-option ${planIndex === 0 ? 'selected' : ''}" 
+                data-plan-index="${planIndex}"
+                data-item-id="${item.id}"
+                data-plan-idx="${planIndex}">
                 <td>${plan.combo}</td>
                 <td>${formatAsPercentage(plan.chance)}</td>
                 <td>${formatNumberWithThousandsSeparator(plan.cost)}</td>
@@ -128,7 +132,7 @@ export function generateEnchantCostTableData(containerId, enchantingChances, gen
                             <div id="${accordionId}" class="collapse">
                                 <table class="table table-sm table-bordered mb-0">
                                     <tbody>
-                                        ${otherPlansBody}
+                                        ${allSelectableOptions}
                                     </tbody>
                                 </table>
                             </div>
@@ -156,15 +160,62 @@ export function generateEnchantCostTableData(containerId, enchantingChances, gen
     const tableHTML = generateTableHTML(headers, data, rowMapper, i18n.translate, true); // Pass true for custom row rendering
     container.innerHTML = tableHTML;
 
-    // --- 新增手風琴功能修復 ---
-    // 手動綁定點擊事件來觸發 Bootstrap 的 collapse 功能
+    // --- 參考firelordSet：綁定手風琴和plan選擇事件 ---
+    // 綁定手風琴展開/收合事件
     const toggles = container.querySelectorAll('.accordion-toggle');
     toggles.forEach(toggle => {
-        toggle.addEventListener('click', () => {
+        toggle.addEventListener('click', (e) => {
             const targetId = toggle.getAttribute('data-bs-target');
             const targetElement = document.querySelector(targetId);
             if (targetElement) {
                 targetElement.classList.toggle('show');
+            }
+        });
+    });
+    
+    // 綁定plan選擇事件
+    const planOptions = container.querySelectorAll('.plan-option');
+    planOptions.forEach(option => {
+        option.addEventListener('click', (e) => {
+            e.stopPropagation();
+            
+            const itemId = parseInt(option.getAttribute('data-item-id'));
+            const planIndex = parseInt(option.getAttribute('data-plan-idx'));
+            
+            if (!isNaN(itemId) && !isNaN(planIndex)) {
+                // 更新選中狀態的視覺效果
+                const parentTable = option.closest('table');
+                if (parentTable) {
+                    // 移除同一表格中其他選項的selected類
+                    parentTable.querySelectorAll('.plan-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    // 為當前選項添加selected類
+                    option.classList.add('selected');
+                }
+                
+                // 更新外面的主要顯示區域（accordion-toggle行）
+                const accordionContent = option.closest('.collapse');
+                if (accordionContent) {
+                    // 找到對應的accordion-toggle行
+                    const accordionToggle = accordionContent.closest('tr').previousElementSibling;
+                    if (accordionToggle && accordionToggle.classList.contains('accordion-toggle')) {
+                        // 獲取選中plan的數據
+                        const selectedCombo = option.cells[0].innerHTML;
+                        const selectedChance = option.cells[1].innerHTML;
+                        const selectedCost = option.cells[2].innerHTML;
+                        
+                        // 更新accordion-toggle行的內容
+                        accordionToggle.cells[0].innerHTML = selectedCombo;
+                        accordionToggle.cells[1].innerHTML = selectedChance;
+                        accordionToggle.cells[2].innerHTML = selectedCost;
+                    }
+                    
+                    // 選擇後收起手風琴
+                    accordionContent.classList.remove('show');
+                }
+                
+                console.log(`Selected plan ${planIndex} for item ${itemId}`);
             }
         });
     });
