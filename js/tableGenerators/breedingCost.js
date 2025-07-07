@@ -80,14 +80,60 @@ export function generateBreedingCostTable(containerId, pets, itemBase, fletching
     tableHTML += '</tbody></table>';
     container.innerHTML = tableHTML;
     
-    // 手動綁定點擊事件來觸發 Bootstrap 的 collapse 功能
+    // 參考enchantCost：綁定手風琴和plan選擇事件
+    // 綁定手風琴展開/收合事件
     const toggles = container.querySelectorAll('.accordion-toggle');
     toggles.forEach(toggle => {
-        toggle.addEventListener('click', () => {
+        toggle.addEventListener('click', (e) => {
             const targetId = toggle.getAttribute('data-bs-target');
             const targetElement = document.querySelector(targetId);
             if (targetElement) {
                 targetElement.classList.toggle('show');
+            }
+        });
+    });
+    
+    // 綁定plan選擇事件
+    const planOptions = container.querySelectorAll('.plan-option');
+    planOptions.forEach(option => {
+        option.addEventListener('click', (e) => {
+            e.stopPropagation();
+            
+            const itemId = option.getAttribute('data-item-id');
+            const planIndex = parseInt(option.getAttribute('data-plan-idx'));
+            
+            if (itemId && !isNaN(planIndex)) {
+                // 更新選中狀態的視覺效果
+                const parentTable = option.closest('table');
+                if (parentTable) {
+                    // 移除同一表格中其他選項的selected類
+                    parentTable.querySelectorAll('.plan-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    // 為當前選項添加selected類
+                    option.classList.add('selected');
+                }
+                
+                // 更新外面的主要顯示區域（accordion-toggle行）
+                const accordionContent = option.closest('.collapse');
+                if (accordionContent) {
+                    // 找到對應的accordion-toggle行
+                    const accordionToggle = accordionContent.closest('tr').previousElementSibling;
+                    if (accordionToggle && accordionToggle.classList.contains('accordion-toggle')) {
+                        // 獲取選中plan的數據
+                        const selectedCells = option.cells;
+                        
+                        // 更新accordion-toggle行的內容（跳過第一個cell，因為它是adjustment）
+                        for (let i = 0; i < selectedCells.length && i < accordionToggle.cells.length; i++) {
+                            accordionToggle.cells[i].innerHTML = selectedCells[i].innerHTML;
+                        }
+                    }
+                    
+                    // 選擇後收起手風琴
+                    accordionContent.classList.remove('show');
+                }
+                
+                console.log(`Selected breeding plan ${planIndex} for ${itemId}`);
             }
         });
     });
@@ -405,9 +451,13 @@ function generatePlanInfo(plans, originalPets, itemBase, index, imageSheet, flet
     
     const accordionId = `plan-accordion-${index}`;
     
-    // 构建其他计划的行
-    const otherPlansBody = sortedPlans.slice(1).map(plan => {
-        let row = `<tr><td>+${plan.adjustment}</td>`;
+    // 构建所有可選擇的計劃行（參考enchantCost和firelordSet）
+    const allSelectableOptions = sortedPlans.map((plan, planIndex) => {
+        let row = `<tr class="plan-option ${planIndex === 0 ? 'selected' : ''}" 
+                      data-plan-index="${planIndex}"
+                      data-item-id="breeding-${index}"
+                      data-plan-idx="${planIndex}">
+                   <td>+${plan.adjustment}</td>`;
         
         plan.items.forEach(item => {
             const pet = originalPets[item.pet_id];
@@ -450,7 +500,7 @@ function generatePlanInfo(plans, originalPets, itemBase, index, imageSheet, flet
                         <div id="${accordionId}" class="collapse">
                             <table class="table table-sm table-bordered mb-0">
                                 <tbody>
-                                    ${otherPlansBody}
+                                    ${allSelectableOptions}
                                 </tbody>
                             </table>
                         </div>
