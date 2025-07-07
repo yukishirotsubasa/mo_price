@@ -298,10 +298,22 @@ table,
     border-collapse: collapse;
     background-color: var(--surface-color);
     border-radius: var(--border-radius-md);
-    overflow: hidden;
     box-shadow: var(--shadow-sm);
     margin-bottom: var(--spacing-lg);
     margin-top: var(--spacing-md);
+}
+
+/* 非sticky表格才使用overflow: hidden */
+table:not(.sticky-header-table),
+.data-table:not(.sticky-header-table),
+.cost-table:not(.sticky-header-table),
+.market-data-table:not(.sticky-header-table),
+.breeding-table:not(.sticky-header-table),
+.parent-table:not(.sticky-header-table),
+.plan-table:not(.sticky-header-table),
+.present-details-table:not(.sticky-header-table),
+.table:not(.sticky-header-table) {
+    overflow: hidden;
 }
 
 table th,
@@ -365,6 +377,52 @@ table tr:nth-child(even) td,
 /* 特殊表格樣式 */
 .plan-table.best-plan {
     border: 2px solid #22c55e;
+}
+
+/* 固定表頭樣式 */
+.table-container {
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.sticky-header-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--surface-color);
+    margin: 0;
+}
+
+.sticky-header-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: var(--primary-color);
+    color: white;
+    padding: var(--spacing-sm) var(--spacing-md);
+    text-align: left;
+    font-weight: bold;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+    /* 確保背景完全不透明 */
+    background-clip: padding-box;
+}
+
+.sticky-header-table tbody td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--border-color);
+    transition: background-color var(--transition-fast);
+    background-color: var(--surface-color);
+}
+
+.sticky-header-table tbody tr:hover td {
+    background-color: var(--hover-color);
+}
+
+.sticky-header-table tbody tr:nth-child(even) td {
+    background-color: var(--hover-color);
 }
 
 .present-details-table .total-row {

@@ -147,6 +147,28 @@
     background-color: #404040;
 }
 
+/* 暗色主題固定表頭樣式 */
+[data-theme="dark"] .sticky-header-table thead th {
+    background-color: #404040 !important;
+    color: white !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 100 !important;
+}
+
+[data-theme="dark"] .sticky-header-table tbody td {
+    background-color: var(--surface-color) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .sticky-header-table tbody tr:hover td {
+    background-color: var(--hover-color) !important;
+}
+
+[data-theme="dark"] .sticky-header-table tbody tr:nth-child(even) td {
+    background-color: var(--hover-color) !important;
+}
+
 [data-theme="dark"] .btn {
     background-color: #404040;
     border: 1px solid #555;

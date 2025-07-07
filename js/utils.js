@@ -205,7 +205,8 @@ export function getArrowImageBackgroundStyleFromFormula(itemId, fletchingFormula
  * @returns {string} - 生成的 HTML 表格字串。
  */
 export function generateTableHTML(headerKeys, data, rowMapper, translateFunction, customRowRendering = false) {
-    let tableHTML = '<table><thead><tr>';
+    // 為itemTable添加特殊的容器和固定表頭功能
+    let tableHTML = '<div class="table-container"><table class="sticky-header-table"><thead><tr>';
     headerKeys.forEach(key => {
         tableHTML += `<th>${translateFunction(key)}</th>`;
     });
@@ -228,7 +229,7 @@ export function generateTableHTML(headerKeys, data, rowMapper, translateFunction
         });
     }
 
-    tableHTML += '</tbody></table>';
+    tableHTML += '</tbody></table></div>';
     return tableHTML;
 }
 

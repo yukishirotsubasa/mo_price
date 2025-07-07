@@ -161,10 +161,15 @@ table,
     border-collapse: collapse !important;
     background-color: var(--surface-color) !important;
     border-radius: var(--border-radius-md) !important;
-    overflow: hidden !important;
     box-shadow: var(--shadow-sm) !important;
     margin-bottom: var(--spacing-lg) !important;
     margin-top: var(--spacing-md) !important;
+}
+
+/* 特別處理sticky-header-table，移除可能干擾sticky的樣式 */
+.sticky-header-table {
+    overflow: visible !important;
+    border-radius: 0 !important;
 }
 
 table th,
@@ -236,6 +241,54 @@ table tr:nth-child(even) td,
 /* 特殊表格樣式覆蓋 */
 .plan-table.best-plan {
     border: 2px solid #22c55e !important;
+}
+
+/* 固定表頭樣式覆蓋 */
+.table-container {
+    max-height: calc(100vh - 120px) !important;
+    overflow-y: auto !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--border-radius-md) !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+.sticky-header-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    background-color: var(--surface-color) !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.sticky-header-table thead th {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 100 !important;
+    background-color: var(--primary-color) !important;
+    color: white !important;
+    padding: var(--spacing-sm) var(--spacing-md) !important;
+    text-align: left !important;
+    font-weight: bold !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1) !important;
+    /* 確保背景完全覆蓋 */
+    background-clip: padding-box !important;
+}
+
+.sticky-header-table tbody td {
+    padding: var(--spacing-sm) var(--spacing-md) !important;
+    border: 1px solid var(--border-color) !important;
+    transition: background-color var(--transition-fast) !important;
+    background-color: var(--surface-color) !important;
+}
+
+.sticky-header-table tbody tr:hover td {
+    background-color: var(--hover-color) !important;
+}
+
+.sticky-header-table tbody tr:nth-child(even) td {
+    background-color: var(--hover-color) !important;
 }
 
 .present-details-table .total-row {
