@@ -236,16 +236,24 @@ function calculateBreedingCombination(parent1, parent2, activeLike, unused, item
     // 收集所有成本項目
     const costItems = [];
     
-    // Parent1 cost
-    costItems.push(formatNumberWithThousandsSeparator(parent1Cost));
+    // Parent1 cost - 如果使用保險價格則加打勾符號
+    const parent1UsesInsurance = parent1InsuranceCost < parent1ItemPrice;
+    const parent1CostDisplay = parent1UsesInsurance ? 
+        `✓ ${formatNumberWithThousandsSeparator(parent1Cost)}` : 
+        formatNumberWithThousandsSeparator(parent1Cost);
+    costItems.push(parent1CostDisplay);
     
     // Parent1 food cost (if exists)
     if (parent1FoodCost.totalCost > 0) {
         costItems.push(`${formatNumberWithThousandsSeparator(parent1FoodCost.unitCost)}*${parent1FoodCost.quantity}`);
     }
     
-    // Parent2 cost
-    costItems.push(formatNumberWithThousandsSeparator(parent2Cost));
+    // Parent2 cost - 如果使用保險價格則加打勾符號
+    const parent2UsesInsurance = parent2InsuranceCost < parent2ItemPrice;
+    const parent2CostDisplay = parent2UsesInsurance ? 
+        `✓ ${formatNumberWithThousandsSeparator(parent2Cost)}` : 
+        formatNumberWithThousandsSeparator(parent2Cost);
+    costItems.push(parent2CostDisplay);
     
     // Parent2 food cost (if exists)
     if (parent2FoodCost.totalCost > 0) {
