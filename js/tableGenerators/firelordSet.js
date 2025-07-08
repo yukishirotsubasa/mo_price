@@ -169,7 +169,7 @@ function generateEnchantChainTable(container, startItemId, itemBase, generateTab
             addEnchantRow(itemId, index, item, params, enchantTargetId, enchantChain, itemBase, enchantingChances, imageSheet, data);
             
             // 然後添加鍛造公式選擇行
-            addForgeFormulaRow(608, data, itemBase, imageSheet);
+            addForgeFormulaRow(608, data, itemBase, imageSheet, [232, 233], 232);
             
             // 獲取選中的鍛造公式結果，繼續處理後續的enchant chain
             const selectedFormulaId = window.firelordSetState.selectedForgeFormula.get(608) || 232; // 預設選擇公式232
@@ -189,6 +189,38 @@ function generateEnchantChainTable(container, startItemId, itemBase, generateTab
                     
                     // 創建包含鍛造行的enchantChain，讓後續行能正確識別上一行是鍛造行
                     const extendedEnchantChain = [...enchantChain, 608, resultItemId];
+                    addEnchantRow(resultItemId, data.length, resultItem, resultParams, resultEnchantTargetId, extendedEnchantChain, itemBase, enchantingChances, imageSheet, data);
+                });
+            }
+            return; // 跳過正常的處理流程
+        }
+        
+        // 特殊處理：當enchantTargetId為1048時，插入鍛造公式選擇行
+        if (enchantTargetId === 1048) {
+            // 先添加當前行（附魔到1048的行）
+            addEnchantRow(itemId, index, item, params, enchantTargetId, enchantChain, itemBase, enchantingChances, imageSheet, data);
+            
+            // 然後添加鍛造公式選擇行，使用公式[169,170]
+            addForgeFormulaRow(1048, data, itemBase, imageSheet, [169, 170], 169);
+            
+            // 獲取選中的鍛造公式結果，繼續處理後續的enchant chain
+            const selectedFormulaId = window.firelordSetState.selectedForgeFormula.get(1048) || 169; // 預設選擇公式169
+            const forgeFormulas = window.allData?.FORGE_FORMULAS;
+            if (forgeFormulas && forgeFormulas[selectedFormulaId]) {
+                const resultItemId = forgeFormulas[selectedFormulaId].item_id;
+                // 繼續處理鍛造結果的enchant chain
+                const resultEnchantChain = getEnchantChain(resultItemId, itemBase);
+                resultEnchantChain.forEach((resultItemId, resultIndex) => {
+                    const resultItem = itemBase[resultItemId];
+                    if (!resultItem) return;
+                    
+                    const resultParams = resultItem.params;
+                    const resultEnchantTargetId = resultParams?.enchant_id;
+                    
+                    if (!resultEnchantTargetId) return;
+                    
+                    // 創建包含鍛造行的enchantChain，讓後續行能正確識別上一行是鍛造行
+                    const extendedEnchantChain = [...enchantChain, 1048, resultItemId];
                     addEnchantRow(resultItemId, data.length, resultItem, resultParams, resultEnchantTargetId, extendedEnchantChain, itemBase, enchantingChances, imageSheet, data);
                 });
             }
@@ -307,9 +339,10 @@ function calculateItemPrice(itemId, itemIndex, enchantChain, itemBase, enchantin
         
         // 備用邏輯：通過enchantChain檢查
         const previousItemId = enchantChain[itemIndex - 1];
-        if (previousItemId === 608) {
+        if (previousItemId === 608 || previousItemId === 1048) {
             // 上一行是鍛造行，獲取選中的鍛造公式cost
-            const selectedFormulaId = window.firelordSetState.selectedForgeFormula.get(608) || 232;
+            const defaultFormulaId = previousItemId === 608 ? 232 : 169;
+            const selectedFormulaId = window.firelordSetState.selectedForgeFormula.get(previousItemId) || defaultFormulaId;
             const forgeFormulas = window.allData?.FORGE_FORMULAS;
             
             if (forgeFormulas && forgeFormulas[selectedFormulaId]) {
@@ -330,14 +363,14 @@ function calculateItemPrice(itemId, itemIndex, enchantChain, itemBase, enchantin
                     const item_id = parseInt(mid);
                     let itemPrice;
                     
-                    if (item_id === 608) {
-                        // 對於608，檢查是否使用市場價格
-                        const useMarketPrice = window.firelordSetState.useMarketPrice.get(608);
+                    if (item_id === previousItemId) {
+                        // 對於當前鍛造材料，檢查是否使用市場價格
+                        const useMarketPrice = window.firelordSetState.useMarketPrice.get(previousItemId);
                         if (useMarketPrice) {
-                            itemPrice = getMaterialPrice(608, itemBase);
+                            itemPrice = getMaterialPrice(previousItemId, itemBase);
                         } else {
                             // 使用上上一行的cost（遞歸計算）
-                            itemPrice = calculateItemPrice(608, itemIndex - 1, enchantChain, itemBase, enchantingChances, imageSheet);
+                            itemPrice = calculateItemPrice(previousItemId, itemIndex - 1, enchantChain, itemBase, enchantingChances, imageSheet);
                         }
                     } else {
                         itemPrice = getMaterialPrice(item_id, itemBase);
@@ -462,8 +495,16 @@ function selectForgeFormula(materialItemId, formulaId) {
     window.firelordSetState.selectedForgeFormula.set(materialItemId, formulaId);
     
     // 同時更新selectedPlans，讓鍛造行的plan選擇與公式選擇同步
-    // 找到formulaId在relevantFormulas中的索引
-    const relevantFormulas = [232, 233];
+    // 根據materialItemId確定相關的公式數組
+    let relevantFormulas;
+    if (materialItemId === 608) {
+        relevantFormulas = [232, 233];
+    } else if (materialItemId === 1048) {
+        relevantFormulas = [169, 170];
+    } else {
+        relevantFormulas = [232, 233]; // 預設值
+    }
+    
     const planIndex = relevantFormulas.indexOf(formulaId);
     if (planIndex !== -1) {
         window.firelordSetState.selectedPlans.set(materialItemId, planIndex);
@@ -754,27 +795,33 @@ function addEnchantRow(itemId, index, item, params, enchantTargetId, enchantChai
 
 /**
  * 添加鍛造公式選擇行
+ * @param {number} materialItemId - 材料道具ID
+ * @param {Array} data - 數據數組
+ * @param {object} itemBase - 物品基礎數據
+ * @param {object} imageSheet - 圖片數據
+ * @param {Array} formulaIds - 鍛造公式ID數組，預設為[232, 233]
+ * @param {number} defaultFormulaId - 預設鍛造公式ID，預設為232
  */
-function addForgeFormulaRow(materialItemId, data, itemBase, imageSheet) {
+function addForgeFormulaRow(materialItemId, data, itemBase, imageSheet, formulaIds = [232, 233], defaultFormulaId = 232) {
     const forgeFormulas = window.allData?.FORGE_FORMULAS;
     if (!forgeFormulas) return;
     
-    // 獲取使用608作為材料的鍛造公式（232和233）
-    const relevantFormulas = [232, 233].filter(formulaId => {
+    // 獲取使用指定材料的鍛造公式
+    const relevantFormulas = formulaIds.filter(formulaId => {
         const formula = forgeFormulas[formulaId];
         if (!formula || !formula.pattern) return false;
         
-        // 檢查pattern中是否包含608
+        // 檢查pattern中是否包含指定的materialItemId
         return formula.pattern.flat().includes(materialItemId);
     });
     
     if (relevantFormulas.length === 0) return;
     
-    // 獲取當前選中的公式（預設為232）
-    const selectedFormulaId = window.firelordSetState.selectedForgeFormula.get(materialItemId) || 232;
+    // 獲取當前選中的公式（使用傳入的預設值）
+    const selectedFormulaId = window.firelordSetState.selectedForgeFormula.get(materialItemId) || defaultFormulaId;
     const selectedFormula = forgeFormulas[selectedFormulaId];
     
-    // 獲取item_id=608的資料來顯示左側欄位
+    // 獲取指定materialItemId的資料來顯示左側欄位
     const materialItem = itemBase[materialItemId];
     const materialParams = materialItem?.params || {};
     
@@ -824,7 +871,7 @@ function addForgeFormulaRow(materialItemId, data, itemBase, imageSheet) {
         const pattern = Object.entries(patternItems).map(([mid, count]) => {
             const item_id = parseInt(mid);
             const name = getItemDisplayContent(item_id, itemBase, i18n.translate, 'image', imageSheet, allData?.fletchingFormulas, allData?.arrowMaterialImg);
-            // 如果是608，使用計算出的price，否則使用市場價格
+            // 如果是當前材料，使用計算出的price，否則使用市場價格
             const itemPrice = item_id === materialItemId ? price : getMaterialPrice(item_id, itemBase);
             materialPriceTotal += itemPrice * count;
             return `${name}*${count}`;
@@ -901,7 +948,7 @@ function addForgeFormulaRow(materialItemId, data, itemBase, imageSheet) {
         let materialPriceTotal = 0;
         Object.entries(patternItems).forEach(([mid, count]) => {
             const item_id = parseInt(mid);
-            // 如果是608，使用計算出的price，否則使用市場價格
+            // 如果是當前材料，使用計算出的price，否則使用市場價格
             const itemPrice = item_id === materialItemId ? price : getMaterialPrice(item_id, itemBase);
             materialPriceTotal += itemPrice * count;
         });
