@@ -398,10 +398,10 @@ function calculateItemPrice(itemId, itemIndex, enchantChain, itemBase, enchantin
     // 計算上一行的plans和選中的cost
     const previousParams = previousItem.params;
     let previousLevel = 0;
-    const levelKeys = ['min_accuracy', 'min_archery', 'min_defense', 'min_health', 'min_magic', 'min_strength', 'min_jewelry'];
+    const levelKeys = ['min_accuracy', 'min_archery', 'min_defense', 'min_health', 'min_magic', 'min_strength'];
     for (const levelKey of levelKeys) {
         if (previousParams[levelKey]) {
-            previousLevel = previousParams[levelKey];
+            previousLevel = Math.max(previousLevel, previousParams[levelKey]);
             break;
         }
     }
@@ -605,11 +605,10 @@ function bindAccordionEvents(container) {
  */
 function addEnchantRow(itemId, index, item, params, enchantTargetId, enchantChain, itemBase, enchantingChances, imageSheet, data) {
     let level = 0;
-    const levelKeys = ['min_accuracy', 'min_archery', 'min_defense', 'min_health', 'min_magic', 'min_strength', 'min_jewelry'];
+    const levelKeys = ['min_accuracy', 'min_archery', 'min_defense', 'min_health', 'min_magic', 'min_strength'];
     for (const levelKey of levelKeys) {
         if (params[levelKey]) {
-            level = params[levelKey];
-            break;
+            level = Math.max(level, params[levelKey]);
         }
     }
     
@@ -827,11 +826,10 @@ function addForgeFormulaRow(materialItemId, data, itemBase, imageSheet, formulaI
     
     // 計算level
     let level = 0;
-    const levelKeys = ['min_accuracy', 'min_archery', 'min_defense', 'min_health', 'min_magic', 'min_strength', 'min_jewelry'];
+    const levelKeys = ['min_accuracy', 'min_archery', 'min_defense', 'min_health', 'min_magic', 'min_strength'];
     for (const levelKey of levelKeys) {
         if (materialParams[levelKey]) {
-            level = materialParams[levelKey];
-            break;
+            level = Math.max(level, materialParams[levelKey]);
         }
     }
     
