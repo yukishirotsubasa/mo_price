@@ -42,7 +42,6 @@ export class PageRenderer {
 
             // 如果 allData 為空，則異步載入數據
             if (Object.keys(window.allData || {}).length === 0) {
-                console.log("allData 未載入，正在載入數據...");
                 window.allData = await loadData();
                 // 數據載入後，更新所有 UI 文本
                 if (window.uiController) {
@@ -269,8 +268,6 @@ export class PageRenderer {
                     element.setAttribute('data-theme-inherited', currentTheme);
                 });
             }
-            
-            console.log(`說明頁面 ${explanationPagePath} 載入成功。`);
         } catch (error) {
             container.innerHTML = `<p style="color: red;">${i18n.translate('failed_to_load_explanation_page', error.message)}</p>`;
             console.error(`載入說明頁面 ${explanationPagePath} 失敗:`, error);

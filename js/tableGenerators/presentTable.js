@@ -64,8 +64,6 @@ function displayPresentDetails(selectedItemId, items, itemBase, tableContainer, 
         return;
     }
 
-    console.log(`Price range for item ${selectedItemId}: ${minPrice} - ${maxPrice}`);
-
     // 篩選符合條件的物品
     const filteredItems = itemBase.filter(item => {
         const itemPrice = item.params?.price;
@@ -77,8 +75,6 @@ function displayPresentDetails(selectedItemId, items, itemBase, tableContainer, 
                itemPrice <= maxPrice && 
                noPresent !== true;
     });
-
-    console.log(`Found ${filteredItems.length} items in price range`);
 
     // 創建表格
     const table = document.createElement('table');

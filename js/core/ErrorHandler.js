@@ -423,7 +423,6 @@ export class ErrorHandler {
     clearErrorLog() {
         this.errorLog = [];
         localStorage.removeItem('mo_price_error_log');
-        console.log('[ErrorHandler] 錯誤日誌已清除');
     }
 
     /**
@@ -444,7 +443,6 @@ export class ErrorHandler {
      */
     setEnabled(enabled) {
         this.isEnabled = enabled;
-        console.log(`[ErrorHandler] 錯誤處理已${enabled ? '啟用' : '停用'}`);
     }
 
     /**

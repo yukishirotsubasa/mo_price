@@ -132,8 +132,6 @@ export function generateBreedingCostTable(containerId, pets, itemBase, fletching
                     // 選擇後收起手風琴
                     accordionContent.classList.remove('show');
                 }
-                
-                console.log(`Selected breeding plan ${planIndex} for ${itemId}`);
             }
         });
     });

@@ -431,8 +431,6 @@ function selectPlanOption(itemId, planIndex) {
     
     // 由於price依賴關係，重新生成整個表格
     updateEntireTable();
-    
-    console.log(`Selected plan ${planIndex} for item ${itemId}`);
 }
 
 // 將函數暴露到全局作用域
@@ -449,8 +447,6 @@ function toggleMarketPrice(itemId, useMarketPrice) {
     
     // 重新生成整個表格
     updateEntireTable();
-    
-    console.log(`Toggled market price for item ${itemId}: ${useMarketPrice}`);
 }
 
 // 將函數暴露到全局作用域
@@ -475,8 +471,6 @@ function selectForgeFormula(materialItemId, formulaId) {
     
     // 重新生成整個表格
     updateEntireTable();
-    
-    console.log(`Selected forge formula ${formulaId} for material ${materialItemId}`);
 }
 
 // 將函數暴露到全局作用域

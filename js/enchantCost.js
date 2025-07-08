@@ -214,8 +214,6 @@ export function generateEnchantCostTableData(containerId, enchantingChances, gen
                     // 選擇後收起手風琴
                     accordionContent.classList.remove('show');
                 }
-                
-                console.log(`Selected plan ${planIndex} for item ${itemId}`);
             }
         });
     });

@@ -21,7 +21,6 @@ export class EventManager {
 
         this.setupGlobalEventHandlers();
         this.initialized = true;
-        console.log('EventManager 初始化完成');
     }
 
     /**
@@ -70,7 +69,6 @@ export class EventManager {
         });
 
         this.eventListeners.set(key, listeners);
-        console.log(`註冊事件監聽器: ${key}, 元素數量: ${listeners.length}`);
     }
 
     /**
@@ -87,7 +85,6 @@ export class EventManager {
                 element.removeEventListener(eventType, handler);
             });
             this.eventListeners.delete(key);
-            console.log(`移除事件監聽器: ${key}`);
         }
     }
 
@@ -150,7 +147,6 @@ export class EventManager {
 
         if (applyNewButton && keepOldButton) {
             // 這些事件處理器會在showConflictResolutionModal中設置
-            console.log('Modal事件處理器準備就緒');
         }
     }
 
@@ -168,7 +164,6 @@ export class EventManager {
         
         // 在document上監聽自定義事件
         document.addEventListener(eventName, handler);
-        console.log(`註冊自定義事件處理器: ${eventName}`);
     }
 
     /**
@@ -192,8 +187,6 @@ export class EventManager {
             handlers.forEach(h => document.removeEventListener(eventName, h));
             this.eventHandlers.delete(eventName);
         }
-
-        console.log(`移除自定義事件處理器: ${eventName}`);
     }
 
     /**
@@ -204,7 +197,6 @@ export class EventManager {
     dispatchCustomEvent(eventName, detail = {}) {
         const event = new CustomEvent(eventName, { detail });
         document.dispatchEvent(event);
-        console.log(`觸發自定義事件: ${eventName}`, detail);
     }
 
     /**
@@ -240,7 +232,6 @@ export class EventManager {
         this.eventHandlers.clear();
 
         this.initialized = false;
-        console.log('EventManager 清理完成');
     }
 
     /**

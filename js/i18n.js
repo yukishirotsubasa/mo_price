@@ -39,7 +39,6 @@ const i18n = {
             this.availableLanguages = []; // 如果獲取到的不是物件，則設置為空陣列
             console.warn('Fetched languages data is not an object:', languagesObject);
         }
-        console.log('Available languages loaded:', this.availableLanguages);
     },
 
     /**
@@ -70,8 +69,6 @@ const i18n = {
 
         this.translations[langCode] = flattenedTranslations;
         this.langNames[langCode] = langNamesData; // langNames 仍然用於翻譯語言名稱本身
-        console.log(`Translation for ${langCode} loaded.`, this.translations[langCode]);
-        console.log(`Language names for ${langCode} loaded.`, this.langNames[langCode]);
     },
 
     /**
@@ -85,14 +82,12 @@ const i18n = {
         // 如果語言是英文，則不載入翻譯檔案
         if (langCode === 'en') {
             this.currentLang = langCode;
-            console.log(`Current language set to: ${this.currentLang} (no translation files loaded for English)`);
         } else if (!this.translations[langCode]) {
             await this.loadTranslation(langCode);
             this.currentLang = langCode;
         } else {
             this.currentLang = langCode;
         }
-        console.log(`Current language set to: ${this.currentLang}`);
         // 在這裡觸發 UI 重新渲染的事件或回調
         document.dispatchEvent(new CustomEvent('languageChanged', { detail: langCode }));
     },

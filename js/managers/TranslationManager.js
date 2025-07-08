@@ -28,17 +28,13 @@ export class TranslationManager {
     static async initializeTranslations(langCode = i18n.currentLang) {
         // 跳過英文，因為英文直接使用鍵名
         if (langCode === 'en') {
-            console.log(`Skipping translation loading for English (${langCode})`);
             return;
         }
 
         // 檢查該語言的翻譯是否已存在
         if (!i18n.translations[langCode]) {
-            console.log(`Translation data for ${langCode} not found in i18n`);
             return;
         }
-
-        console.log(`Loading UI translations for ${langCode}...`);
 
         // 從檔案載入翻譯
         const fileTranslations = await this.loadTranslationsFromFile(langCode);
@@ -54,7 +50,5 @@ export class TranslationManager {
                 i18n.translations[langCode][key] = value;
             }
         });
-
-        console.log(`Successfully loaded ${Object.keys(fileTranslations).length} UI translations for ${langCode}`);
     }
 }

@@ -95,14 +95,8 @@ export class VersionComparisonManager {
             const itemBaseA = await loadJsFileVariable(versionAPath, 'item_base');
             const itemBaseB = await loadJsFileVariable(versionBPath, 'item_base');
 
-            console.log(i18n.translate('version_a_loaded', versionAPath));
-            console.log(i18n.translate('version_b_loaded', versionBPath));
-            console.log(i18n.translate('version_a_item_count', itemBaseA ? itemBaseA.length : 0));
-            console.log(i18n.translate('version_b_item_count', itemBaseB ? itemBaseB.length : 0));
-
             // 執行比較
             const comparisonResult = compareData(itemBaseA, itemBaseB, 'b_i'); // 假設 'b_i' 是唯一 ID
-            console.log(i18n.translate('comparison_results'), comparisonResult);
 
             // 顯示結果
             this.renderComparisonResults(comparisonResult, comparisonResultsDiv);
@@ -116,10 +110,6 @@ export class VersionComparisonManager {
 
     // 將main.js中的renderComparisonResults函數移動到這裡
     renderComparisonResults(results, containerElement) {
-        console.log(i18n.translate('rendering_comparison_results'), results);
-        console.log(i18n.translate('added_count', results.added.length));
-        console.log(i18n.translate('removed_count', results.removed.length));
-        console.log(i18n.translate('modified_count', results.modified.length));
 
         let html = '';
 
