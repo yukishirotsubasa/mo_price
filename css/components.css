@@ -492,6 +492,40 @@ table tr:nth-child(even) td,
     margin-top: 2px;
 }
 
+/* Breeding table sub-tables with minimal borders */
+.breeding-table .parent-table {
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+}
+
+.breeding-table .parent-table td {
+    border: none !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    padding: 2px 4px !important;
+}
+
+.breeding-table .parent-table td:last-child {
+    border-bottom: none !important;
+}
+
+/* Plan info tables with minimal borders */
+.breeding-table .table-sm {
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+}
+
+.breeding-table .table-sm td {
+    border: none !important;
+    border-right: 1px solid var(--border-color) !important;
+    padding: 2px 4px !important;
+}
+
+.breeding-table .table-sm td:last-child {
+    border-right: none !important;
+}
+
 /* 可編輯表格儲存格 */
 td[contenteditable="true"] {
     cursor: text;

@@ -401,6 +401,50 @@ table tr:nth-child(even) td,
     border-top-color: var(--border-color) !important;
 }
 
+/* 強制覆蓋 breeding table 子表格邊框樣式 */
+.breeding-table .parent-table {
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+}
+
+.breeding-table .parent-table td {
+    border: none !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    padding: 2px 4px !important;
+}
+
+.breeding-table .parent-table tr:last-child td {
+    border-bottom: none !important;
+}
+
+.breeding-table .table-sm {
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+}
+
+.breeding-table .table-sm td {
+    border: none !important;
+    border-right: 1px solid var(--border-color) !important;
+    padding: 2px 4px !important;
+}
+
+.breeding-table .table-sm td:last-child {
+    border-right: none !important;
+}
+
+/* 暗色主題下的子表格邊框 */
+[data-theme="dark"] .breeding-table .parent-table td {
+    border-bottom-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .breeding-table .table-sm td {
+    border-right-color: var(--border-color) !important;
+}
+
 /* 暗色主題下的按鈕樣式調整 */
 [data-theme="dark"] button,
 [data-theme="dark"] .btn,
