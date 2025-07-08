@@ -866,7 +866,7 @@ function addForgeFormulaRow(materialItemId, data, itemBase, imageSheet) {
     
     // 獲取選中公式的結果物品資料
     const selectedResultItemId = selectedFormula.item_id;
-    const selectedResultPrice = getItemSellPrice(selectedResultItemId, itemBase, npcBase);
+    const selectedResultPrice = getItemSellPrice(selectedResultItemId, itemBase, allData?.npcBase);
     const selectedResultName = getItemDisplayContent(selectedResultItemId, itemBase, i18n.translate, 'image', imageSheet, allData?.fletchingFormulas, allData?.arrowMaterialImg);
     
     // 生成market price欄位內容
