@@ -176,7 +176,6 @@ export async function loadGoogleSheetData(urlOrId, sheetName = '') {
     const cachedData = localStorage.getItem(CACHE_KEY);
     if (!cachedData) {
         // 如果沒有舊資料，直接儲存新資料並返回
-        console.log("本地無快取資料，直接儲存新載入的市場價格數據。");
         saveMarketDataToLocalStorage(newData);
         return newData;
     }
@@ -184,7 +183,6 @@ export async function loadGoogleSheetData(urlOrId, sheetName = '') {
     try {
         const parsedData = JSON.parse(cachedData);
         const oldData = processRawDataFromLocalStorage(parsedData);
-        console.log("從 localStorage 載入舊市場價格數據以進行比對。");
         
         // 3. 呼叫衝突處理函式
         return await handleDataConflict(newData, oldData);
@@ -245,30 +243,25 @@ export async function handleDataConflict(newData, oldData) {
     if (conflictData.length === 0) {
         // 沒有衝突，直接合併：保留的舊數據 + 無變化的數據 + 新增的數據
         const mergedData = [...keptData, ...unchangedData, ...addedData];
-        console.log("無資料衝突，自動合併完成。");
         console.log(`合併結果: 保留舊數據 ${keptData.length} 筆, 無變化數據 ${unchangedData.length} 筆, 新增數據 ${addedData.length} 筆`);
         saveMarketDataToLocalStorage(mergedData);
         return mergedData;
     } else {
         // 有衝突，呼叫 UI 進行處理
-        console.log(`發現 ${conflictData.length} 筆衝突資料，等待使用者處理。`);
         try {
             // 假設 main.js 會將 showConflictResolutionModal 掛載到 window.ui
             const resolution = await window.ui.showConflictResolutionModal(conflictData);
             
             let resolvedConflicts;
             if (resolution === 'apply_new') {
-                console.log("使用者選擇應用新資料。");
                 resolvedConflicts = conflictData.map(c => [c.item_id, ...c.new_price]);
             } else { // 'keep_old'
-                console.log("使用者選擇保留舊資料。");
                 resolvedConflicts = conflictData.map(c => [c.item_id, ...c.old_price]);
             }
 
             // 合併所有數據：保留的舊數據 + 無變化的數據 + 解決衝突的數據 + 新增的數據
             const finalData = [...keptData, ...unchangedData, ...resolvedConflicts, ...addedData];
             saveMarketDataToLocalStorage(finalData);
-            console.log("衝突已解決，資料已合併並儲存。");
             return finalData;
 
         } catch (error) {
@@ -290,7 +283,6 @@ export async function handleDataConflict(newData, oldData) {
  */
 export function processRawDataFromLocalStorage(rawData) {
     const processedData = [];
-    console.log("processRawDataFromLocalStorage: 原始數據", rawData);
     for (const row of rawData) {
         if (row.length < 4) {
             console.warn("processRawDataFromLocalStorage: 行數據不足 4 個欄位，跳過。", row);
@@ -324,7 +316,6 @@ export function processRawDataFromLocalStorage(rawData) {
  */
 export function processRawData(rawData) {
     const processedData = [];
-    console.log("processRawData: 原始數據", rawData);
     for (let i = 0; i < rawData.length; i++) {
         const row = rawData[i];
         // 只考慮前 4 個欄位
@@ -369,7 +360,6 @@ export function saveMarketDataToLocalStorage(marketData) {
     const dataToStore = marketData.map(row => [row[0], row[1], row[2], row[3]]);
     try {
         localStorage.setItem(CACHE_KEY, JSON.stringify(dataToStore));
-        //console.log("市場價格數據已儲存到 localStorage。");
     } catch (e) {
         console.error("儲存數據到 localStorage 失敗。", e);
     }
@@ -386,7 +376,6 @@ export function loadJsFileVariable(filePath, variableName) {
         const script = document.createElement('script');
         script.src = filePath;
         script.onload = () => {
-            //console.log(`JS 檔案 ${filePath} 載入完成。`);
             // 添加一個小的延遲，確保全域變數完全可用
             setTimeout(() => {
                 if (window[variableName]) {
