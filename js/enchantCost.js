@@ -23,11 +23,10 @@ export function generateEnchantCostTableData(containerId, enchantingChances, gen
 
         const params = item.params;
         let level = 0;
-        const levelKeys = ['min_accuracy', 'min_archery', 'min_defense', 'min_health', 'min_magic', 'min_strength', 'min_jewelry'];
+        const levelKeys = ['min_accuracy', 'min_archery', 'min_defense', 'min_health', 'min_magic', 'min_strength'];
         for (const levelKey of levelKeys) {
             if (params[levelKey]) {
-                level = params[levelKey];
-                break;
+                level = Math.max(level, params[levelKey]);
             }
         }
 
