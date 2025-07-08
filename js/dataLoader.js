@@ -38,7 +38,6 @@ export function loadData() {
             // 載入 ItemPacks 變數並設置為全域變數
             try {
                 window.ItemPacks = await loadJsFileVariable(jsFilePath, 'ItemPacks');
-                console.log('ItemPacks 載入成功:', window.ItemPacks);
             } catch (error) {
                 console.warn('ItemPacks 變數未找到，MOS Market 功能將不可用:', error);
                 window.ItemPacks = [];

@@ -13,7 +13,7 @@ export function generateMonsterWorthTable(containerId, npcBase, generateTableHTM
     const imageSheet = window.allData?.imageSheet || null;
 
     // 使用 i18n.translate 翻譯表頭
-    const headerKeys = ['Id', 'Name', 'health', 'defense', 'strength', 'accuracy', 'drops', 'worth'];
+    const headerKeys = ['Name', 'health', 'accuracy', 'strength', 'defense', 'magic', 'Melee Block', 'Magic Block', 'Archery Block', 'drops', 'worth'];
 
     const rowMapper = (monster) => {
         // 篩選沒有 drops 資料的對象
@@ -43,17 +43,20 @@ export function generateMonsterWorthTable(containerId, npcBase, generateTableHTM
             const dropWorth = itemSellPrice * actualChance;
             // 判斷是否為重要掉落：大於最終 totalWorth 的 10%
             const isSignificantDrop = dropWorth > (finalTotalWorth * 0.1);
-            const dropText = `${dropName} (${(actualChance * 100).toFixed(6).replace(/\.?0+$/, '')}%)`;
+            const dropText = `${dropName} (${(actualChance * 100).toFixed(2).replace(/\.?0+$/, '')}%)`;
             return isSignificantDrop ? `<span style="color: red;">${dropText}</span>` : dropText;
         }).join(', ');
         
         return [
-            monster.b_i,
             i18n.translate(monster.name), // 直接翻譯 Monster 名稱
-            monster.temp ? monster.temp.health : 'N/A',
-            monster.temp ? monster.temp.total_defense : 'N/A',
-            monster.temp ? monster.temp.total_strength : 'N/A',
-            monster.temp ? monster.temp.total_accuracy : 'N/A',
+            monster.temp ? monster.temp.health : '',
+            monster.temp.total_accuracy ? monster.temp.total_accuracy : '',
+            monster.temp.total_strength ? monster.temp.total_strength : '',
+            monster.temp.total_defense ? monster.temp.total_defense : '',
+            monster.temp.magic ? monster.temp.magic : '',
+            monster.temp.melee_block ? monster.temp.melee_block : '',
+            monster.temp.magic_block ? monster.temp.magic_block : '',
+            monster.temp.archery_block ? monster.temp.archery_block : '',
             drops,
             formatNumberWithThousandsSeparator(finalTotalWorth.toFixed(2)) // 新增 worth 欄位，並保留兩位小數，應用千分位分隔符號
         ];

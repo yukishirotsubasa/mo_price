@@ -13,7 +13,7 @@ export function generateNpcTable(containerId, npcBase, generateTableHTML, create
     const imageSheet = window.allData?.imageSheet || null;
 
     // 使用 i18n.translate 翻譯表頭
-    const headerKeys = ['Id', 'Name', 'health', 'defense', 'strength', 'accuracy', 'drops'];
+    const headerKeys = ['Id', 'Name', 'health', 'accuracy', 'strength', 'defense', 'magic', 'Melee Block', 'Magic Block', 'Archery Block', 'drops'];
 
     const rowMapper = (npc) => {
         const drops = npc.params && npc.params.drops ?
@@ -25,10 +25,14 @@ export function generateNpcTable(containerId, npcBase, generateTableHTML, create
         return [
             npc.b_i,
             i18n.translate(npc.name), // 直接翻譯 NPC 名稱
-            npc.temp ? npc.temp.health : 'N/A',
-            npc.temp ? npc.temp.total_defense : 'N/A',
-            npc.temp ? npc.temp.total_strength : 'N/A',
-            npc.temp ? npc.temp.total_accuracy : 'N/A',
+            npc.temp ? npc.temp.health : '',
+            npc.temp.total_accuracy ? npc.temp.total_accuracy : '',
+            npc.temp.total_strength ? npc.temp.total_strength : '',
+            npc.temp.total_defense ? npc.temp.total_defense : '',
+            npc.temp.magic ? npc.temp.magic : '',
+            npc.temp.melee_block ? npc.temp.melee_block : '',
+            npc.temp.magic_block ? npc.temp.magic_block : '',
+            npc.temp.archery_block ? npc.temp.archery_block : '',
             drops
         ];
     };

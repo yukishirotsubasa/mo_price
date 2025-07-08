@@ -348,7 +348,6 @@ export function createSpecialItemIdList(npcBase) {
     _specialItemIdsCache = specialItemIds;
     _lastNpcBaseHash = npcBaseHash;
     
-    console.log(specialItemIds);
     return specialItemIds;
 }
 
