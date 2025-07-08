@@ -407,8 +407,11 @@ function generateParentInfo(parent, itemBase, imageSheet, pets, fletchingFormula
     
     // 第2列：保險成本
     const insuranceCost = parent.params.insurance_cost || [0, 0];
+    const parentItemPrice = parent.params.item_id ? getMaterialPrice(parent.params.item_id, itemBase) : 0;
+    const isInsuranceCheap = insuranceCost[0] < (parentItemPrice * 0.25);
+    const checkmark = isInsuranceCheap ? '✓ ' : '';
     html += '<tr>';
-    html += `<td class="insurance-cost" colspan="100%">${insuranceCost[0]} coins / ${insuranceCost[1]} mos</td>`;
+    html += `<td class="insurance-cost" colspan="100%">${checkmark}${insuranceCost[0]} coins / ${insuranceCost[1]} mos</td>`;
     html += '</tr>';
     
     // 第3列：食物消耗 - 所有食物放在同一列不同欄
