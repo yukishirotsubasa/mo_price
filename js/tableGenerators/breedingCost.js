@@ -230,15 +230,36 @@ function calculateBreedingCombination(parent1, parent2, activeLike, unused, item
     const totalCost = parent1Cost + parent1FoodCost.totalCost + parent2Cost + parent2FoodCost.totalCost;
     
     // 顯示為parent1的cost+parent1的食物cost*parent1的食物數量+parent2的cost+parent2的食物cost*parent2的食物數量=計算結果
-    let costFormula = `${formatNumberWithThousandsSeparator(parent1Cost)}`;
+    // 分行顯示算式：每個項目一行，最後一行顯示等號和結果
+    let costFormula = '<div class="cost-formula">';
+    
+    // 收集所有成本項目
+    const costItems = [];
+    
+    // Parent1 cost
+    costItems.push(formatNumberWithThousandsSeparator(parent1Cost));
+    
+    // Parent1 food cost (if exists)
     if (parent1FoodCost.totalCost > 0) {
-        costFormula += `+${formatNumberWithThousandsSeparator(parent1FoodCost.unitCost)}*${parent1FoodCost.quantity}`;
+        costItems.push(`${formatNumberWithThousandsSeparator(parent1FoodCost.unitCost)}*${parent1FoodCost.quantity}`);
     }
-    costFormula += `+${formatNumberWithThousandsSeparator(parent2Cost)}`;
+    
+    // Parent2 cost
+    costItems.push(formatNumberWithThousandsSeparator(parent2Cost));
+    
+    // Parent2 food cost (if exists)
     if (parent2FoodCost.totalCost > 0) {
-        costFormula += `+${formatNumberWithThousandsSeparator(parent2FoodCost.unitCost)}*${parent2FoodCost.quantity}`;
+        costItems.push(`${formatNumberWithThousandsSeparator(parent2FoodCost.unitCost)}*${parent2FoodCost.quantity}`);
     }
-    costFormula += `=${formatNumberWithThousandsSeparator(totalCost)}`;
+    
+    // 生成分行顯示：不顯示 "+" 符號
+    costItems.forEach((item, index) => {
+        costFormula += `<div class="cost-line">${item}</div>`;
+    });
+    
+    // 結果行
+    costFormula += `<div class="cost-result">=${formatNumberWithThousandsSeparator(totalCost)}</div>`;
+    costFormula += '</div>';
     
     const cost = costFormula;
     
