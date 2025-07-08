@@ -368,11 +368,11 @@ export function getItemSellPrice(item_id, itemBase, npcBase = null) {
             const row = price_data.find(row => parseInt(row[0]) === numericItemId); // 確保 item_id 比較時類型一致
             if (row) {
                 const customPrice = parseFloat(row[3]);
-                if (!isNaN(customPrice) && customPrice !== 0) {
+                if (!isNaN(customPrice) && customPrice > 0) {
                     return customPrice;
                 }
                 const marketSell = parseFloat(row[2]);
-                if (!isNaN(marketSell) && marketSell !== 0) {
+                if (!isNaN(marketSell) && marketSell > 0) {
                     return marketSell;
                 }
             }
@@ -417,11 +417,11 @@ export function getMaterialPrice(item_id, itemBase) {
             const row = price_data.find(row => parseInt(row[0]) === numericItemId); // 確保 item_id 比較時類型一致
             if (row) {
                 const customPrice = parseFloat(row[3]);
-                if (!isNaN(customPrice) && customPrice !== 0) {
+                if (!isNaN(customPrice) && customPrice > 0) {
                     return customPrice;
                 }
                 const marketBuy = parseFloat(row[1]);
-                if (!isNaN(marketBuy) && marketBuy !== 0) {
+                if (!isNaN(marketBuy) && marketBuy > 0) {
                     return marketBuy;
                 }
             }
