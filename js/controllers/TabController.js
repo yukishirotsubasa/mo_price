@@ -21,8 +21,8 @@ export class TabController {
             });
         });
 
-        // 處理子選單 Tab 切換邏輯
-        document.querySelectorAll('.sidebar-menu .submenu .tab-button').forEach(button => {
+        // 處理所有 Tab 切換邏輯（包括頂層和子選單）
+        document.querySelectorAll('.sidebar-menu .tab-button').forEach(button => {
             button.addEventListener('click', async (event) => {
                 event.preventDefault();
                 await this.switchTab(button);

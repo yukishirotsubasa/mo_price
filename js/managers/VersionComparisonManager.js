@@ -43,7 +43,7 @@ export class VersionComparisonManager {
         const sortedVersions = Object.entries(this.versions)
             .sort(([a], [b]) => parseInt(b) - parseInt(a));
 
-        sortedVersions.forEach(([version, date]) => {
+        sortedVersions.forEach(([version, date], index) => {
             // 將底線格式的日期轉換為顯示格式 (2025_0417 -> 2025-04-17)
             const displayDate = date.replace('_', '-').replace(/(\d{4})-(\d{2})(\d{2})/, '$1-$2-$3');
             const optionText = `${displayDate} - ${version}`;
@@ -56,6 +56,23 @@ export class VersionComparisonManager {
             versionASelect.add(optionA);
             versionBSelect.add(optionB);
         });
+
+        // 預設選擇最新的兩個版本
+        if (sortedVersions.length >= 2) {
+            versionASelect.selectedIndex = 1; // 第二新版本（舊版本）
+            versionBSelect.selectedIndex = 0; // 最新版本（新版本）
+        } else if (sortedVersions.length === 1) {
+            versionASelect.selectedIndex = 0;
+            versionBSelect.selectedIndex = 0;
+        }
+
+        // 自動執行比較
+        if (sortedVersions.length >= 1) {
+            // 延遲執行以確保DOM已完全更新
+            setTimeout(() => {
+                this.handleCompareVersions();
+            }, 100);
+        }
     }
 
     // 將main.js中的initVersionComparisonUI函數移動到這裡

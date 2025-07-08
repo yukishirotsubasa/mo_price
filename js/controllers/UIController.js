@@ -208,8 +208,8 @@ export class UIController {
         const versionBLabel = document.querySelector('label[for="versionB-select"]');
         const compareVersionsButton = document.getElementById('compare-versions-button');
 
-        if (versionALabel) versionALabel.textContent = i18n.translate('version') + " 1";
-        if (versionBLabel) versionBLabel.textContent = i18n.translate('version') + " 2";
+        if (versionALabel) versionALabel.textContent = i18n.translate('version') + " old";
+        if (versionBLabel) versionBLabel.textContent = i18n.translate('version') + " new";
         if (compareVersionsButton) compareVersionsButton.textContent = i18n.translate('compare');
     }
 
