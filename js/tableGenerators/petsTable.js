@@ -17,7 +17,7 @@ export function generatePetsTable(containerId, pets, generateTableHTML, createIt
     const petNameMap = new Map(allPets.filter(p => p.b_i !== undefined && p.name !== undefined).map(p => [p.b_i, i18n.translate(p.name)]));
 
     const rowMapper = (pet) => {
-        const eats = pet.params && pet.params.eats ? Object.entries(pet.params.eats || {}).map(([itemId, value]) => `${getItemDisplayContent(Number(itemId), itemBase, i18n.translate, 'image', imageSheet, fletchingFormulas, arrowMaterialImg)}(${value * pet.params.eat_interval})`).join(', ') : '無';
+        const eats = pet.params && pet.params.eats ? Object.entries(pet.params.eats || {}).map(([itemId, value]) => `${getItemDisplayContent(Number(itemId), itemBase, i18n.translate, 'image', imageSheet, fletchingFormulas, arrowMaterialImg)}(${(value * pet.params.eat_interval).toFixed(2)})`).join(', ') : '無';
         const insuranceCost = pet.params && pet.params.insurance_cost ? pet.params.insurance_cost.join(', ') : '無';
         // likes 欄位：將寵物ID轉換為寵物圖片
         const likes = pet.params && pet.params.likes ? 
