@@ -301,13 +301,65 @@ export function compareData(dataA, dataB, idKey) {
 
     return result;
 }
+// 快取特殊道具ID清單
+let _specialItemIdsCache = null;
+let _lastNpcBaseHash = null;
+
+/**
+ * 建立特殊道具ID清單，從npc_base數據中提取spawn為true的道具ID。
+ * @param {Array<Object>} npcBase - NPC基礎數據。
+ * @returns {Set<number>} 特殊道具ID的Set集合。
+ */
+export function createSpecialItemIdList(npcBase) {
+    if (!Array.isArray(npcBase)) {
+        console.warn("npcBase 未定義或不是陣列，無法建立特殊道具清單。");
+        return new Set();
+    }
+    
+    // 建立簡單的hash來檢查npcBase是否有變化
+    const npcBaseHash = JSON.stringify(npcBase.map(npc => ({
+        temp: npc.temp?.content ? npc.temp.content.map(item => ({ id: item.id, spawn: item.spawn })) : null
+    })));
+    
+    // 如果快取存在且數據沒有變化，直接返回快取
+    if (_specialItemIdsCache && _lastNpcBaseHash === npcBaseHash) {
+        return _specialItemIdsCache;
+    }
+    
+    const specialItemIds = new Set();
+    
+    npcBase.forEach(npc => {
+        // 1. 過濾沒有npc_base[].temp.content或npc_base[].temp.content為空的對象
+        if (!npc.temp || !npc.temp.content || !Array.isArray(npc.temp.content) || npc.temp.content.length === 0) {
+            return;
+        }
+        
+        // 2. 蒐集剩下對象的content進行整理
+        npc.temp.content.forEach(item => {
+            // 3. 將spawn不為true的項目去除
+            if (item.spawn === true && typeof item.id === 'number') {
+                // 4. 最後將剩下的npc_base[].temp.content[].id建立成一個list供查詢
+                specialItemIds.add(item.id);
+            }
+        });
+    });
+    
+    // 更新快取
+    _specialItemIdsCache = specialItemIds;
+    _lastNpcBaseHash = npcBaseHash;
+    
+    console.log(specialItemIds);
+    return specialItemIds;
+}
+
 /**
  * 取得物品出售價格。
  * @param {number|string} item_id - 物品ID。
  * @param {Array<Object>} itemBase - 物品基礎數據。
+ * @param {Array<Object>} npcBase - NPC基礎數據（可選，用於特殊價格計算）。
  * @returns {number} 物品出售價格。
  */
-export function getItemSellPrice(item_id, itemBase) {
+export function getItemSellPrice(item_id, itemBase, npcBase = null) {
     // 確保 item_id 是數字格式
     const numericItemId = typeof item_id === 'string' ? parseInt(item_id) : item_id;
     let price_data = localStorage.getItem('price_data');
@@ -337,6 +389,15 @@ export function getItemSellPrice(item_id, itemBase) {
         itemInfo = itemBase[numericItemId];
     }
     if (itemInfo && itemInfo.params && itemInfo.params.price) {
+        // 檢查是否為特殊道具
+        if (npcBase) {
+            const specialItemIds = createSpecialItemIdList(npcBase);
+            if (specialItemIds.has(numericItemId)) {
+                // 當getItemSellPrice收到的item id在上述list時，最後面改用itemInfo.params.price * 0.5
+                return itemInfo.params.price * 0.5;
+            }
+        }
+        // 其他不在list裡的item id一樣使用itemInfo.params.price * 0.4
         return itemInfo.params.price * 0.4;
     }
     return 0; // 預設值

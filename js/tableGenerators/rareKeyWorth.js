@@ -143,7 +143,8 @@ function displayRareKeyDetails(selectedData, selectedItemId, itemBase, tableCont
                     nameCell.innerHTML = getItemDisplayContent(itemId, itemBase, i18n.translate, 'image', window.allData?.imageSheet || null, fletchingFormulas, arrowMaterialImg);
                     row.insertCell().textContent = `${(baseChance * 100).toFixed(2)}%`;
                     row.insertCell().textContent = `${(realChance * 100).toFixed(2)}%`;
-                    row.insertCell().textContent = getItemSellPrice(itemId, itemBase);
+                    const npcBase = window.allData?.npcBase || null;
+                    row.insertCell().textContent = getItemSellPrice(itemId, itemBase, npcBase);
                 }
             });
         }
@@ -183,7 +184,8 @@ function displayRareKeyDetails(selectedData, selectedItemId, itemBase, tableCont
                 merged.forEach(ret => {
                     const realChance = cumulative * ret.base_chance;
                     cumulative *= (1 - ret.base_chance);
-                    const itemPrice = getItemSellPrice(ret.id, itemBase);
+                    const npcBase = window.allData?.npcBase || null;
+                    const itemPrice = getItemSellPrice(ret.id, itemBase, npcBase);
                     totalValue += realChance * itemPrice;
                 });
                 const td = document.createElement('td');

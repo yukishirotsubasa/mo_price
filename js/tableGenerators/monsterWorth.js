@@ -27,7 +27,8 @@ export function generateMonsterWorthTable(containerId, npcBase, generateTableHTM
         for (const drop of monster.params.drops) {
             const actualChance = cumulativeChanceForTotal * drop.chance;
             cumulativeChanceForTotal *= (1 - drop.chance);
-            const itemSellPrice = getItemSellPrice(drop.id, itemBase);
+            const npcBase = window.allData?.npcBase || null;
+            const itemSellPrice = getItemSellPrice(drop.id, itemBase, npcBase);
             finalTotalWorth += itemSellPrice * actualChance;
         }
 
@@ -37,7 +38,8 @@ export function generateMonsterWorthTable(containerId, npcBase, generateTableHTM
             const actualChance = cumulativeChanceForDisplay * drop.chance;
             cumulativeChanceForDisplay *= (1 - drop.chance);
 
-            const itemSellPrice = getItemSellPrice(drop.id, itemBase);
+            const npcBase = window.allData?.npcBase || null;
+            const itemSellPrice = getItemSellPrice(drop.id, itemBase, npcBase);
             const dropWorth = itemSellPrice * actualChance;
             // 判斷是否為重要掉落：大於最終 totalWorth 的 10%
             const isSignificantDrop = dropWorth > (finalTotalWorth * 0.1);
@@ -91,7 +93,8 @@ export function generateMonsterWorthTable(containerId, npcBase, generateTableHTM
         for (const drop of monster.params.drops) {
             const actualChance = cumulativeChance * drop.chance;
             cumulativeChance *= (1 - drop.chance);
-            const itemSellPrice = getItemSellPrice(drop.id, itemBase);
+            const npcBase = window.allData?.npcBase || null;
+            const itemSellPrice = getItemSellPrice(drop.id, itemBase, npcBase);
             totalWorth += itemSellPrice * actualChance;
         }
         return { monster, worth: totalWorth };

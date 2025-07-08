@@ -47,7 +47,8 @@ export function generateCarpentryCostTableData(CARPENTRY_FORMULAS, generateTable
         }
 
         const cost = materialPriceTotal; // 刪除 chance 相關邏輯
-        const sellPrice = getItemSellPrice(itemId, itemBase);
+        const npcBase = window.allData?.npcBase || null;
+        const sellPrice = getItemSellPrice(itemId, itemBase, npcBase);
 
         return {
             itemName,

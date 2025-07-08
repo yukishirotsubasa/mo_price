@@ -300,7 +300,8 @@ function calculateOptimalPlan(like, itemBase, originalPets) {
             // 首先找到對應的寵物，然後使用其 item_id 來查找價格
             const pet = originalPets[returnItem.pet_id];
             const itemId = pet?.params?.item_id;
-            const itemPrice = itemId ? getItemSellPrice(itemId, itemBase) : 0;
+            const npcBase = window.allData?.npcBase || null;
+            const itemPrice = itemId ? getItemSellPrice(itemId, itemBase, npcBase) : 0;
             const expectedValue = (actualChancePercent / 100) * itemPrice;
             
             planData.items.push({

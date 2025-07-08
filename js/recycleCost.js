@@ -51,7 +51,8 @@ export function generateRecycleCostTableData(FORGE_FORMULAS, generateTableHTML, 
             const item_id = parseInt(mid);
             const name = getItemDisplayContent(item_id, itemBase, i18n.translate, 'image', imageSheet, fletchingFormulas, arrowMaterialImg);
             
-            const sellPrice = getItemSellPrice(item_id, itemBase);
+            const npcBase = window.allData?.npcBase || null;
+            const sellPrice = getItemSellPrice(item_id, itemBase, npcBase);
             
             materialWorthTotal += sellPrice * count;
             return `${name}(${sellPrice})*${count}`;

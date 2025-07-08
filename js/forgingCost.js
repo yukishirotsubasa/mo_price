@@ -44,7 +44,8 @@ export function generateForgingCostTableData(FORGE_FORMULAS, generateTableHTML, 
         const formattedChance = formatAsPercentage(chance);
         const cost = chance > 0 ? (materialPriceTotal / chance) : Infinity; // 計算成本，如果 chance 為 0 則為 Infinity
         const formattedCost = cost === Infinity ? '∞' : formatNumberWithThousandsSeparator(cost.toFixed(2)); // 格式化成本
-        const sellPrice = formatNumberWithThousandsSeparator(getItemSellPrice(itemId, itemBase));
+        const npcBase = window.allData?.npcBase || null;
+        const sellPrice = formatNumberWithThousandsSeparator(getItemSellPrice(itemId, itemBase, npcBase));
 
         return [{
             id,

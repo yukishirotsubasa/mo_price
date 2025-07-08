@@ -575,7 +575,8 @@ function addEnchantRow(itemId, index, item, params, enchantTargetId, enchantChai
     // 計算price：使用新的遞歸函數來正確處理所有依賴關係
     const price = calculateItemPrice(itemId, index, enchantChain, itemBase, enchantingChances, imageSheet);
     
-    const targetPrice = getItemSellPrice(enchantTargetId, itemBase);
+    const npcBase = window.allData?.npcBase || null;
+    const targetPrice = getItemSellPrice(enchantTargetId, itemBase, npcBase);
     
     // 完全仿照enchantCost的plan欄位結構
     let slot = params.slot;
@@ -865,7 +866,7 @@ function addForgeFormulaRow(materialItemId, data, itemBase, imageSheet) {
     
     // 獲取選中公式的結果物品資料
     const selectedResultItemId = selectedFormula.item_id;
-    const selectedResultPrice = getItemSellPrice(selectedResultItemId, itemBase);
+    const selectedResultPrice = getItemSellPrice(selectedResultItemId, itemBase, npcBase);
     const selectedResultName = getItemDisplayContent(selectedResultItemId, itemBase, i18n.translate, 'image', imageSheet, allData?.fletchingFormulas, allData?.arrowMaterialImg);
     
     // 生成market price欄位內容

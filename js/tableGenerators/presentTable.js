@@ -106,7 +106,8 @@ function displayPresentDetails(selectedItemId, items, itemBase, tableContainer, 
         
         // Custom Price: 使用 getItemSellPrice 查找價格
         const customPriceCell = row.insertCell();
-        const customPrice = getItemSellPrice(item.b_i, itemBase);
+        const npcBase = window.allData?.npcBase || null;
+        const customPrice = getItemSellPrice(item.b_i, itemBase, npcBase);
         customPriceCell.textContent = customPrice;
         
         // 累加到總價值

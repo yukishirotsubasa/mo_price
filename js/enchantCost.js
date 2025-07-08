@@ -89,7 +89,7 @@ export function generateEnchantCostTableData(containerId, enchantingChances, gen
             'level': level,
             'bonus': params.enchant_bonus || 0, // 確保 bonus 為數字，以便 formatAsPercentage 處理
             'price': price,
-            'prod price': getItemSellPrice(params.enchant_id, itemBase),
+            'prod price': getItemSellPrice(params.enchant_id, itemBase, window.allData?.npcBase || null),
             'prod name': getItemDisplayContent(params.enchant_id, itemBase, i18n.translate, 'image', imageSheet, fletchingFormulas, arrowMaterialImg),
             'prod id': params.enchant_id,
             'all_plans': filtered_plans

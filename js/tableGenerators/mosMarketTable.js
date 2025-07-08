@@ -52,7 +52,8 @@ export async function generateMosMarketTable(containerId, itemBase, imageSheet, 
         let totalPrice = 0;
         if (pack.items && Array.isArray(pack.items)) {
             totalPrice = pack.items.reduce((sum, item) => {
-                const itemPrice = getItemSellPrice(item.id, itemBase);
+                const npcBase = window.allData?.npcBase || null;
+                const itemPrice = getItemSellPrice(item.id, itemBase, npcBase);
                 return sum + (itemPrice * item.count);
             }, 0);
         }

@@ -93,7 +93,8 @@ export default (() => {
 
                     // Price
                     const priceTd = document.createElement('td');
-                    const price = currentUtils.getItemSellPrice(returnItem.id, currentItemBase);
+                    const npcBase = window.allData?.npcBase || null;
+                    const price = currentUtils.getItemSellPrice(returnItem.id, currentItemBase, npcBase);
                     priceTd.textContent = price !== undefined ? price.toLocaleString() : currentI18n.translate('N/A');
                     tr.appendChild(priceTd);
                     
