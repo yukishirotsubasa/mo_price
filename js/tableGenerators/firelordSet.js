@@ -45,7 +45,7 @@ export function generateFirelordSetTableData(containerId, itemBase, generateTabl
     // 目標道具ID - 使用二維數組明確表示換行
     const targetItems = [
         // 第一行
-        [356, 496, 495, 355, 357, 354, 1327],
+        [356, 496, 495, 355, 357, 354, 1327, 353],
         // 第二行  
         [1833, 503, 504, 2709, 2674, 1043],
         // 第三行
