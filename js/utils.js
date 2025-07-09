@@ -367,11 +367,12 @@ export function getItemSellPrice(item_id, itemBase, npcBase = null) {
             price_data = JSON.parse(price_data);
             const row = price_data.find(row => parseInt(row[0]) === numericItemId); // 確保 item_id 比較時類型一致
             if (row) {
-                const customPrice = parseFloat(row[3]);
+                // 移除千分位符號後再解析
+                const customPrice = parseFloat(String(row[3]).replace(/,/g, ''));
                 if (!isNaN(customPrice) && customPrice > 0) {
                     return customPrice;
                 }
-                const marketSell = parseFloat(row[2]);
+                const marketSell = parseFloat(String(row[2]).replace(/,/g, ''));
                 if (!isNaN(marketSell) && marketSell > 0) {
                     return marketSell;
                 }
@@ -416,11 +417,12 @@ export function getMaterialPrice(item_id, itemBase) {
             price_data = JSON.parse(price_data);
             const row = price_data.find(row => parseInt(row[0]) === numericItemId); // 確保 item_id 比較時類型一致
             if (row) {
-                const customPrice = parseFloat(row[3]);
+                // 移除千分位符號後再解析
+                const customPrice = parseFloat(String(row[3]).replace(/,/g, ''));
                 if (!isNaN(customPrice) && customPrice > 0) {
                     return customPrice;
                 }
-                const marketBuy = parseFloat(row[1]);
+                const marketBuy = parseFloat(String(row[1]).replace(/,/g, ''));
                 if (!isNaN(marketBuy) && marketBuy > 0) {
                     return marketBuy;
                 }

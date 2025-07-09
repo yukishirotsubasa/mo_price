@@ -164,7 +164,9 @@ export class MarketPriceManager {
         const colIndex = parseInt(cellElement.dataset.colIndex);
         let newValue = cellElement.textContent.trim();
 
-        const parsedValue = parseFloat(newValue);
+        // 移除千分位符號後再解析
+        const cleanedValue = newValue.replace(/,/g, '');
+        const parsedValue = parseFloat(cleanedValue);
         if (isNaN(parsedValue)) {
             cellElement.textContent = dataToUpdate[rowIndex][colIndex];
             return;

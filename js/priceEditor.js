@@ -92,9 +92,10 @@ export async function initPriceEditor() {
     function savePriceData() {
         // 過濾掉所有價格都為 0 或空的項目
         const filteredData = priceData.filter(item => {
-            const marketBuy = parseFloat(item[1]) || 0;
-            const marketSell = parseFloat(item[2]) || 0;
-            const customPrice = parseFloat(item[3]) || 0;
+            // 移除千分位符號後再解析
+            const marketBuy = parseFloat(String(item[1]).replace(/,/g, '')) || 0;
+            const marketSell = parseFloat(String(item[2]).replace(/,/g, '')) || 0;
+            const customPrice = parseFloat(String(item[3]).replace(/,/g, '')) || 0;
             return marketBuy !== 0 || marketSell !== 0 || customPrice !== 0;
         });
         localStorage.setItem('price_data', JSON.stringify(filteredData));
@@ -139,8 +140,9 @@ export async function initPriceEditor() {
                     itemPrice = [itemId, 0, 0, 0];
                     priceData.push(itemPrice);
                 }
-                // 更新價格，若輸入無效則視為 0
-                itemPrice[priceType] = parseFloat(value) || 0;
+                // 移除千分位符號後再解析，若輸入無效則視為 0
+                const cleanedValue = value.replace(/,/g, '');
+                itemPrice[priceType] = parseFloat(cleanedValue) || 0;
                 
                 savePriceData();
             });
