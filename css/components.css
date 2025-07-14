@@ -826,6 +826,55 @@ td[contenteditable="true"]:focus {
     color: #ef4444;
 }
 
+/* Params 比較樣式 */
+.params-comparison {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.old-params, .new-params {
+    flex: 1;
+    min-width: 300px;
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: var(--spacing-sm);
+}
+
+.old-params {
+    border-left: 4px solid #ef4444;
+}
+
+.new-params {
+    border-left: 4px solid #22c55e;
+}
+
+.params-comparison pre {
+    margin: var(--spacing-xs) 0 0 0;
+    padding: var(--spacing-sm);
+    background-color: var(--hover-color);
+    border-radius: var(--border-radius-sm);
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.params-comparison .old-value {
+    background-color: #fee2e2;
+    border: 1px solid #fecaca;
+}
+
+.params-comparison .new-value {
+    background-color: #dcfce7;
+    border: 1px solid #bbf7d0;
+}
+
 /* Modal 樣式 */
 .modal {
     position: fixed;

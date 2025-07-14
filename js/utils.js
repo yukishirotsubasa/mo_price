@@ -235,11 +235,11 @@ export function generateTableHTML(headerKeys, data, rowMapper, translateFunction
 
 /**
  * 比較兩個版本的數據物件，找出新增、刪除和修改的條目。
- * 假設每個物件都有一個唯一的 ID 屬性（例如 'id' 或 'name'）。
+ * 僅針對 item_base[].name (string內容) 和 item_base[].params (object內容) 進行比較。
  *
  * @param {Array<Object>} dataA - 版本 A 的數據陣列。
  * @param {Array<Object>} dataB - 版本 B 的數據陣列。
- * @param {string} idKey - 用於識別唯一條目的屬性名稱（例如 'id' 或 'name'）。
+ * @param {string} idKey - 用於識別唯一條目的屬性名稱（例如 'b_i'）。
  * @returns {Object} - 包含 added, removed, modified 陣列的結果物件。
  */
 export function compareData(dataA, dataB, idKey) {
@@ -258,36 +258,32 @@ export function compareData(dataA, dataB, idKey) {
             result.added.push(itemB);
         } else {
             const itemA = mapA.get(id);
-            // 比較內容是否不同
-            if (JSON.stringify(itemA) !== JSON.stringify(itemB)) {
-                const changes = {};
-                let hasChanges = false;
-                for (const key in itemB) {
-                    if (itemB.hasOwnProperty(key)) {
-                        if (!itemA.hasOwnProperty(key)) {
-                            changes[key] = { old: undefined, new: itemB[key] };
-                            hasChanges = true;
-                        } else if (itemA[key] !== itemB[key]) {
-                            changes[key] = { old: itemA[key], new: itemB[key] };
-                            hasChanges = true;
-                        }
-                    }
-                }
-                // 檢查是否有屬性在 A 中但不在 B 中 (表示屬性被刪除)
-                for (const key in itemA) {
-                    if (itemA.hasOwnProperty(key) && !itemB.hasOwnProperty(key)) {
-                        changes[key] = { old: itemA[key], new: undefined };
-                        hasChanges = true;
-                    }
-                }
-                if (hasChanges) {
-                    result.modified.push({
-                        id: id,
-                        itemA: itemA,
-                        itemB: itemB,
-                        changes: changes
-                    });
-                }
+            
+            // 僅比較 name 和 params 屬性
+            const changes = {};
+            let hasChanges = false;
+            
+            // 比較 name 屬性 (string內容)
+            if (itemA.name !== itemB.name) {
+                changes.name = { old: itemA.name, new: itemB.name };
+                hasChanges = true;
+            }
+            
+            // 比較 params 屬性 (object內容)
+            const paramsAStr = JSON.stringify(itemA.params || {});
+            const paramsBStr = JSON.stringify(itemB.params || {});
+            if (paramsAStr !== paramsBStr) {
+                changes.params = { old: itemA.params, new: itemB.params };
+                hasChanges = true;
+            }
+            
+            if (hasChanges) {
+                result.modified.push({
+                    id: id,
+                    itemA: itemA,
+                    itemB: itemB,
+                    changes: changes
+                });
             }
         }
     }

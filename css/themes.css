@@ -241,6 +241,39 @@
     color: #f87171;
 }
 
+/* 暗色主題下的 Params 比較樣式 */
+[data-theme="dark"] .params-comparison .old-params,
+[data-theme="dark"] .params-comparison .new-params {
+    background-color: #2a2a2a;
+    border-color: #444;
+}
+
+[data-theme="dark"] .params-comparison .old-params {
+    border-left: 4px solid #f87171;
+}
+
+[data-theme="dark"] .params-comparison .new-params {
+    border-left: 4px solid #4ade80;
+}
+
+[data-theme="dark"] .params-comparison pre {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+    border: 1px solid #444;
+}
+
+[data-theme="dark"] .params-comparison .old-value {
+    background-color: #2d1b1b;
+    border: 1px solid #5c2626;
+    color: #f87171;
+}
+
+[data-theme="dark"] .params-comparison .new-value {
+    background-color: #1b2d1b;
+    border: 1px solid #265c26;
+    color: #4ade80;
+}
+
 [data-theme="dark"] .card {
     border: 1px solid var(--border-color);
 }

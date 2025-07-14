@@ -160,16 +160,22 @@ export class VersionComparisonManager {
                             <ul class="comparison-list">`;
             results.modified.forEach(modItem => {
                 html += `<li>
-                            ${i18n.translate('Id')}: ${modItem.id}, ${i18n.translate('Name')}: ${modItem.itemB.name || modItem.itemA.name || 'N/A'}
+                            ${i18n.translate('Id')}: ${modItem.id}, ${i18n.translate('Name')}: ${i18n.translate(modItem.itemB.name || modItem.itemA.name || 'N/A')}
                             <div class="modified-details">`;
                 for (const key in modItem.changes) {
                     const change = modItem.changes[key];
-                    if (change.old === undefined) {
-                        html += `<span>${i18n.translate('attribute', key)}: <span class="new-value">${i18n.translate('added', JSON.stringify(change.new))}</span></span>`;
-                    } else if (change.new === undefined) {
-                        html += `<span>${i18n.translate('attribute', key)}: <span class="old-value">${i18n.translate('removed', JSON.stringify(change.old))}</span></span>`;
-                    } else {
-                        html += `<span>${i18n.translate('attribute', key)}: <span class="old-value">${JSON.stringify(change.old)}</span> &rarr; <span class="new-value">${JSON.stringify(change.new)}</span></span>`;
+                    if (key === 'name') {
+                        // 對於 name 屬性，直接顯示字串內容
+                        html += `<div><strong>${i18n.translate('Name')}:</strong> <span class="old-value">${change.old || 'N/A'}</span> &rarr; <span class="new-value">${change.new || 'N/A'}</span></div>`;
+                    } else if (key === 'params') {
+                        // 對於 params 屬性，格式化顯示 object 內容
+                        const oldParams = change.old ? JSON.stringify(change.old, null, 2) : 'N/A';
+                        const newParams = change.new ? JSON.stringify(change.new, null, 2) : 'N/A';
+                        html += `<div><strong>Params:</strong></div>`;
+                        html += `<div class="params-comparison">`;
+                        html += `<div class="old-params"><strong>${i18n.translate('version') + " old"}:</strong><pre class="old-value">${oldParams}</pre></div>`;
+                        html += `<div class="new-params"><strong>${i18n.translate('version') + " new"}:</strong><pre class="new-value">${newParams}</pre></div>`;
+                        html += `</div>`;
                     }
                 }
                 html += `</div></li>`;
