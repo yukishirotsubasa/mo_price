@@ -15,9 +15,34 @@ let _monsterBook = null; // 新增 _monsterBook 變數
 let _fletchingFormulas = null;
 let _arrowMaterialImg = null;
 
+/**
+ * 從 versions.json 獲取最新版本的檔案路徑
+ * @returns {Promise<string>} - 最新版本的 JS 檔案路徑
+ */
+async function getLatestVersionFilePath() {
+    try {
+        const response = await fetch('config/versions.json');
+        if (!response.ok) {
+            throw new Error(`無法載入 versions.json: ${response.status}`);
+        }
+        const versions = await response.json();
+        
+        // 找到最新的版本號（最大的數字鍵）
+        const versionNumbers = Object.keys(versions).map(Number).sort((a, b) => b - a);
+        const latestVersionNumber = versionNumbers[0];
+        const latestVersionDate = versions[latestVersionNumber];
+        
+        return `releaseJs/release_${latestVersionDate}.js`;
+    } catch (error) {
+        console.error('獲取最新版本失敗，使用預設版本:', error);
+        // 如果獲取失敗，回退到硬編碼的最新版本
+        return 'releaseJs/release_2025_0417.js';
+    }
+}
+
 export function loadData() {
     return new Promise(async (resolve, reject) => {
-        const jsFilePath = 'releaseJs/release_2025_0417.js'; // 主要的 JS 檔案路徑
+        const jsFilePath = await getLatestVersionFilePath(); // 動態獲取最新版本的 JS 檔案路徑
 
         try {
             // 載入所有需要的變數
