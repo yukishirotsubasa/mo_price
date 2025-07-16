@@ -62,8 +62,7 @@ export async function initPriceEditor() {
             }
         });
 
-        // 從 localStorage 載入現有價格資料
-        loadPriceData();
+        // 初始化時不載入價格資料，等到搜尋時才載入
     } catch (error) {
         console.error('Error during price editor initialization:', error);
         return;
@@ -182,6 +181,9 @@ export async function initPriceEditor() {
         const searchTerm = searchInput.value.trim().toLowerCase();
         if (!searchTerm) return;
 
+        // 搜尋時才從 localStorage 載入最新的價格資料
+        loadPriceData();
+
         editArea.innerHTML = ''; // 清空先前的搜尋結果
         const searchResults = new Map(); // 使用 Map 避免重複
 
@@ -253,6 +255,9 @@ export async function initPriceEditor() {
         if (!searchTerm) {
             return;
         }
+
+        // 搜尋時才從 localStorage 載入最新的價格資料
+        loadPriceData();
 
         editArea.innerHTML = ''; // 清空先前的搜尋結果
         let searchResults = [];
@@ -328,7 +333,7 @@ export async function initPriceEditor() {
     refreshButton.addEventListener('click', () => {
         // 從 localStorage 重新載入最新的 price_data
         loadPriceData();
-        // 呼叫 MarketPriceManager 中的 renderMarketDataTable 來刷新下方的預覽表格
+        // 更新預覽表格的顯示
         if (window.marketPriceManager) {
             window.marketPriceManager.currentMarketPricesData = priceData;
             window.marketPriceManager.renderMarketDataTable(priceData);
