@@ -11,6 +11,7 @@ import { generateEnchantingChancesTable } from '../tableGenerators/enchantingCha
 import { generateImageSheetTable } from '../tableGenerators/imageSheetTable.js';
 import { generateMonsterWorthTable } from '../tableGenerators/monsterWorth.js';
 import { generateMonsterBookTable } from '../tableGenerators/monsterBookTable.js';
+import { generateMonsterBookDebuffTable } from '../tableGenerators/monsterBookDebuffTable.js';
 import openItemTable from '../tableGenerators/openItemTable.js';
 import { generateKeyWorthTable } from '../tableGenerators/keyWorth.js';
 import { generateRareKeyWorthTable } from '../tableGenerators/rareKeyWorth.js';
@@ -107,6 +108,11 @@ export class PageRenderer {
                     containerId = 'monster-book-table-container';
                     generateFunction = generateMonsterBookTable;
                     args = [containerId, monsterBook, npcBase, itemBase, generateTableHTML, createItemNameMap, fletchingFormulas, arrowMaterialImg];
+                    break;
+                case 'monster-book-debuff': // MonsterBook Debuff 資料
+                    containerId = 'monster-book-debuff-table-container';
+                    generateFunction = generateMonsterBookDebuffTable;
+                    args = [containerId, monsterBook, itemBase, generateTableHTML, createItemNameMap, fletchingFormulas, arrowMaterialImg];
                     break;
                 case 'monster-worth-page': // 怪物價值
                     containerId = 'monster-worth-table-container';

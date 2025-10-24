@@ -114,6 +114,49 @@
     background-color: var(--hover-color);
 }
 
+/* Monster Book Debuff 樣式 */
+.monster-book-debuff-container {
+    padding: 20px;
+}
+
+.debuff-section {
+    margin-bottom: 30px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #f9f9f9;
+}
+
+.debuff-section h3 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1.2em;
+    text-transform: capitalize;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 5px;
+}
+
+.debuff-section table {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.debuff-section th {
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    text-align: left;
+}
+
+.debuff-section td {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+.debuff-section tr:hover {
+    background-color: #f5f5f5;
+}
+
 /* 統一按鈕組件 - 覆蓋所有按鈕樣式 */
 .btn,
 button,

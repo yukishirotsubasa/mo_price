@@ -50,5 +50,7 @@
     "select monster": "選擇怪物",
     "select csv file": "選擇 CSV 檔案",
     "set" : "組合",
-    "version": "版本"
+    "version": "版本",
+    "monster_book_scrolls_data_not_loaded": "怪物書卷軸數據未載入",
+    "item data not loaded": "物品數據未載入"
 }

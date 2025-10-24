@@ -1,5 +1,26 @@
 /* css/themes.css - 主題樣式 (亮色/暗色主題) */
 
+/* Monster Book Debuff 黑暗模式樣式 */
+[data-theme="dark"] .debuff-section {
+    background-color: var(--surface-color);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .debuff-section h3 {
+    color: var(--text-color);
+    border-bottom-color: var(--primary-color);
+}
+
+[data-theme="dark"] .debuff-section tr:hover {
+    background-color: var(--hover-color);
+}
+
+[data-theme="dark"] .debuff-section td {
+    border-bottom-color: var(--border-color);
+    color: var(--text-color);
+}
+
 /* 主題切換按鈕 */
 .theme-toggle {
     position: relative;
