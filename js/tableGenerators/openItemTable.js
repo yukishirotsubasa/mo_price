@@ -1,7 +1,7 @@
 import { getItemDisplayContent } from '../utils.js'; // 導入新的顯示函數
 
 export default (() => {
-    const itemIdsToFilter = [1396, 3853, 3854, 3849, 2030, 2031, 2032, 3333, 4129, 4130, 4131];
+    const itemIdsToFilter = [1396, 3853, 3854, 3849, 2030, 2031, 2032, 3333, 4129, 4130, 4131, 5401];
     let currentItemBase = {};
     let currentI18n = null;
     let currentUtils = null;
