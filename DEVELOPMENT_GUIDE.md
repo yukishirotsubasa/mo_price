@@ -33,6 +33,8 @@ MO Price/
 ├── js/                     # JavaScript 模組
 ├── views/                  # 說明頁面
 ├── releaseJs/              # ❌ 禁止修改
+├── sheet/                  # 圖片產生物，不進 git（python fetch_sheet.py 重抓）
+├── .github/workflows/      # Pages 部署 + 手動更新 release 資料
 ├── CODING_STANDARDS.md     # 代碼規範
 ├── DEVELOPMENT_GUIDE.md    # 本指南
 └── PROJECT_REFACTORING_PLAN.md # 重構計畫
@@ -181,6 +183,13 @@ git diff
 git diff --name-only | grep releaseJs
 # 應該沒有輸出
 ```
+
+#### 5.1.1 更新遊戲資料（release.js）
+不需再手動下載 / 拖曳腳本：GitHub → Actions → **Update release data** → Run workflow。
+- `date` 留空則用台北當天日期命名 `releaseJs/release_YYYY_MMDD.js`
+- 遠端無新版本時不會產生 commit
+- 完成後自動接著跑 **Deploy Pages**；圖片在部署階段由 `fetch_sheet.py` 下載進 artifact，不進 repo
+- 本機開發需要圖片時執行 `python fetch_sheet.py`
 
 #### 5.2 提交訊息格式
 ```

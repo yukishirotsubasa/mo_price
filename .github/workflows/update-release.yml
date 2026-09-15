@@ -1,0 +1,49 @@
+name: Update release data
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "檔名日期 YYYY_MMDD（留空 = 台北今天）"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency: update-release
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    outputs:
+      updated: ${{ steps.upd.outputs.updated }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install requests
+
+      - id: upd
+        run: python update_release.py ${{ inputs.date != '' && format('--date {0}', inputs.date) || '' }}
+
+      - if: steps.upd.outputs.updated == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add releaseJs config/versions.json
+          git commit -m "更新資料 ${{ steps.upd.outputs.version }} (${{ steps.upd.outputs.date }})"
+          git push
+
+  # GITHUB_TOKEN 的 push 不會觸發 on: push，所以直接接著部署
+  deploy:
+    needs: update
+    if: needs.update.outputs.updated == 'true'
+    uses: ./.github/workflows/deploy.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write

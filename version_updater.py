@@ -58,7 +58,9 @@ def update_versions_json(version: str, date_str: str, root: Path) -> None:
     data[version] = date_str
     # 使用版本號數值排序
     sorted_data = dict(sorted(data.items(), key=lambda x: int(x[0])))
-    jpath.write_text(json.dumps(sorted_data, ensure_ascii=False, indent=2), encoding="utf-8")
+    # 固定 LF，避免 Windows / CI 交替執行造成整檔換行差異
+    with open(jpath, "w", encoding="utf-8", newline="\n") as f:
+        f.write(json.dumps(sorted_data, ensure_ascii=False, indent=2))
     print(f"已更新 {jpath}")
 
 
@@ -97,7 +99,9 @@ def main():
         except Exception as e:
             print(f"{js_file} 處理失敗: {e}")
 
-    input("按 Enter 鍵結束...")
+    # CI（GitHub Actions 會設 CI=true）或無互動終端時不等待
+    if sys.stdin.isatty() and not os.environ.get("CI"):
+        input("按 Enter 鍵結束...")
 
 
 if __name__ == "__main__":
