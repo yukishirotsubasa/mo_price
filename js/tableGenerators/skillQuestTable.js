@@ -92,7 +92,7 @@ function createSkillQuestTable(skillQuest, itemBase, generateTableHTML, currentD
         
         // Get item names
         const questItemName = getItemDisplayContent(quest.item_id, itemBase, i18n.translate, 'image', imageSheet, allData?.fletchingFormulas, allData?.arrowMaterialImg);
-        const rewardItemId = quest.item_id || null;
+        const rewardItemId = quest.reward_item || null;
         const rewardItemName = rewardItemId ? getItemDisplayContent(rewardItemId, itemBase, i18n.translate, 'image', imageSheet, allData?.fletchingFormulas, allData?.arrowMaterialImg) : i18n.translate('none');
         
         return [
