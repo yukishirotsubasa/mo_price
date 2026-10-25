@@ -79,20 +79,20 @@ function createSkillQuestTable(skillQuest, itemBase, generateTableHTML, currentD
     const rowMapper = (quest, index) => {
         // Get multipliers based on difficulty
         const itemMultiplier = getMultiplier(skillQuest.ITEM_MULTIPLIER, currentDifficulty);
-        const expMultiplier = getMultiplier(skillQuest.EXP_MULTIPLIER, currentDifficulty);
-        const coinsMultiplier = getMultiplier(skillQuest.COINS_MULTIPLIER, currentDifficulty);
-        const mosMultiplier = getMultiplier(skillQuest.MOS_MULTIPLIER, currentDifficulty);
+        // const expMultiplier = getMultiplier(skillQuest.EXP_MULTIPLIER, currentDifficulty);
+        // const coinsMultiplier = getMultiplier(skillQuest.COINS_MULTIPLIER, currentDifficulty);
+        // const mosMultiplier = getMultiplier(skillQuest.MOS_MULTIPLIER, currentDifficulty);
         
         
         // Calculate values
         const amount = quest.amount * itemMultiplier;
-        const exp = quest.reward && quest.reward[0] ? quest.reward[0] * expMultiplier : 0;
-        const coins = quest.reward && quest.reward[1] ? quest.reward[1] * coinsMultiplier : 0;
-        const mos = quest.reward && quest.reward[2] ? quest.reward[2] * mosMultiplier : 0;
+        // const exp = quest.reward && quest.reward[0] ? quest.reward[0] * expMultiplier : 0;
+        // const coins = quest.reward && quest.reward[1] ? quest.reward[1] * coinsMultiplier : 0;
+        // const mos = quest.reward && quest.reward[2] ? quest.reward[2] * mosMultiplier : 0;
         
         // Get item names
         const questItemName = getItemDisplayContent(quest.item_id, itemBase, i18n.translate, 'image', imageSheet, allData?.fletchingFormulas, allData?.arrowMaterialImg);
-        const rewardItemId = quest.reward && quest.reward[3] ? quest.reward[3] : null;
+        const rewardItemId = quest.item_id || null;
         const rewardItemName = rewardItemId ? getItemDisplayContent(rewardItemId, itemBase, i18n.translate, 'image', imageSheet, allData?.fletchingFormulas, allData?.arrowMaterialImg) : i18n.translate('none');
         
         return [
@@ -101,11 +101,11 @@ function createSkillQuestTable(skillQuest, itemBase, generateTableHTML, currentD
             quest.min_qp,
             questItemName,
             Math.round(amount),
-            Math.round(exp),
-            Math.round(coins),
-            Math.round(mos),
+            '', // exp
+            '', // coins
+            '', // mos
             rewardItemName,
-            quest.qp
+            '' // quest point
         ];
     };
     
